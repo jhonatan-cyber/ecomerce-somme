@@ -4,15 +4,18 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { useCartStore } from "@/lib/store/cart-store"
 import type { Product } from "@/lib/types"
-import { ShoppingCart } from "lucide-react"
+import { ShoppingCart, Camera, Eye, Wifi, Shield } from "lucide-react"
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
+import { useState } from "react"
 
 interface ProductCardProps {
   product: Product
+  onCompareToggle?: (productId: string) => void
+  isComparing?: boolean
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, onCompareToggle, isComparing = false }: ProductCardProps) {
   const addItem = useCartStore((state) => state.addItem)
   const { toast } = useToast()
 
@@ -23,59 +26,102 @@ export function ProductCard({ product }: ProductCardProps) {
         description: "Este producto no está disponible",
         variant: "destructive",
       })
-      return
+    } else {
+      addItem(product)
+      toast({
+        title: "Producto añadido",
+        description: `${product.name} ha sido añadido al carrito`,
+      })
     }
+  }
 
-    addItem(product)
-    toast({
-      title: "Producto agregado",
-      description: `${product.name} se agregó al carrito`,
-    })
+  const handleCompareToggle = () => {
+    onCompareToggle?.(product.id)
   }
 
   return (
-    <Card className="group overflow-hidden hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 border-2 hover:border-primary/50">
-      <div className="relative aspect-square bg-gradient-to-br from-muted to-muted/50 overflow-hidden">
-        <Image
-          src={product.image_url || "/placeholder.svg?height=400&width=400&query=product"}
-          alt={product.name}
-          fill
-          className="object-cover group-hover:scale-110 transition-transform duration-500"
-        />
-        {product.stock <= 0 && (
-          <div className="absolute inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm">
-            <span className="text-white font-bold text-lg bg-destructive px-4 py-2 rounded-lg">Sin Stock</span>
+    <Card className="group hover:shadow-lg transition-all duration-300 border-camera-border hover:border-camera-accent/30">
+      <CardContent className="p-4">
+        <div className="relative aspect-square mb-4 overflow-hidden rounded-lg bg-muted">
+          {product.image_url ? (
+            <Image
+              src={product.image_url}
+              alt={product.name}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Camera className="h-12 w-12 text-muted-foreground" />
+            </div>
+          )}
+        </div>
+        
+        <div className="mb-3">
+          <div className="flex items-start justify-between mb-2">
+            <h3 className="font-semibold text-lg line-clamp-1 text-camera-charcoal">{product.name}</h3>
+            <button
+              onClick={handleCompareToggle}
+              className={`p-2 rounded-lg border transition-colors ${
+                isComparing 
+                  ? 'bg-camera-accent text-white border-camera-accent' 
+                  : 'bg-card text-muted-foreground border-camera-border hover:border-camera-accent/50'
+              }`}
+            >
+              <Eye className="h-4 w-4" />
+            </button>
           </div>
-        )}
-        {product.category && (
-          <div className="absolute top-3 left-3">
-            <span className="inline-block text-xs font-semibold bg-primary text-primary-foreground px-3 py-1.5 rounded-full shadow-lg">
-              {product.category}
-            </span>
+          
+          {/* Technical Specifications */}
+          <div className="space-y-1 mb-3">
+            {product.resolution && (
+              <div className="flex items-center gap-2 text-sm">
+                <Camera className="h-3 w-3 text-camera-accent" />
+                <span className="text-muted-foreground">Resolución:</span>
+                <span className="font-medium text-camera-charcoal">{product.resolution}</span>
+              </div>
+            )}
+            {product.night_vision && (
+              <div className="flex items-center gap-2 text-sm">
+                <Eye className="h-3 w-3 text-camera-accent" />
+                <span className="text-muted-foreground">Visión nocturna</span>
+                <Shield className="h-3 w-3 text-green-600" />
+              </div>
+            )}
+            {product.weather_resistance && (
+              <div className="flex items-center gap-2 text-sm">
+                <Shield className="h-3 w-3 text-camera-accent" />
+                <span className="text-muted-foreground">Resistencia:</span>
+                <span className="font-medium text-camera-charcoal">{product.weather_resistance}</span>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      <CardContent className="p-5">
-        <h3 className="font-bold text-xl leading-tight line-clamp-2 mb-2 group-hover:text-primary transition-colors">
-          {product.name}
-        </h3>
-        {product.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-3 leading-relaxed">{product.description}</p>
-        )}
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-bold text-primary">${product.price.toFixed(2)}</span>
-          <span className="text-sm text-muted-foreground">MXN</span>
+        </div>
+        
+        <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+          {product.description}
+        </p>
+        
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-2xl font-bold text-camera-accent">
+            ${product.price.toLocaleString()}
+          </span>
+          <span className={`text-sm font-medium ${
+            product.stock > 0 ? 'text-green-600' : 'text-destructive'
+          }`}>
+            {product.stock > 0 ? `${product.stock} unidades` : "Agotado"}
+          </span>
         </div>
       </CardContent>
       <CardFooter className="p-5 pt-0">
         <Button
           onClick={handleAddToCart}
           disabled={product.stock <= 0}
-          className="w-full h-11 font-semibold bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-accent transition-all"
+          className="w-full bg-camera-accent hover:bg-camera-accent/90 text-white"
           size="lg"
         >
-          <ShoppingCart className="mr-2 h-5 w-5" />
-          Agregar al Carrito
+          <ShoppingCart className="mr-2 h-4 w-4" />
+          Añadir al carrito
         </Button>
       </CardFooter>
     </Card>
