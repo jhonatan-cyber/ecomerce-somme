@@ -19,6 +19,71 @@ export interface Product {
   operating_temperature?: string
 }
 
+export interface Category {
+  id: string
+  name: string
+  icon: string | null
+  description: string | null
+  active: boolean
+}
+
+export interface CatalogLoadResult {
+  ok: boolean
+  products: Product[]
+  error: string | null
+  sourceUrl: string
+  status?: number
+}
+
+export interface ProductDetailLoadResult {
+  ok: boolean
+  product: Product | null
+  error: string | null
+  sourceUrl: string
+  status?: number
+}
+
+export interface CategoryLoadResult {
+  ok: boolean
+  categories: Category[]
+  error: string | null
+  sourceUrl: string
+  status?: number
+}
+
+export interface StoreOrderCustomer {
+  name: string | null
+  email: string | null
+  phone: string | null
+  address: string | null
+}
+
+export interface StoreOrderItem {
+  productId: string
+  productName: string
+  productPrice: number
+  quantity: number
+}
+
+export interface StoreOrder {
+  id: string
+  orderId: string
+  customer: StoreOrderCustomer | null
+  items: StoreOrderItem[]
+  total: number | null
+  status: string | null
+  createdAt: string | null
+  updatedAt: string | null
+}
+
+export interface OrderLookupResult {
+  ok: boolean
+  order: StoreOrder | null
+  error: string | null
+  sourceUrl: string
+  status?: number
+}
+
 export interface CartItem extends Product {
   quantity: number
 }

@@ -1,4 +1,4 @@
-import type React from "react"
+﻿import type React from "react"
 import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
@@ -7,9 +7,9 @@ import { Suspense } from "react"
 import "../styles/globals.css"
 
 export const metadata: Metadata = {
-  title: "Tienda Online",
-  description: "Tu tienda online profesional",
-  generator: "v0.app",
+  title: "Somme Thechnologhy",
+  description: "E-commerce moderno de videovigilancia y tecnología de seguridad.",
+  generator: "Next.js",
 }
 
 export default function RootLayout({
