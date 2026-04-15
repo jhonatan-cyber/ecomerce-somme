@@ -48,7 +48,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
               <div>
                 <p className="text-sm font-bold uppercase tracking-[0.24em] text-primary">Número de pedido</p>
                 <p className="mt-2 font-mono text-3xl font-black tracking-tight">#{shortId}</p>
-                <p className="mt-4 text-sm leading-6 text-muted-foreground">Vas a recibir un email con el detalle y el próximo paso. Si corresponde instalación o coordinación, el equipo de Somme Thechnologhy se contacta con vos.</p>
+                <p className="mt-4 text-sm leading-6 text-muted-foreground">Vas a recibir un email con el detalle y el proximo paso. Si corresponde instalacion o coordinacion, el equipo de Somme Technology se contacta con vos.</p>
                 <div className="mt-6 grid gap-3 md:grid-cols-2">
                   <div className="rounded-2xl border bg-muted/60 p-4 text-sm"><p className="inline-flex items-center gap-2 font-semibold"><ShieldCheck className="h-4 w-4 text-primary" /> Confirmación segura</p><p className="mt-2 text-muted-foreground">Pedido registrado y listo para seguimiento.</p></div>
                   <div className="rounded-2xl border bg-muted/60 p-4 text-sm"><p className="inline-flex items-center gap-2 font-semibold"><Truck className="h-4 w-4 text-primary" /> Próximo paso</p><p className="mt-2 text-muted-foreground">Coordinación de despacho y contacto postventa.</p></div>

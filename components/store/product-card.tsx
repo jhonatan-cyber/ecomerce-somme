@@ -1,164 +1,124 @@
-﻿"use client"
-
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { useCartStore } from "@/lib/store/cart-store"
-import type { Product } from "@/lib/types"
-import { ArrowRight, Camera, Eye, Shield, ShoppingCart, Wifi, CheckCircle2 } from "lucide-react"
 import Image from "next/image"
-import { useToast } from "@/hooks/use-toast"
+import { Camera, Images, Shield } from "lucide-react"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import type { Product } from "@/lib/types"
+import { ProductCardActions } from "@/components/store/product-card-actions"
 
 interface ProductCardProps {
   product: Product
-  onCompareToggle?: (productId: string) => void
-  isComparing?: boolean
 }
 
-export function ProductCard({ product, onCompareToggle, isComparing = false }: ProductCardProps) {
-  const addItem = useCartStore((state) => state.addItem)
-  const { toast } = useToast()
+function getProductImages(product: Product) {
+  const values = [product.image_url, ...(product.images ?? [])]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => value.trim())
+    .filter(Boolean)
 
-  const handleAddToCart = () => {
-    if (product.stock <= 0) {
-      toast({
-        title: "Sin stock",
-        description: "Este producto no está disponible en este momento.",
-        variant: "destructive",
-      })
-      return
-    }
+  return Array.from(new Set(values))
+}
 
-    addItem(product)
-    toast({
-      title: "Producto añadido",
-      description: `${product.name} fue agregado al carrito.`,
-    })
-  }
-
-  const handleCompareToggle = () => {
-    onCompareToggle?.(product.id)
-  }
-
-  const hasConnectivity = Array.isArray(product.connectivity) && product.connectivity.length > 0
+export function ProductCard({ product }: ProductCardProps) {
+  const productImages = getProductImages(product)
+  const mainImage = productImages[0] ?? null
+  const previewImages = productImages.slice(0, 3)
 
   return (
-    <Card className="group overflow-hidden rounded-3xl border-border/70 bg-card/95 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10">
+    <Card className="group overflow-hidden rounded-[1.35rem] border-border/70 bg-card shadow-[0_18px_50px_-35px_rgba(15,23,42,0.45)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-[0_24px_60px_-35px_rgba(29,78,216,0.28)]">
       <CardContent className="p-0">
-        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-          {product.image_url ? (
-            <Image
-              src={product.image_url}
-              alt={product.name}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-              <Camera className="h-14 w-14 text-muted-foreground" />
+        <Link href={`/product/${encodeURIComponent(product.id)}`} className="block">
+          <div className="relative aspect-square overflow-hidden bg-[linear-gradient(180deg,#f6f9ff_0%,#edf3ff_100%)] dark:bg-[linear-gradient(180deg,rgba(30,41,59,1)_0%,rgba(15,23,42,1)_100%)]">
+            {mainImage ? (
+              <Image
+                src={mainImage}
+                alt={product.name}
+                fill
+                sizes="(min-width: 1536px) 18vw, (min-width: 1280px) 22vw, (min-width: 1024px) 28vw, (min-width: 640px) 38vw, 92vw"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                unoptimized
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 via-slate-50 to-cyan-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+                <Camera className="h-12 w-12 text-slate-400" />
+              </div>
+            )}
+
+            <div className="absolute inset-x-0 top-0 flex items-start justify-between p-3">
+              {/* Brand Logo */}
+              {product.brandLogo ? (
+                <div className="h-6 w-auto overflow-hidden rounded-md border border-white/20 bg-white/90 px-1.5 py-0.5">
+                  <Image
+                    src={product.brandLogo}
+                    alt={product.brand || "Marca"}
+                    width={40}
+                    height={20}
+                    className="h-full w-auto object-contain"
+                    unoptimized
+                  />
+                </div>
+              ) : product.brand ? (
+                <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-slate-950/75 px-2 py-0.5 text-[9px] font-semibold text-white backdrop-blur">
+                  <Shield className="h-2.5 w-2.5" />
+                  {product.brand}
+                </span>
+              ) : (
+                <span className="max-w-[75%] truncate rounded-full border border-white/20 bg-slate-950/75 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white backdrop-blur">
+                  {product.category || "Videovigilancia"}
+                </span>
+              )}
+              {productImages.length > 1 ? (
+                <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-slate-950/75 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
+                  <Images className="h-3 w-3" />
+                  {productImages.length}
+                </span>
+              ) : null}
             </div>
-          )}
-
-          <div className="absolute inset-x-0 top-0 flex items-start justify-between p-4">
-            <span className="rounded-full border border-white/20 bg-slate-950/70 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
-              {product.category || "Videovigilancia"}
-            </span>
-            <button
-              type="button"
-              onClick={handleCompareToggle}
-              className={`rounded-2xl border p-2.5 backdrop-blur transition ${
-                isComparing
-                  ? "border-primary bg-primary text-primary-foreground shadow-lg"
-                  : "border-white/20 bg-white/85 text-slate-700 hover:border-primary/40 hover:text-primary"
-              }`}
-              aria-label="Comparar producto"
-            >
-              <Eye className="h-4 w-4" />
-            </button>
           </div>
+        </Link>
 
-          <div className="absolute inset-x-0 bottom-0 p-4">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-900 shadow-sm">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-              {product.stock > 0 ? `${product.stock} disponibles` : "Agotado"}
-            </div>
+        {previewImages.length > 1 ? (
+          <div className="flex gap-2 border-t border-border/60 bg-background/70 px-3 py-2">
+            {previewImages.map((image, index) => (
+              <div
+                key={`${product.id}-${index}`}
+                className="relative h-10 w-10 overflow-hidden rounded-md border border-border/60"
+              >
+                <Image
+                  src={image}
+                  alt={`${product.name} ${index + 1}`}
+                  fill
+                  sizes="40px"
+                  className="object-cover"
+                  unoptimized
+                />
+              </div>
+            ))}
           </div>
-        </div>
+        ) : null}
 
-        <div className="space-y-5 p-5">
-          <div>
+        <div className="space-y-3 px-4 py-3">
+          <div className="space-y-2">
             <Link href={`/product/${encodeURIComponent(product.id)}`} className="block">
-              <h3 className="line-clamp-2 text-xl font-bold tracking-tight text-slate-900">{product.name}</h3>
-              <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
-                {product.description || "Solución de videovigilancia pensada para instalaciones seguras y escalables."}
-              </p>
+              <h3 className="line-clamp-2 text-sm font-bold leading-5 text-foreground transition group-hover:text-primary">
+                {product.name}
+              </h3>
             </Link>
-          </div>
-
-          <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-            {product.resolution && (
-              <div className="flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-2">
-                <Camera className="h-4 w-4 text-primary" />
-                <span className="text-muted-foreground">Resolución:</span>
-                <span className="font-semibold text-slate-900">{product.resolution}</span>
-              </div>
-            )}
-
-            {product.night_vision && (
-              <div className="flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-2">
-                <Eye className="h-4 w-4 text-primary" />
-                <span className="font-semibold text-slate-900">Visión nocturna</span>
-              </div>
-            )}
-
-            {product.weather_resistance && (
-              <div className="flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-2">
-                <Shield className="h-4 w-4 text-primary" />
-                <span className="text-muted-foreground">Resistencia:</span>
-                <span className="font-semibold text-slate-900">{product.weather_resistance}</span>
-              </div>
-            )}
-
-            {hasConnectivity && (
-              <div className="flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-2">
-                <Wifi className="h-4 w-4 text-primary" />
-                <span className="font-semibold text-slate-900">{product.connectivity?.join(", ")}</span>
-              </div>
-            )}
-          </div>
-
-          <Link
-            href={`/product/${encodeURIComponent(product.id)}`}
-            className="inline-flex items-center gap-1 text-sm font-semibold text-primary transition hover:text-primary/80"
-          >
-            Ver detalle
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-
-          <div className="flex items-end justify-between gap-4 border-t border-border/60 pt-4">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Precio</p>
-              <p className="mt-1 text-3xl font-black tracking-tight text-slate-900">
-                ${product.price.toLocaleString()}
-              </p>
-            </div>
-            <p className={`text-sm font-semibold ${product.stock > 0 ? "text-emerald-600" : "text-destructive"}`}>
-              {product.stock > 0 ? "Listo para comprar" : "Sin stock"}
+            <p className="text-2xl font-black tracking-tight text-foreground">
+              ${product.price.toLocaleString()}
             </p>
           </div>
         </div>
       </CardContent>
 
-      <CardFooter className="p-5 pt-0">
-        <Button
-          onClick={handleAddToCart}
-          disabled={product.stock <= 0}
-          className="h-12 w-full rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90"
-          size="lg"
+      <CardFooter className="flex items-center justify-between gap-2 border-t border-border/60 px-4 py-3">
+        <Link
+          href={`/product/${encodeURIComponent(product.id)}`}
+          className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground transition hover:text-primary"
         >
-          <ShoppingCart className="mr-2 h-4 w-4" />
-          {product.stock > 0 ? "Añadir al carrito" : "No disponible"}
-        </Button>
+          Ver ficha
+        </Link>
+
+        <ProductCardActions product={product} />
       </CardFooter>
     </Card>
   )

@@ -1,4 +1,5 @@
 import type {
+  Brand,
   CatalogLoadResult,
   Category,
   CategoryLoadResult,
@@ -12,10 +13,29 @@ import type {
   StoreOrderItem,
 } from "./types"
 
-const STORE_API_ROOT =
-  process.env.NEXT_PUBLIC_STORE_API_URL?.trim() ||
-  process.env.NEXT_PUBLIC_API_URL?.trim() ||
-  "/api/store"
+export type { BrandLoadResult } from "./types"
+
+function resolveStoreApiRoot() {
+  const explicitStoreRoot = process.env.NEXT_PUBLIC_STORE_API_URL?.trim()
+  if (explicitStoreRoot) {
+    return explicitStoreRoot
+  }
+
+  const apiRoot = process.env.NEXT_PUBLIC_API_URL?.trim()
+  if (apiRoot) {
+    const normalizedApiRoot = apiRoot.replace(/\/$/, "")
+
+    if (normalizedApiRoot.endsWith("/store")) {
+      return normalizedApiRoot
+    }
+
+    return `${normalizedApiRoot}/store`
+  }
+
+  return "/api/store"
+}
+
+const STORE_API_ROOT = resolveStoreApiRoot()
 
 function joinApiUrl(path: string) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`
@@ -136,14 +156,19 @@ function normalizeProductRecord(rawProduct: unknown): Product | null {
     return null
   }
 
-  return {
+return {
     id,
     name,
     description: toText(rawProduct.description),
     price,
     image_url: toText(rawProduct.image_url ?? rawProduct.imageUrl ?? rawProduct.photo ?? rawProduct.image),
+    images: toTextArray(rawProduct.images ?? rawProduct.photos),
     stock,
     category: getCategory(rawProduct.category) ?? toText(rawProduct.categoryName ?? rawProduct.category_name),
+    categoryId: toText(rawProduct.categoryId ?? rawProduct.category_id) ?? null,
+    brandId: toText(rawProduct.brandId ?? rawProduct.brand_id) ?? null,
+    brand: toText(rawProduct.brand ?? rawProduct.brandName ?? rawProduct.brand_name),
+    brandLogo: toText(rawProduct.brandLogo ?? rawProduct.brand_image) ?? null,
     resolution: toText(rawProduct.resolution),
     night_vision: toBoolean(rawProduct.night_vision ?? rawProduct.nightVision),
     weather_resistance: toText(rawProduct.weather_resistance ?? rawProduct.weatherResistance),
@@ -179,6 +204,27 @@ function normalizeCategory(rawCategory: unknown): Category | null {
     icon: toText(rawCategory.icon),
     description: toText(rawCategory.description),
     active: toBoolean(rawCategory.active ?? rawCategory.is_active ?? rawCategory.isActive ?? rawCategory.enabled) ?? true,
+    parentId: toText(rawCategory.parentId ?? rawCategory.parent_id) ?? null,
+  }
+}
+
+function normalizeBrand(rawBrand: unknown): Brand | null {
+  if (!isPlainObject(rawBrand)) {
+    return null
+  }
+
+  const id = toText(rawBrand.id ?? rawBrand.brand_id ?? rawBrand.brandId)
+  const name = toText(rawBrand.name ?? rawBrand.title ?? rawBrand.label)
+
+  if (!id || !name) {
+    return null
+  }
+
+  return {
+    id,
+    name,
+    logo: toText(rawBrand.logo ?? rawBrand.image ?? rawBrand.photo),
+    active: toBoolean(rawBrand.active ?? rawBrand.is_active ?? rawBrand.isActive ?? rawBrand.enabled) ?? true,
   }
 }
 
@@ -277,12 +323,35 @@ function toErrorMessage(error: unknown) {
   return "No pudimos conectar con el catálogo público."
 }
 
-export async function getProducts(): Promise<CatalogLoadResult> {
-  const sourceUrl = joinApiUrl("/products")
+export async function getProducts(options: {
+  search?: string | null
+  categoryId?: string | null
+  brandId?: string | null
+} = {}): Promise<CatalogLoadResult> {
+  const url = new URL(joinApiUrl("/products"))
+  const normalizedSearch = toText(options.search)
+  const normalizedCategoryId = toText(options.categoryId)
+  const normalizedBrandId = toText(options.brandId)
+
+  if (normalizedSearch) {
+    url.searchParams.set("search", normalizedSearch)
+  }
+
+  if (normalizedCategoryId) {
+    url.searchParams.set("categoryId", normalizedCategoryId)
+  }
+
+  if (normalizedBrandId) {
+    url.searchParams.set("brandId", normalizedBrandId)
+  }
+
+  const sourceUrl = url.toString()
 
   try {
     const response = await fetch(sourceUrl, {
-      cache: "no-store",
+      next: {
+        revalidate: normalizedSearch || normalizedCategoryId ? 30 : 120,
+      },
       headers: {
         Accept: "application/json",
       },
@@ -343,7 +412,9 @@ export async function getProductById(productId: string): Promise<ProductDetailLo
 
   try {
     const response = await fetch(sourceUrl, {
-      cache: "no-store",
+      next: {
+        revalidate: 120,
+      },
       headers: {
         Accept: "application/json",
       },
@@ -427,7 +498,9 @@ export async function getCategories(): Promise<CategoryLoadResult> {
 
   try {
     const response = await fetch(sourceUrl, {
-      cache: "no-store",
+      next: {
+        revalidate: 300,
+      },
       headers: {
         Accept: "application/json",
       },
@@ -478,6 +551,70 @@ export async function getCategories(): Promise<CategoryLoadResult> {
     return {
       ok: false,
       categories: [],
+      error: toErrorMessage(error),
+      sourceUrl,
+    }
+  }
+}
+
+export async function getBrands(): Promise<BrandLoadResult> {
+  const sourceUrl = joinApiUrl("/brands")
+
+  try {
+    const response = await fetch(sourceUrl, {
+      next: {
+        revalidate: 300,
+      },
+      headers: {
+        Accept: "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        brands: [],
+        error: `No pudimos cargar las marcas (${response.status} ${response.statusText || "Error"}).`,
+        sourceUrl,
+        status: response.status,
+      }
+    }
+
+    const payload: unknown = await response.json()
+    const rawBrands = extractCollection(payload, ["brands", "data", "items"])
+
+    if (!rawBrands) {
+      return {
+        ok: false,
+        brands: [],
+        error: "La API de marcas devolvió un formato inesperado.",
+        sourceUrl,
+      }
+    }
+
+    const brands = rawBrands
+      .map(normalizeBrand)
+      .filter((brand): brand is Brand => brand !== null && brand.active)
+
+    if (rawBrands.length > 0 && brands.length === 0) {
+      return {
+        ok: false,
+        brands: [],
+        error: "La API de marcas devolvió datos incompletos o sin marcas activas.",
+        sourceUrl,
+      }
+    }
+
+    return {
+      ok: true,
+      brands,
+      error: null,
+      sourceUrl,
+    }
+  } catch (error) {
+    return {
+      ok: false,
+      brands: [],
       error: toErrorMessage(error),
       sourceUrl,
     }

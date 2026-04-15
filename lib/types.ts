@@ -4,8 +4,13 @@ export interface Product {
   description: string | null
   price: number
   image_url: string | null
+  images?: string[]
   stock: number
   category: string | null
+  categoryId?: string | null
+  brandId?: string | null
+  brand?: string | null
+  brandLogo?: string | null
   // Camera-specific technical specifications
   resolution?: string
   night_vision?: boolean
@@ -24,6 +29,16 @@ export interface Category {
   name: string
   icon: string | null
   description: string | null
+  active: boolean
+  parentId?: string | null
+  parent?: Category | null
+  children?: Category[]
+}
+
+export interface Brand {
+  id: string
+  name: string
+  logo: string | null
   active: boolean
 }
 
@@ -46,6 +61,14 @@ export interface ProductDetailLoadResult {
 export interface CategoryLoadResult {
   ok: boolean
   categories: Category[]
+  error: string | null
+  sourceUrl: string
+  status?: number
+}
+
+export interface BrandLoadResult {
+  ok: boolean
+  brands: Brand[]
   error: string | null
   sourceUrl: string
   status?: number
@@ -104,6 +127,11 @@ export interface OrderRequest {
     quantity: number
   }[]
   total: number
+  tax?: number
+  discount?: number
+  notes?: string
+  deliveryMethod?: string
+  paymentMethod?: string
 }
 
 export interface OrderResponse {
