@@ -55,13 +55,13 @@ export function NewArrivalsSection({ products }: { products: Product[] }) {
 
                 {/* Brand logo */}
                 {product.brandLogo && (
-                  <div className="absolute right-2 top-2 z-10 overflow-hidden rounded-md bg-white/95 px-2 py-0.5 shadow backdrop-blur">
+                  <div className="absolute right-1.5 top-1.5 z-10 overflow-hidden rounded-md bg-white/95 px-1.5 py-1 shadow backdrop-blur sm:px-2 sm:py-1">
                     <Image
                       src={product.brandLogo}
                       alt={product.brand || "Marca"}
-                      width={48}
-                      height={18}
-                      className="h-3.5 w-auto object-contain"
+                      width={50}
+                      height={20}
+                      className="h-4 w-auto object-contain sm:h-4"
                       unoptimized
                     />
                   </div>

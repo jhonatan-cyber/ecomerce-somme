@@ -43,9 +43,9 @@ function HeroCard({ product }: { product: Product }) {
   return (
     <Link
       href={`/product/${encodeURIComponent(product.id)}`}
-      className="group relative overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-lg transition hover:shadow-2xl"
+      className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card shadow-lg transition hover:shadow-2xl sm:rounded-[2rem]"
     >
-      <div className="relative aspect-[16/9] overflow-hidden sm:aspect-[2/1]">
+      <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[16/9] lg:aspect-[2/1]">
         {/* Images with crossfade */}
         {images.length > 0 ? (
           images.map((src, i) => (
@@ -62,7 +62,7 @@ function HeroCard({ product }: { product: Product }) {
           ))
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
-            <Camera className="h-20 w-20 text-slate-600" />
+            <Camera className="h-12 w-12 text-slate-600 sm:h-20 sm:w-20" />
           </div>
         )}
 
@@ -70,19 +70,19 @@ function HeroCard({ product }: { product: Product }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
         {/* Discount badge */}
-        <div className="absolute left-5 top-5 rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 px-4 py-2 shadow-xl shadow-red-500/30">
-          <p className="text-2xl font-black text-white">-{product.discountPercent}%</p>
+        <div className="absolute left-3 top-3 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 px-2.5 py-1.5 shadow-xl shadow-red-500/30 sm:left-5 sm:top-5 sm:rounded-2xl sm:px-4 sm:py-2">
+          <p className="text-lg font-black text-white sm:text-2xl">-{product.discountPercent}%</p>
         </div>
 
         {/* Brand logo */}
         {product.brandLogo && (
-          <div className="absolute right-5 top-5 overflow-hidden rounded-xl bg-white/95 px-3 py-1.5 shadow-md backdrop-blur">
+          <div className="absolute right-3 top-3 overflow-hidden rounded-lg bg-white/95 px-2 py-1 shadow-md backdrop-blur sm:right-5 sm:top-5 sm:rounded-xl sm:px-3 sm:py-1.5">
             <Image
               src={product.brandLogo}
               alt={product.brand || "Marca"}
               width={64}
               height={24}
-              className="h-5 w-auto object-contain"
+              className="h-4 w-auto object-contain sm:h-5"
               unoptimized
             />
           </div>
@@ -90,7 +90,7 @@ function HeroCard({ product }: { product: Product }) {
 
         {/* Image dots */}
         {images.length > 1 && (
-          <div className="absolute bottom-5 left-5 flex gap-1">
+          <div className="absolute bottom-3 left-3 flex gap-1 sm:bottom-5 sm:left-5">
             {images.slice(0, 5).map((_, i) => (
               <div
                 key={i}
@@ -103,50 +103,50 @@ function HeroCard({ product }: { product: Product }) {
         )}
 
         {/* Bottom info */}
-        <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+        <div className="absolute inset-x-0 bottom-0 p-3 sm:p-5 lg:p-6">
           {product.category && (
-            <p className="mb-1 text-xs font-bold uppercase tracking-widest text-white/70">
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-white/70 sm:text-xs">
               {product.category}
             </p>
           )}
-          <h3 className="line-clamp-2 text-xl font-black text-white sm:text-2xl lg:text-3xl">
+          <h3 className="line-clamp-2 text-base font-black text-white sm:text-xl lg:text-2xl xl:text-3xl">
             {product.name}
           </h3>
 
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <div className="flex items-baseline gap-2">
+          <div className="mt-2 flex flex-wrap items-center gap-2 sm:mt-3 sm:gap-3">
+            <div className="flex items-baseline gap-1.5 sm:gap-2">
               {product.originalPrice && (
-                <span className="text-sm text-white/60 line-through">
+                <span className="text-xs text-white/60 line-through sm:text-sm">
                   ${formatPrice(product.originalPrice)}
                 </span>
               )}
-              <span className="text-3xl font-black text-white">
+              <span className="text-xl font-black text-white sm:text-2xl lg:text-3xl">
                 ${formatPrice(product.price)}
               </span>
             </div>
 
             {product.originalPrice && (
-              <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-300 backdrop-blur">
+              <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 backdrop-blur sm:px-3 sm:py-1 sm:text-xs">
                 Ahorras ${formatPrice(product.originalPrice - product.price)}
               </span>
             )}
 
             {expiry && (
-              <span className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold backdrop-blur ${
+              <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold backdrop-blur sm:gap-1.5 sm:px-3 sm:py-1 sm:text-xs ${
                 expiry.urgent
                   ? "bg-red-500/30 text-red-200"
                   : "bg-white/10 text-white/80"
               }`}>
-                <Clock className="h-3 w-3" />
+                <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                 {expiry.label}
               </span>
             )}
           </div>
 
-          <div className="mt-4">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-slate-900 shadow-lg transition group-hover:bg-yellow-400">
+          <div className="mt-3 flex justify-end sm:mt-4">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-bold text-slate-900 shadow-lg transition group-hover:bg-yellow-400 sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm">
               Ver oferta
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </span>
           </div>
         </div>
@@ -207,20 +207,20 @@ export function OnSaleSection({ products }: { products: Product[] }) {
                   <div className="relative aspect-square overflow-hidden bg-muted">
                     {/* Discount badge */}
                     {product.discountPercent && (
-                      <div className="absolute left-2 top-2 z-10 rounded-lg bg-red-500 px-2 py-1 shadow">
+                      <div className="absolute left-1.5 top-1.5 z-10 rounded-lg bg-red-500 px-2 py-1 shadow sm:left-2 sm:top-2">
                         <p className="text-[10px] font-black text-white">-{product.discountPercent}%</p>
                       </div>
                     )}
 
                     {/* Brand logo */}
                     {product.brandLogo && (
-                      <div className="absolute right-2 top-2 z-10 overflow-hidden rounded-md bg-white/95 px-2 py-0.5 shadow backdrop-blur">
+                      <div className="absolute right-1.5 top-1.5 z-10 overflow-hidden rounded-md bg-white/95 px-1.5 py-1 shadow backdrop-blur sm:right-2 sm:top-2 sm:px-2 sm:py-1">
                         <Image
                           src={product.brandLogo}
                           alt={product.brand || "Marca"}
-                          width={48}
-                          height={18}
-                          className="h-3.5 w-auto object-contain"
+                          width={50}
+                          height={20}
+                          className="h-4 w-auto object-contain sm:h-4"
                           unoptimized
                         />
                       </div>

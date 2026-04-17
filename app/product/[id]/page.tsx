@@ -55,6 +55,36 @@ export default async function ProductDetailPage({
     )
   }
 
+  // Get suggested products - same category first, fill with same brand if needed
+  const { getProducts } = await import("@/lib/api")
+  
+  const [categoryLookup, brandLookup] = await Promise.all([
+    product.categoryId 
+      ? getProducts({ categoryId: product.categoryId }) 
+      : Promise.resolve({ ok: false, products: [] as import("@/lib/types").Product[], error: null, sourceUrl: "" }),
+    product.brandId
+      ? getProducts({ brandId: product.brandId })
+      : Promise.resolve({ ok: false, products: [] as import("@/lib/types").Product[], error: null, sourceUrl: "" }),
+  ])
+
+  const categoryProducts = categoryLookup.ok 
+    ? categoryLookup.products.filter(p => p.id !== product.id)
+    : []
+  
+  const brandProducts = brandLookup.ok
+    ? brandLookup.products.filter(p => p.id !== product.id && !categoryProducts.find(c => c.id === p.id))
+    : []
+
+  // Combine: category first, then brand to fill up to 6
+  const suggestedProducts = [
+    ...categoryProducts.slice(0, 6),
+    ...brandProducts.slice(0, Math.max(0, 6 - categoryProducts.length)),
+  ].slice(0, 6)
+
+  console.log('[SUGGESTED] Category products:', categoryProducts.length)
+  console.log('[SUGGESTED] Brand products:', brandProducts.length)
+  console.log('[SUGGESTED] Total suggested:', suggestedProducts.length)
+
   const hasSpecs =
     product.night_vision !== undefined ||
     product.resolution ||
@@ -66,7 +96,7 @@ export default async function ProductDetailPage({
     <div className="min-h-screen bg-background text-foreground">
       <StoreHeader />
 
-      <main className="container mx-auto px-4 py-6 sm:py-10">
+      <main className="container mx-auto overflow-x-hidden px-4 py-6 sm:py-10">
         {/* Back nav */}
         <div className="mb-4 flex items-center justify-between gap-4">
           <Link
@@ -85,10 +115,10 @@ export default async function ProductDetailPage({
         </div>
 
         {/* Main grid — stacked on mobile, side by side on lg */}
-        <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8">
+        <div className="grid gap-6 overflow-x-hidden lg:grid-cols-[1.05fr_0.95fr] lg:gap-8">
 
-          {/* Gallery */}
-          <div className="overflow-hidden rounded-[1.5rem] border border-border/70 bg-card shadow-sm sm:rounded-[2rem]">
+          {/* Gallery - sin contenedor card */}
+          <div className="overflow-hidden">
             <ProductGallery
               name={product.name}
               imageUrl={product.image_url}
@@ -96,8 +126,8 @@ export default async function ProductDetailPage({
             />
           </div>
 
-          {/* Info column */}
-          <div className="flex flex-col gap-4">
+          {/* Info column — gap on mobile */}
+          <div className="flex flex-col gap-4 pt-2 lg:pt-0">
 
             {/* Main info card */}
             <div className="rounded-[1.5rem] border border-border/70 bg-card p-4 shadow-sm sm:rounded-[2rem] sm:p-6">
@@ -222,6 +252,85 @@ export default async function ProductDetailPage({
             </div>
           </div>
         </div>
+
+        {/* Suggested Products */}
+        {suggestedProducts.length > 0 && (
+          <div className="mt-6 sm:mt-16">
+            <div className="mb-4 flex items-center justify-between sm:mb-6">
+              <div>
+                <h2 className="text-lg font-black text-foreground sm:text-2xl">
+                  Productos relacionados
+                </h2>
+                <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1 sm:text-sm">
+                  Otros productos de {product.category || "esta categoría"}
+                </p>
+              </div>
+              {product.categoryId && (
+                <Link
+                  href={`/catalog?category=${encodeURIComponent(product.categoryId)}`}
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition hover:underline"
+                >
+                  Ver todos
+                  <ArrowLeft className="h-4 w-4 rotate-180" />
+                </Link>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-6">
+              {suggestedProducts.map((suggestedProduct) => (
+                <Link
+                  key={suggestedProduct.id}
+                  href={`/product/${encodeURIComponent(suggestedProduct.id)}`}
+                  className="group flex flex-col overflow-hidden rounded-xl border border-border/60 bg-background transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+                >
+                  {/* Image */}
+                  <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                    {suggestedProduct.brandLogo && (
+                      <div className="absolute right-1.5 top-1.5 z-10 overflow-hidden rounded-md bg-white/95 px-1.5 py-1 shadow backdrop-blur sm:px-2 sm:py-1">
+                        <Image
+                          src={suggestedProduct.brandLogo}
+                          alt={suggestedProduct.brand || "Marca"}
+                          width={50}
+                          height={20}
+                          className="h-4 w-auto object-contain sm:h-4"
+                          unoptimized
+                        />
+                      </div>
+                    )}
+                    {suggestedProduct.onSale && suggestedProduct.discountPercent && (
+                      <div className="absolute left-1.5 top-1.5 z-10 rounded-md bg-red-500 px-1.5 py-0.5">
+                        <p className="text-[9px] font-black text-white sm:text-[10px]">-{suggestedProduct.discountPercent}%</p>
+                      </div>
+                    )}
+                    {suggestedProduct.image_url ? (
+                      <Image
+                        src={suggestedProduct.image_url}
+                        alt={suggestedProduct.name}
+                        fill
+                        className="object-cover transition duration-500 group-hover:scale-105"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <Camera className="h-6 w-6 text-muted-foreground/30" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex flex-1 flex-col gap-1 p-2.5">
+                    <p className="line-clamp-2 text-[11px] font-semibold text-foreground sm:text-xs">
+                      {suggestedProduct.name}
+                    </p>
+                    <p className={`mt-auto text-sm font-black ${suggestedProduct.onSale ? "text-red-600 dark:text-red-400" : "text-primary"}`}>
+                      ${formatPrice(suggestedProduct.price)}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       <StoreFooter />

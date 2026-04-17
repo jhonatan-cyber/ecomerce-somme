@@ -45,7 +45,7 @@ export function HeroBanner({ slides }: { slides: Slide[] }) {
           <img
             src={slide.url}
             alt={slide.alt}
-            className="h-[220px] w-full object-contain sm:h-[320px] md:h-[420px] lg:h-[520px]"
+            className="w-full"
           />
         </div>
       ))}

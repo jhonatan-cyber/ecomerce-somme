@@ -80,15 +80,15 @@ export function ProductCardImage({
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/30 to-transparent" />
 
       {/* Top badges */}
-      <div className="absolute inset-x-0 top-0 flex items-start justify-between p-2.5">
+      <div className="absolute inset-x-0 top-0 flex items-start justify-between p-2 sm:p-2.5">
         {brandLogo ? (
-          <div className="overflow-hidden rounded-md bg-white/95 px-2 py-1 shadow-sm backdrop-blur-sm">
+          <div className="overflow-hidden rounded-md bg-white/95 px-1.5 py-1 shadow-sm backdrop-blur-sm sm:px-2 sm:py-1">
             <Image
               src={brandLogo}
               alt={brand || "Marca"}
               width={56}
               height={20}
-              className="h-4 w-auto object-contain"
+              className="h-4 w-auto object-contain sm:h-4"
               unoptimized
             />
           </div>

@@ -231,6 +231,7 @@ export default async function CatalogPage({
                 <div className="mt-4">
                   <CatalogGrid
                     products={products}
+                    search={normalizedSearch}
                     grouped={!normalizedCategoryId && !normalizedSubcategoryId && !normalizedSearch && !normalizedBrandId}
                   />
                 </div>

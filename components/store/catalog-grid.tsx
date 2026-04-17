@@ -16,7 +16,8 @@ const SORT_LABELS: Record<SortOption, string> = {
 
 interface CatalogGridProps {
   products: Product[]
-  grouped?: boolean // group by category when no filter active
+  grouped?: boolean
+  search?: string
 }
 
 function sortProducts(products: Product[], sort: SortOption): Product[] {
@@ -27,6 +28,20 @@ function sortProducts(products: Product[], sort: SortOption): Product[] {
     case "name-asc":   return arr.sort((a, b) => a.name.localeCompare(b.name, "es"))
     default:           return arr
   }
+}
+
+function filterBySearch(products: Product[], search: string): Product[] {
+  if (!search.trim()) return products
+  const terms = search.toLowerCase().trim().split(/\s+/)
+  return products.filter((p) => {
+    const haystack = [
+      p.name,
+      p.category,
+      p.brand,
+      p.description,
+    ].filter(Boolean).join(" ").toLowerCase()
+    return terms.every((term) => haystack.includes(term))
+  })
 }
 
 function groupByCategory(products: Product[]): { category: string; items: Product[] }[] {
@@ -41,11 +56,13 @@ function groupByCategory(products: Product[]): { category: string; items: Produc
     .map(([category, items]) => ({ category, items }))
 }
 
-export function CatalogGrid({ products, grouped = false }: CatalogGridProps) {
+export function CatalogGrid({ products, grouped = false, search = "" }: CatalogGridProps) {
   const [sort, setSort] = useState<SortOption>("default")
   const [open, setOpen] = useState(false)
 
-  const sorted = useMemo(() => sortProducts(products, sort), [products, sort])
+  // Filter locally by search terms (partial match on name, category, brand, description)
+  const filtered = useMemo(() => filterBySearch(products, search), [products, search])
+  const sorted = useMemo(() => sortProducts(filtered, sort), [filtered, sort])
   const groups = useMemo(() => grouped ? groupByCategory(sorted) : null, [sorted, grouped])
 
   return (
@@ -53,8 +70,13 @@ export function CatalogGrid({ products, grouped = false }: CatalogGridProps) {
       {/* Sort toolbar */}
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          <span className="font-bold text-foreground">{products.length}</span>{" "}
-          producto{products.length !== 1 ? "s" : ""}
+          <span className="font-bold text-foreground">{sorted.length}</span>{" "}
+          producto{sorted.length !== 1 ? "s" : ""}
+          {search && sorted.length !== products.length && (
+            <span className="ml-1 text-muted-foreground">
+              de {products.length} totales
+            </span>
+          )}
         </p>
 
         {/* Sort selector */}

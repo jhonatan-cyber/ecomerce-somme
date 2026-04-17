@@ -38,8 +38,8 @@ export function HeroSection({
   heroCategoryProductCount,
 }: HeroSectionProps) {
   const showcaseProducts = selectedCategory
-    ? products.slice(0, 12)
-    : getRandomProducts(products, 12)
+    ? products.slice(0, 8)
+    : getRandomProducts(products, 8)
 
   const title = selectedCategory?.name ?? "Catálogo"
   const subtitle = selectedCategory
@@ -48,26 +48,26 @@ export function HeroSection({
 
   return (
     <section className="overflow-hidden">
-      <div className="flex flex-col gap-4 border-b border-border/60 p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-muted-foreground">
+      <div className="flex flex-col gap-3 border-b border-border/60 p-4 sm:flex-row sm:items-end sm:justify-between sm:gap-4 sm:p-6">
+        <div className="flex-1">
+          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted-foreground sm:text-[11px] sm:tracking-[0.28em]">
             Explorar
           </p>
-          <h2 className="mt-1.5 text-2xl font-black text-foreground lg:text-3xl">
+          <h2 className="mt-1 text-xl font-black text-foreground sm:mt-1.5 sm:text-2xl lg:text-3xl">
             {title}
           </h2>
         </div>
         <Link
           href={selectedCategory ? `/catalog?category=${encodeURIComponent(selectedCategory.id)}` : "/catalog"}
-          className="inline-flex w-fit items-center gap-2 rounded-full bg-gradient-to-r from-slate-900 to-blue-700 px-5 py-2.5 text-sm font-bold text-white transition hover:opacity-90"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-slate-900 to-blue-700 px-4 py-2 text-xs font-bold text-white transition hover:opacity-90 sm:w-fit sm:px-5 sm:py-2.5 sm:text-sm"
         >
           Ver catálogo completo
-          <ArrowRight className="h-4 w-4" />
+          <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Link>
       </div>
 
       {showcaseProducts.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3 pt-4 sm:grid-cols-4 md:gap-4 lg:grid-rows-3">
+        <div className="grid grid-cols-2 gap-3 pt-4 sm:grid-cols-4 md:gap-4 lg:grid-rows-2">
           {showcaseProducts.map((product) => (
             <Link
               key={product.id}
@@ -77,20 +77,20 @@ export function HeroSection({
               {/* Image */}
               <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                 {product.brandLogo && (
-                  <div className="absolute right-1.5 top-1.5 z-10 overflow-hidden rounded-md bg-white/95 px-1.5 py-0.5 shadow backdrop-blur">
+                  <div className="absolute right-1.5 top-1.5 z-10 overflow-hidden rounded-md bg-white/95 px-1.5 py-1 shadow backdrop-blur sm:px-2 sm:py-1">
                     <Image
                       src={product.brandLogo}
                       alt={product.brand || "Marca"}
-                      width={40}
-                      height={16}
-                      className="h-3 w-auto object-contain"
+                      width={50}
+                      height={20}
+                      className="h-4 w-auto object-contain sm:h-4"
                       unoptimized
                     />
                   </div>
                 )}
                 {product.onSale && product.discountPercent && (
                   <div className="absolute left-1.5 top-1.5 z-10 rounded-md bg-red-500 px-1.5 py-0.5">
-                    <p className="text-[9px] font-black text-white">-{product.discountPercent}%</p>
+                    <p className="text-[9px] font-black text-white sm:text-[10px]">-{product.discountPercent}%</p>
                   </div>
                 )}
                 {product.image_url ? (
