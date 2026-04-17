@@ -161,9 +161,14 @@ return {
     name,
     description: toText(rawProduct.description),
     price,
+    originalPrice: toNumber(rawProduct.originalPrice ?? rawProduct.original_price) ?? null,
+    discountPercent: toNumber(rawProduct.discountPercent ?? rawProduct.discount_percent) ?? null,
+    onSale: toBoolean(rawProduct.onSale ?? rawProduct.on_sale) ?? false,
+    saleEndDate: toText(rawProduct.saleEndDate ?? rawProduct.sale_end_date) ?? null,
     image_url: toText(rawProduct.image_url ?? rawProduct.imageUrl ?? rawProduct.photo ?? rawProduct.image),
     images: toTextArray(rawProduct.images ?? rawProduct.photos),
     stock,
+    minimumStock: toNumber(rawProduct.minimumStock ?? rawProduct.minimum_stock) ?? 0,
     category: getCategory(rawProduct.category) ?? toText(rawProduct.categoryName ?? rawProduct.category_name),
     categoryId: toText(rawProduct.categoryId ?? rawProduct.category_id) ?? null,
     brandId: toText(rawProduct.brandId ?? rawProduct.brand_id) ?? null,
@@ -198,6 +203,12 @@ function normalizeCategory(rawCategory: unknown): Category | null {
     return null
   }
 
+  // Normalize children/subcategories
+  const rawChildren = extractCollection(rawCategory.children ?? rawCategory.subcategories, ["children", "subcategories"])
+  const children = rawChildren
+    ? rawChildren.map(normalizeCategory).filter((c): c is Category => c !== null)
+    : undefined
+
   return {
     id,
     name,
@@ -205,6 +216,7 @@ function normalizeCategory(rawCategory: unknown): Category | null {
     description: toText(rawCategory.description),
     active: toBoolean(rawCategory.active ?? rawCategory.is_active ?? rawCategory.isActive ?? rawCategory.enabled) ?? true,
     parentId: toText(rawCategory.parentId ?? rawCategory.parent_id) ?? null,
+    children: children && children.length > 0 ? children : undefined,
   }
 }
 
@@ -323,21 +335,61 @@ function toErrorMessage(error: unknown) {
   return "No pudimos conectar con el catálogo público."
 }
 
+export async function getSlides(): Promise<{ ok: boolean; slides: { url: string; alt: string }[] }> {
+  const sourceUrl = joinApiUrl("/slides")
+  try {
+    const response = await fetch(sourceUrl, { next: { revalidate: 60 }, headers: { Accept: "application/json" } })
+    if (!response.ok) return { ok: false, slides: [] }
+    const payload = await response.json() as { data?: { url: string; alt: string }[] }
+    return { ok: true, slides: payload.data ?? [] }
+  } catch {
+    return { ok: false, slides: [] }
+  }
+}
+
+export async function getOnSaleProducts(): Promise<CatalogLoadResult> {
+  const sourceUrl = joinApiUrl("/products/on-sale")
+
+  try {
+    const response = await fetch(sourceUrl, {
+      next: { revalidate: 60 },
+      headers: { Accept: "application/json" },
+    })
+
+    if (!response.ok) {
+      return { ok: false, products: [], error: `Error ${response.status}`, sourceUrl, status: response.status }
+    }
+
+    const payload: unknown = await response.json()
+    const rawProducts = extractCollection(payload, ["products", "data", "items"])
+    if (!rawProducts) return { ok: false, products: [], error: "Formato inesperado", sourceUrl }
+
+    const products = rawProducts.map(normalizeProduct).filter((p): p is Product => p !== null)
+    return { ok: true, products, error: null, sourceUrl }
+  } catch (error) {
+    return { ok: false, products: [], error: toErrorMessage(error), sourceUrl }
+  }
+}
+
 export async function getProducts(options: {
   search?: string | null
   categoryId?: string | null
+  subcategoryId?: string | null
   brandId?: string | null
 } = {}): Promise<CatalogLoadResult> {
   const url = new URL(joinApiUrl("/products"))
   const normalizedSearch = toText(options.search)
   const normalizedCategoryId = toText(options.categoryId)
+  const normalizedSubcategoryId = toText(options.subcategoryId)
   const normalizedBrandId = toText(options.brandId)
 
   if (normalizedSearch) {
     url.searchParams.set("search", normalizedSearch)
   }
 
-  if (normalizedCategoryId) {
+  if (normalizedSubcategoryId) {
+    url.searchParams.set("subcategoryId", normalizedSubcategoryId)
+  } else if (normalizedCategoryId) {
     url.searchParams.set("categoryId", normalizedCategoryId)
   }
 
@@ -350,7 +402,7 @@ export async function getProducts(options: {
   try {
     const response = await fetch(sourceUrl, {
       next: {
-        revalidate: normalizedSearch || normalizedCategoryId ? 30 : 120,
+        revalidate: normalizedSearch || normalizedCategoryId || normalizedSubcategoryId ? 30 : 120,
       },
       headers: {
         Accept: "application/json",

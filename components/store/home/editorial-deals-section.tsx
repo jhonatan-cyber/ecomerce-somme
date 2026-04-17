@@ -24,11 +24,11 @@ export function EditorialDealsSection({
       <div className="rounded-[1.75rem] border border-border/70 bg-card p-5 shadow-sm">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-border/70 pb-4">
           <div className="flex flex-wrap items-center gap-5 text-sm font-bold text-foreground">
-            <span className="border-b-2 border-yellow-400 pb-2">Best Deals</span>
-            <span className="text-muted-foreground">TV & Video</span>
-            <span className="text-muted-foreground">Cameras</span>
-            <span className="text-muted-foreground">Audio</span>
-            <span className="text-muted-foreground">Accessories</span>
+            <span className="border-b-2 border-yellow-400 pb-2">Mejores ofertas</span>
+            <span className="text-muted-foreground">Cámaras IP</span>
+            <span className="text-muted-foreground">Grabadores</span>
+            <span className="text-muted-foreground">Accesorios</span>
+            <span className="text-muted-foreground">Kits</span>
           </div>
           <Link href="#catalogo" className="text-sm font-semibold text-primary">
             Ver catalogo
@@ -45,13 +45,13 @@ export function EditorialDealsSection({
           <div className="rounded-[1.8rem] border border-yellow-400/60 bg-[linear-gradient(180deg,#ffffff_0%,#fffdf4_100%)] p-6 shadow-inner dark:bg-[linear-gradient(180deg,rgba(24,24,27,1)_0%,rgba(41,37,36,1)_100%)]">
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-muted-foreground">Main pick</p>
+                <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-muted-foreground">Selección principal</p>
                 <h3 className="mt-2 text-2xl font-black text-foreground">
                   {centerShowcase?.name || "Somme featured device"}
                 </h3>
               </div>
               <span className="inline-flex rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-slate-950">
-                New
+                Nuevo
               </span>
             </div>
             <div className="relative mx-auto aspect-[4/3] max-w-[340px] overflow-hidden rounded-2xl bg-muted">
@@ -70,7 +70,7 @@ export function EditorialDealsSection({
             </div>
             <div className="mt-5 flex items-center justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Price</p>
+                <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Precio</p>
                 {centerShowcase ? (
                   <p className="mt-1 text-3xl font-black text-primary">{formatPrice(centerShowcase.price)}</p>
                 ) : (

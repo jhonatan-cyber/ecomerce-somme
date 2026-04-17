@@ -2,8 +2,11 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import {
   BadgePercent,
+  ChevronDown,
+  ChevronRight,
   Headphones,
   Menu,
   Search,
@@ -31,13 +34,15 @@ import {
   getStoreCategoryHref,
   type StoreNavigationCategory,
 } from "@/lib/store-navigation"
+import type { Category } from "@/lib/types"
 
 const primaryLinks = [
-  { href: "/#destacados", label: "Ofertas" },
+  { href: "/#ofertas", label: "Ofertas" },
   { href: "/catalog", label: "Tienda" },
   { href: "/brands", label: "Marcas" },
-  { href: "/cart", label: "Carrito" },
 ]
+
+type MobilePanel = "categories" | "brands" | null
 
 export function StoreHeader({
   currentSearch = "",
@@ -45,17 +50,40 @@ export function StoreHeader({
   brands = [],
 }: {
   currentSearch?: string
-  categories?: StoreNavigationCategory[]
+  categories?: (StoreNavigationCategory | Category)[]
   brands?: { id: string; name: string; logo: string | null }[]
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [mobilePanel, setMobilePanel] = useState<MobilePanel>(null)
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false)
+    setMobilePanel(null)
+    setExpandedCategory(null)
   }
+
+  const togglePanel = (panel: MobilePanel) => {
+    setMobilePanel((prev) => (prev === panel ? null : panel))
+    setExpandedCategory(null)
+  }
+
+  // Normalize categories — support both StoreNavigationCategory and Category types
+  const normalizedCategories = categories.map((c) => ({
+    id: c.id,
+    name: c.name,
+    children:
+      "children" in c && c.children
+        ? c.children
+        : "subcategories" in c && (c as StoreNavigationCategory).subcategories
+          ? (c as StoreNavigationCategory).subcategories
+          : undefined,
+  }))
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/50 bg-background/80 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/70">
+      {/* Top bar */}
+      {/* Top bar */}
       <div className="border-b border-cyan-400/10 bg-slate-950 text-slate-200">
         <div className="container mx-auto flex min-h-8 items-center justify-between gap-3 px-4 py-1.5 text-[11px] md:min-h-9 md:py-0">
           <div className="flex items-center gap-3">
@@ -81,20 +109,22 @@ export function StoreHeader({
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-2.5 md:py-3">
-        <div className="grid items-center gap-3 rounded-[1.7rem] border border-border/70 bg-card/85 px-3 py-3 shadow-[0_24px_80px_-40px_rgba(15,23,42,0.45)] backdrop-blur xl:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-4 lg:px-4 lg:py-3">
+      <div className="container mx-auto px-3 py-2 md:px-4 md:py-3">
+        <div className="grid items-center gap-2 lg:rounded-[1.7rem] lg:border lg:border-border/70 lg:bg-card/85 lg:px-4 lg:py-3 lg:shadow-[0_24px_80px_-40px_rgba(15,23,42,0.45)] lg:backdrop-blur xl:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-4">
+
+          {/* Logo + mobile actions */}
           <div className="flex items-center gap-3">
             <Link href="/" className="group min-w-0 flex-1 transition hover:opacity-90" onClick={closeMobileMenu}>
               <div className="flex items-center gap-3">
-                <div className="rounded-[1.1rem] bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_65%,#22d3ee_100%)] p-2.5 text-white shadow-lg shadow-cyan-500/20 transition group-hover:scale-[1.03]">
-                  <Store className="h-5 w-5" />
+                <div className="rounded-[1rem] bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_65%,#22d3ee_100%)] p-2 text-white shadow-lg shadow-cyan-500/20 transition group-hover:scale-[1.03] lg:rounded-[1.1rem] lg:p-2.5">
+                  <Store className="h-4 w-4 lg:h-5 lg:w-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate bg-gradient-to-r from-slate-950 via-blue-700 to-cyan-500 bg-clip-text text-lg font-black text-transparent sm:text-xl">
+                  <p className="truncate bg-gradient-to-r from-slate-950 via-blue-700 to-cyan-500 bg-clip-text text-base font-black text-transparent sm:text-xl">
                     Somme Technology
                   </p>
                   <p className="hidden text-[11px] text-muted-foreground xl:block">
-                    Marketplace de seguridad y electronica
+                    Proyectos y Servicios Tecnologicos
                   </p>
                 </div>
               </div>
@@ -105,16 +135,178 @@ export function StoreHeader({
               <CartButton />
               <button
                 type="button"
-                onClick={() => setIsMobileMenuOpen((current) => !current)}
+                onClick={() => setIsMobileMenuOpen((v) => !v)}
                 aria-label={isMobileMenuOpen ? "Cerrar menu" : "Abrir menu"}
                 aria-expanded={isMobileMenuOpen}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-[1rem] border border-border/70 bg-card/80 shadow-sm"
               >
-                {isMobileMenuOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
+                {isMobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </button>
             </div>
           </div>
 
+          {/* Mobile: search + category/brand buttons */}
+          <div className="flex flex-col gap-1.5 lg:hidden">
+            {/* Search */}
+            <form action="/catalog" onSubmit={closeMobileMenu}>
+              <div className="flex overflow-hidden rounded-[1.15rem] border border-border bg-background/80 shadow-inner">
+                <div className="relative flex-1">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    name="search"
+                    defaultValue={currentSearch}
+                    className="h-9 border-0 bg-transparent pl-10 pr-3 text-sm shadow-none focus-visible:ring-0"
+                    placeholder="Buscar productos..."
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="inline-flex items-center bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] px-4 text-white transition hover:opacity-90"
+                >
+                  <Search className="h-4 w-4" />
+                </button>
+              </div>
+            </form>
+
+            {/* Category / Brand toggle buttons */}
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => togglePanel("categories")}
+                className={`flex items-center justify-center gap-1.5 rounded-[0.9rem] border px-3 py-2 text-xs font-semibold transition ${mobilePanel === "categories"
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-border/70 bg-background text-foreground hover:border-primary/30 hover:text-primary"
+                  }`}
+              >
+                Categorías
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform duration-200 ${mobilePanel === "categories" ? "rotate-180" : ""
+                    }`}
+                />
+              </button>
+              <button
+                type="button"
+                onClick={() => togglePanel("brands")}
+                className={`flex items-center justify-center gap-1.5 rounded-[0.9rem] border px-3 py-2 text-xs font-semibold transition ${mobilePanel === "brands"
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-border/70 bg-background text-foreground hover:border-primary/30 hover:text-primary"
+                  }`}
+              >
+                Marcas
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform duration-200 ${mobilePanel === "brands" ? "rotate-180" : ""
+                    }`}
+                />
+              </button>
+            </div>
+
+            {/* Categories panel */}
+            {mobilePanel === "categories" && (
+              <div className="max-h-[60vh] overflow-y-auto overscroll-contain rounded-[1.25rem] border border-border/70 bg-card shadow-md">
+                {normalizedCategories
+                  .filter((c) => !("parentId" in c) || !(c as any).parentId)
+                  .map((category) => {
+                    const hasChildren = category.children && category.children.length > 0
+                    const isExpanded = expandedCategory === category.id
+
+                    return (
+                      <div key={category.id} className="border-b border-border/50 last:border-0">
+                        {hasChildren ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setExpandedCategory(isExpanded ? null : category.id)
+                              }
+                              className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-foreground transition hover:bg-muted/50"
+                            >
+                              {category.name}
+                              <ChevronRight
+                                className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-90" : ""
+                                  }`}
+                              />
+                            </button>
+                            {isExpanded && (
+                              <div className="border-t border-border/40 bg-muted/30 pb-1">
+                                <Link
+                                  href={`/catalog?category=${encodeURIComponent(category.id)}`}
+                                  onClick={closeMobileMenu}
+                                  className="block px-7 py-2.5 text-xs font-bold text-foreground transition hover:text-primary"
+                                >
+                                  Ver todo en {category.name}
+                                </Link>
+                                {category.children!.map((sub) => (
+                                  <Link
+                                    key={sub.id}
+                                    href={`/catalog?category=${encodeURIComponent(category.id)}&subcategory=${encodeURIComponent(sub.id)}`}
+                                    onClick={closeMobileMenu}
+                                    className="block px-7 py-2.5 text-xs text-muted-foreground transition hover:text-primary"
+                                  >
+                                    {sub.name}
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <Link
+                            href={`/catalog?category=${encodeURIComponent(category.id)}`}
+                            onClick={closeMobileMenu}
+                            className="flex items-center justify-between px-4 py-3 text-sm font-semibold text-foreground transition hover:bg-muted/50 hover:text-primary"
+                          >
+                            {category.name}
+                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                          </Link>
+                        )}
+                      </div>
+                    )
+                  })}
+              </div>
+            )}
+
+            {/* Brands panel */}
+            {mobilePanel === "brands" && (
+              <div className="max-h-[60vh] overflow-y-auto overscroll-contain rounded-[1.25rem] border border-border/70 bg-card shadow-md">
+                {brands.length === 0 ? (
+                  <p className="px-4 py-3 text-sm text-muted-foreground">Sin marcas disponibles.</p>
+                ) : (
+                  <>
+                    <Link
+                      href="/catalog"
+                      onClick={closeMobileMenu}
+                      className="flex items-center border-b border-border/50 px-4 py-3 text-sm font-bold text-foreground transition hover:bg-muted/50 hover:text-primary"
+                    >
+                      Todas las marcas
+                    </Link>
+                    {brands.map((brand) => (
+                      <Link
+                        key={brand.id}
+                        href={`/catalog?brand=${brand.id}`}
+                        onClick={closeMobileMenu}
+                        className="flex items-center gap-3 border-b border-border/50 px-4 py-2.5 text-sm font-semibold text-foreground transition last:border-0 hover:bg-muted/50 hover:text-primary"
+                      >
+                        {brand.logo ? (
+                          <div className="flex h-6 w-14 shrink-0 items-center overflow-hidden rounded border border-border/60 bg-white px-1">
+                            <Image
+                              src={brand.logo}
+                              alt={brand.name}
+                              width={48}
+                              height={20}
+                              className="h-4 w-auto object-contain"
+                              unoptimized
+                            />
+                          </div>
+                        ) : null}
+                        {brand.name}
+                      </Link>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Desktop search */}
           <div className="hidden lg:block">
             <form action="/catalog" className="flex overflow-hidden rounded-[1.15rem] border border-border bg-background/80 shadow-inner">
               <DropdownMenu>
@@ -125,7 +317,7 @@ export function StoreHeader({
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56">
-                  {defaultStoreNavigationCategories.map((category) => (
+                  {defaultStoreNavigationCategories.map((category) =>
                     category.subcategories && category.subcategories.length > 0 ? (
                       <DropdownMenuSub key={category.id}>
                         <DropdownMenuSubTrigger>
@@ -138,7 +330,7 @@ export function StoreHeader({
                                 <strong>Ver todo en {category.name}</strong>
                               </Link>
                             </DropdownMenuItem>
-                            {category.subcategories.map(sub => (
+                            {category.subcategories.map((sub) => (
                               <DropdownMenuItem key={sub.id} asChild>
                                 <Link href={getStoreCategoryHref(category.id, sub.id)}>
                                   {sub.name}
@@ -155,7 +347,7 @@ export function StoreHeader({
                         </Link>
                       </DropdownMenuItem>
                     )
-                  ))}
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
               <div className="relative flex-1">
@@ -176,38 +368,16 @@ export function StoreHeader({
             </form>
           </div>
 
+          {/* Desktop right actions */}
           <div className="hidden items-center justify-end gap-3 lg:flex">
-            <div className="hidden text-right xl:block">
-              <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                Soporte comercial
-              </p>
-              <p className="text-sm font-bold">+54 11 5555 0000</p>
-            </div>
             <ThemeToggle />
             <CartButton />
           </div>
         </div>
 
-        {isMobileMenuOpen ? (
+        {/* Mobile nav links (hamburger) */}
+        {isMobileMenuOpen && (
           <div className="mt-3 rounded-[1.5rem] border border-border/70 bg-card/95 p-4 shadow-[0_24px_80px_-40px_rgba(15,23,42,0.35)] backdrop-blur lg:hidden">
-            <form action="/catalog" className="mb-4 space-y-3" onSubmit={closeMobileMenu}>
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  name="search"
-                  defaultValue={currentSearch}
-                  className="h-10 rounded-[1rem] border-border bg-background pl-10 pr-4 text-sm"
-                  placeholder="Buscar camaras, kits o accesorios"
-                />
-              </div>
-              <button
-                type="submit"
-                className="inline-flex h-10 w-full items-center justify-center rounded-[1rem] bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] px-5 text-sm font-semibold text-white transition hover:opacity-90"
-              >
-                Buscar
-              </button>
-            </form>
-
             <nav className="grid gap-2">
               {primaryLinks.map((link) => (
                 <Link
@@ -220,12 +390,10 @@ export function StoreHeader({
                 </Link>
               ))}
             </nav>
-            <div className="mt-4 border-t border-border/70 pt-4 text-xs text-muted-foreground">
-              Las categorias principales se exploran desde la columna izquierda del catalogo.
-            </div>
           </div>
-        ) : null}
+        )}
 
+        {/* Desktop nav bar */}
         <div className="mt-3 hidden items-center justify-between gap-6 border-t border-border/70 pt-3 lg:flex">
           <nav className="flex items-center gap-6">
             {primaryLinks.map((link) => (

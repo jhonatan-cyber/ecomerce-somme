@@ -1,6 +1,6 @@
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
-import { StoreImage } from "@/components/store/store-image"
+import Image from "next/image"
+import { ArrowRight, Camera } from "lucide-react"
 import type { Category, Product } from "@/lib/types"
 
 interface HeroSectionProps {
@@ -11,84 +11,120 @@ interface HeroSectionProps {
   heroCategoryProductCount: number
 }
 
+function formatPrice(price: number) {
+  return price.toLocaleString("es-CL")
+}
+
+// Deterministic shuffle using product id so it's stable per SSR render
+function getRandomProducts(products: Product[], count: number): Product[] {
+  const sorted = [...products].sort((a, b) => {
+    const hashA = a.id.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0)
+    const hashB = b.id.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0)
+    return hashA - hashB
+  })
+  // Interleave from start and middle to get variety
+  const result: Product[] = []
+  const mid = Math.floor(sorted.length / 2)
+  for (let i = 0; i < count && i < sorted.length; i++) {
+    result.push(i % 2 === 0 ? sorted[i] : sorted[mid + Math.floor(i / 2)] ?? sorted[i])
+  }
+  return result.slice(0, count)
+}
+
 export function HeroSection({
-  heroProduct,
   selectedCategory,
   products,
   heroCategoryName,
   heroCategoryProductCount,
 }: HeroSectionProps) {
-  const analogProducts = products.filter((product) =>
-    /camaras?\s+analog/i.test(product.category ?? ""),
-  )
-  const showcaseProducts = (selectedCategory ? products : analogProducts).slice(0, 6)
-  const fallbackShowcaseProducts =
-    showcaseProducts.length > 0 ? showcaseProducts : products.slice(0, 6)
-  const showcaseTitle =
-    selectedCategory?.name ??
-    (analogProducts.length > 0 ? "Camaras Analogicas" : heroCategoryName)
-  const hasVisibleProducts = fallbackShowcaseProducts.length > 0 || Boolean(heroProduct)
+  const showcaseProducts = selectedCategory
+    ? products.slice(0, 12)
+    : getRandomProducts(products, 12)
+
+  const title = selectedCategory?.name ?? "Catálogo"
+  const subtitle = selectedCategory
+    ? `${products.length} producto${products.length === 1 ? "" : "s"} en esta categoría`
+    : `${heroCategoryProductCount} producto${heroCategoryProductCount === 1 ? "" : "s"} disponibles`
 
   return (
-    <section className="overflow-hidden rounded-[2.2rem] border border-white/60 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.15),transparent_28%),linear-gradient(135deg,#f8fbff_0%,#ffffff_40%,#eef4ff_100%)] shadow-[0_30px_100px_-60px_rgba(37,99,235,0.65)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.12),transparent_28%),linear-gradient(135deg,rgba(10,15,25,1)_0%,rgba(17,24,39,1)_40%,rgba(10,15,25,1)_100%)]">
-      <div className="p-6 lg:p-8">
-        <div className="flex flex-col gap-4 border-b border-border/60 pb-5 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-muted-foreground">
-              Categoria activa
-            </p>
-            <h2 className="mt-2 text-2xl font-black text-foreground lg:text-3xl">
-              {showcaseTitle}
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {selectedCategory
-                ? `${products.length} producto${products.length === 1 ? "" : "s"} visibles en esta categoria.`
-                : `${heroCategoryProductCount} producto${heroCategoryProductCount === 1 ? "" : "s"} visibles ahora mismo.`}
-            </p>
-          </div>
-          <Link
-            href={selectedCategory ? `/catalog?category=${encodeURIComponent(selectedCategory.id)}` : "/catalog"}
-            className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] px-5 py-3 text-sm font-bold text-white transition hover:opacity-90"
-          >
-            Ver catalogo
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+    <section className="overflow-hidden">
+      <div className="flex flex-col gap-4 border-b border-border/60 p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-muted-foreground">
+            Explorar
+          </p>
+          <h2 className="mt-1.5 text-2xl font-black text-foreground lg:text-3xl">
+            {title}
+          </h2>
         </div>
+        <Link
+          href={selectedCategory ? `/catalog?category=${encodeURIComponent(selectedCategory.id)}` : "/catalog"}
+          className="inline-flex w-fit items-center gap-2 rounded-full bg-gradient-to-r from-slate-900 to-blue-700 px-5 py-2.5 text-sm font-bold text-white transition hover:opacity-90"
+        >
+          Ver catálogo completo
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
 
-        {hasVisibleProducts ? (
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {fallbackShowcaseProducts.map((product) => (
-              <Link
-                key={product.id}
-                href={`/product/${product.id}`}
-                className="overflow-hidden rounded-[1.5rem] border border-border/60 bg-background transition hover:border-primary/40"
-              >
-                <div className="relative aspect-[4/3] bg-muted">
-                  <StoreImage
+      {showcaseProducts.length > 0 ? (
+        <div className="grid grid-cols-2 gap-3 pt-4 sm:grid-cols-4 md:gap-4 lg:grid-rows-3">
+          {showcaseProducts.map((product) => (
+            <Link
+              key={product.id}
+              href={`/product/${encodeURIComponent(product.id)}`}
+              className="group flex flex-col overflow-hidden rounded-xl border border-border/60 bg-background transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+            >
+              {/* Image */}
+              <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                {product.brandLogo && (
+                  <div className="absolute right-1.5 top-1.5 z-10 overflow-hidden rounded-md bg-white/95 px-1.5 py-0.5 shadow backdrop-blur">
+                    <Image
+                      src={product.brandLogo}
+                      alt={product.brand || "Marca"}
+                      width={40}
+                      height={16}
+                      className="h-3 w-auto object-contain"
+                      unoptimized
+                    />
+                  </div>
+                )}
+                {product.onSale && product.discountPercent && (
+                  <div className="absolute left-1.5 top-1.5 z-10 rounded-md bg-red-500 px-1.5 py-0.5">
+                    <p className="text-[9px] font-black text-white">-{product.discountPercent}%</p>
+                  </div>
+                )}
+                {product.image_url ? (
+                  <Image
                     src={product.image_url}
                     alt={product.name}
                     fill
-                    className="object-contain p-5"
+                    className="object-cover transition duration-500 group-hover:scale-105"
+                    unoptimized
                   />
-                </div>
-                <div className="space-y-2 p-4">
-                  <p className="line-clamp-2 text-base font-bold text-foreground">{product.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {product.category ?? showcaseTitle}
-                  </p>
-                  <p className="text-xl font-black text-primary">
-                    ${product.price.toLocaleString()}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-          ) : (
-            <div className="mt-6 flex min-h-[280px] items-center justify-center rounded-[1.5rem] border border-dashed border-border bg-muted/30 text-center text-sm text-muted-foreground">
-              No hay productos disponibles todavia para esta categoria.
-            </div>
-          )}
-      </div>
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <Camera className="h-6 w-6 text-muted-foreground/30" />
+                  </div>
+                )}
+              </div>
+
+              {/* Info */}
+              <div className="flex flex-1 flex-col gap-1 p-2.5">
+                <p className="line-clamp-1 text-[11px] font-semibold text-foreground sm:text-xs">
+                  {product.name}
+                </p>
+                <p className={`mt-auto text-sm font-black ${product.onSale ? "text-red-600 dark:text-red-400" : "text-primary"}`}>
+                  ${formatPrice(product.price)}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div className="flex min-h-[280px] items-center justify-center p-6 text-center text-sm text-muted-foreground">
+          No hay productos disponibles todavía.
+        </div>
+      )}
     </section>
   )
 }

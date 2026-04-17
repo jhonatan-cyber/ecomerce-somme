@@ -3,9 +3,14 @@ export interface Product {
   name: string
   description: string | null
   price: number
+  originalPrice?: number | null
+  discountPercent?: number | null
+  onSale?: boolean
+  saleEndDate?: string | null
   image_url: string | null
   images?: string[]
   stock: number
+  minimumStock?: number
   category: string | null
   categoryId?: string | null
   brandId?: string | null

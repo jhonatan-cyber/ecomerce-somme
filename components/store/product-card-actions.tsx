@@ -1,8 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Heart, ShoppingCart } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Heart, ShoppingCart, Check } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useCartStore } from "@/lib/store/cart-store"
 import type { Product } from "@/lib/types"
@@ -11,54 +10,66 @@ export function ProductCardActions({ product }: { product: Product }) {
   const addItem = useCartStore((state) => state.addItem)
   const { toast } = useToast()
   const [isWished, setIsWished] = useState(false)
+  const [justAdded, setJustAdded] = useState(false)
 
   const handleAddToCart = () => {
     addItem(product)
+    setJustAdded(true)
+    setTimeout(() => setJustAdded(false), 1500)
     toast({
-      title: "Producto anadido",
-      description: `${product.name} fue agregado al carrito.`,
+      title: "Agregado al carrito",
+      description: product.name,
     })
   }
 
   const handleWishToggle = () => {
-    const nextValue = !isWished
-    setIsWished(nextValue)
+    const next = !isWished
+    setIsWished(next)
     toast({
-      title: nextValue ? "Guardado en deseo" : "Eliminado de deseo",
-      description: nextValue
-        ? `${product.name} fue marcado para revisar despues.`
-        : `${product.name} se quito de tus productos guardados.`,
+      title: next ? "Guardado" : "Eliminado",
+      description: next ? `${product.name} guardado para después.` : `${product.name} eliminado.`,
     })
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Button
+    <div className="flex items-center gap-1.5">
+      {/* Wishlist */}
+      <button
         type="button"
-        variant="outline"
-        size="icon"
         onClick={handleWishToggle}
-        className={`h-9 w-9 rounded-lg ${
+        aria-label={isWished ? `Quitar ${product.name} de guardados` : `Guardar ${product.name}`}
+        className={`flex h-8 w-8 items-center justify-center rounded-lg border transition-all ${
           isWished
-            ? "border-rose-300 bg-rose-50 text-rose-600 hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
-            : ""
+            ? "border-rose-200 bg-rose-50 text-rose-500 hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400"
+            : "border-border bg-background text-muted-foreground hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500 dark:hover:border-rose-500/30 dark:hover:bg-rose-500/10 dark:hover:text-rose-400"
         }`}
-        aria-label={isWished ? `Quitar ${product.name} de deseo` : `Agregar ${product.name} a deseo`}
-        title={isWished ? "Quitar de deseo" : "Agregar a deseo"}
       >
-        <Heart className={`h-4 w-4 ${isWished ? "fill-current" : ""}`} />
-      </Button>
+        <Heart className={`h-3.5 w-3.5 ${isWished ? "fill-current" : ""}`} />
+      </button>
 
-      <Button
+      {/* Add to cart */}
+      <button
         type="button"
-        size="icon"
         onClick={handleAddToCart}
-        className="h-9 w-9 rounded-lg bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] text-white shadow-lg shadow-primary/20 transition hover:opacity-95"
         aria-label={`Agregar ${product.name} al carrito`}
-        title="Agregar al carrito"
+        className={`flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs font-bold text-white transition-all sm:px-3 ${
+          justAdded
+            ? "bg-emerald-500 shadow-md shadow-emerald-500/25"
+            : "bg-gradient-to-r from-slate-900 to-blue-700 shadow-md shadow-primary/20 hover:opacity-90 dark:from-blue-700 dark:to-blue-600"
+        }`}
       >
-        <ShoppingCart className="h-4 w-4" />
-      </Button>
+        {justAdded ? (
+          <>
+            <Check className="h-3.5 w-3.5" />
+            Listo
+          </>
+        ) : (
+          <>
+            <ShoppingCart className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Agregar</span>
+          </>
+        )}
+      </button>
     </div>
   )
 }

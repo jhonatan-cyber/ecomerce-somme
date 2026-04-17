@@ -17,7 +17,7 @@ export function ProductListItem({ product }: { product: Product }) {
         {product.image_url ? <StoreImage src={product.image_url} alt={product.name} fill className="object-cover" fallbackText="No img" fallbackTextClassName="text-[10px]" showFallbackIcon={false} /> : <div className="flex h-full items-center justify-center text-[10px] text-muted-foreground">No img</div>}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="line-clamp-2 text-sm font-semibold text-slate-900">{product.name}</p>
+        <p className="line-clamp-2 text-sm font-semibold text-foreground">{product.name}</p>
         <p className="mt-1 text-sm font-black text-primary">{formatPrice(product.price)}</p>
       </div>
       <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />

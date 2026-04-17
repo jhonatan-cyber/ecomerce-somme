@@ -3,30 +3,25 @@ import { CheckCircle2, ShieldCheck, ShoppingBag, Truck } from "lucide-react"
 import { StoreHeader } from "@/components/store/header"
 import { StoreFooter } from "@/components/store/footer"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { getOrderById } from "@/lib/api"
 
 function formatCurrency(value: number | null | undefined) {
-  if (typeof value !== "number" || Number.isNaN(value)) {
-    return "A coordinar"
-  }
-
+  if (typeof value !== "number" || Number.isNaN(value)) return "A coordinar"
   return `$${value.toLocaleString()}`
 }
 
 function formatDate(value: string | null | undefined) {
   if (!value) return "Pendiente"
-
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-
-  return date.toLocaleString("es-AR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  })
+  return date.toLocaleString("es-AR", { dateStyle: "medium", timeStyle: "short" })
 }
 
-export default async function OrderConfirmationPage({ params }: { params: Promise<{ orderId: string }> | { orderId: string } }) {
+export default async function OrderConfirmationPage({
+  params,
+}: {
+  params: Promise<{ orderId: string }> | { orderId: string }
+}) {
   const resolvedParams = await params
   const lookup = await getOrderById(resolvedParams.orderId)
   const order = lookup.ok ? lookup.order : null
@@ -36,81 +31,117 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
   return (
     <div className="min-h-screen bg-background">
       <StoreHeader />
-      <main className="container mx-auto px-4 py-16">
-        <Card className="mx-auto max-w-3xl overflow-hidden rounded-[2rem] border-border/70 shadow-xl shadow-slate-950/5">
-          <CardContent className="p-0">
-            <div className="bg-[linear-gradient(135deg,#0f172a_0%,#1e293b_100%)] px-8 py-10 text-white">
-              <CheckCircle2 className="h-16 w-16 text-cyan-300" />
-              <h1 className="mt-5 text-4xl font-black tracking-tight">¡Pedido confirmado!</h1>
-              <p className="mt-3 max-w-xl text-slate-300">Tu compra fue recibida correctamente y ya entró al flujo de coordinación comercial.</p>
+      <main className="container mx-auto px-4 py-10 sm:py-16">
+        <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-border/70 bg-card shadow-lg sm:rounded-[2rem]">
+          {/* Hero header */}
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 px-5 py-8 text-white sm:px-8 sm:py-10">
+            <CheckCircle2 className="h-12 w-12 text-cyan-300 sm:h-16 sm:w-16" />
+            <h1 className="mt-4 text-2xl font-black tracking-tight sm:mt-5 sm:text-4xl">
+              ¡Pedido confirmado!
+            </h1>
+            <p className="mt-2 max-w-xl text-sm text-slate-300 sm:mt-3 sm:text-base">
+              Tu compra fue recibida correctamente y ya entró al flujo de coordinación comercial.
+            </p>
+          </div>
+
+          {/* Body */}
+          <div className="p-5 sm:p-8">
+            {/* Order number */}
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-primary">
+              Número de pedido
+            </p>
+            <p className="mt-1.5 font-mono text-2xl font-black tracking-tight sm:text-3xl">
+              #{shortId}
+            </p>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              Recibirás un email con el detalle. El equipo de Somme Technology se contactará para coordinar.
+            </p>
+
+            {/* Info cards */}
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border bg-muted/50 p-4 text-sm">
+                <p className="flex items-center gap-2 font-semibold text-foreground">
+                  <ShieldCheck className="h-4 w-4 text-primary" /> Confirmación segura
+                </p>
+                <p className="mt-1.5 text-muted-foreground">Pedido registrado y listo para seguimiento.</p>
+              </div>
+              <div className="rounded-xl border bg-muted/50 p-4 text-sm">
+                <p className="flex items-center gap-2 font-semibold text-foreground">
+                  <Truck className="h-4 w-4 text-primary" /> Próximo paso
+                </p>
+                <p className="mt-1.5 text-muted-foreground">Coordinación de despacho y contacto postventa.</p>
+              </div>
             </div>
-            <div className="grid gap-6 p-8 md:grid-cols-[1fr_auto] md:items-start">
-              <div>
-                <p className="text-sm font-bold uppercase tracking-[0.24em] text-primary">Número de pedido</p>
-                <p className="mt-2 font-mono text-3xl font-black tracking-tight">#{shortId}</p>
-                <p className="mt-4 text-sm leading-6 text-muted-foreground">Vas a recibir un email con el detalle y el proximo paso. Si corresponde instalacion o coordinacion, el equipo de Somme Technology se contacta con vos.</p>
-                <div className="mt-6 grid gap-3 md:grid-cols-2">
-                  <div className="rounded-2xl border bg-muted/60 p-4 text-sm"><p className="inline-flex items-center gap-2 font-semibold"><ShieldCheck className="h-4 w-4 text-primary" /> Confirmación segura</p><p className="mt-2 text-muted-foreground">Pedido registrado y listo para seguimiento.</p></div>
-                  <div className="rounded-2xl border bg-muted/60 p-4 text-sm"><p className="inline-flex items-center gap-2 font-semibold"><Truck className="h-4 w-4 text-primary" /> Próximo paso</p><p className="mt-2 text-muted-foreground">Coordinación de despacho y contacto postventa.</p></div>
+
+            {/* Order detail */}
+            {order && (
+              <div className="mt-6 rounded-xl border bg-muted/30 p-4 sm:rounded-2xl sm:p-5">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                  Detalle del pedido
+                </p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-xl bg-background p-3 text-sm shadow-sm">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Cliente</p>
+                    <p className="mt-1.5 font-semibold text-foreground">{order.customer?.name || "Sin nombre"}</p>
+                    <p className="text-muted-foreground">{order.customer?.email || "Sin email"}</p>
+                    {order.customer?.phone && (
+                      <p className="text-muted-foreground">{order.customer.phone}</p>
+                    )}
+                  </div>
+                  <div className="rounded-xl bg-background p-3 text-sm shadow-sm">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Estado</p>
+                    <p className="mt-1.5 font-semibold text-foreground">{order.status || "Pendiente"}</p>
+                    <p className="text-muted-foreground">Creado: {formatDate(order.createdAt)}</p>
+                    <p className="font-bold text-foreground">Total: {formatCurrency(order.total)}</p>
+                  </div>
                 </div>
 
-                {order && (
-                  <div className="mt-8 rounded-[1.5rem] border bg-muted/40 p-5">
-                    <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-900">Detalle consultado desde el backend</p>
-                    <div className="mt-4 grid gap-4 md:grid-cols-2">
-                      <div className="rounded-2xl bg-white p-4 text-sm shadow-sm">
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Cliente</p>
-                        <p className="mt-2 font-semibold text-slate-900">{order.customer?.name || "Sin nombre"}</p>
-                        <p className="mt-1 text-muted-foreground">{order.customer?.email || "Sin email"}</p>
-                        <p className="mt-1 text-muted-foreground">{order.customer?.phone || "Sin teléfono"}</p>
-                      </div>
-                      <div className="rounded-2xl bg-white p-4 text-sm shadow-sm">
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Estado</p>
-                        <p className="mt-2 font-semibold text-slate-900">{order.status || "Pendiente"}</p>
-                        <p className="mt-1 text-muted-foreground">Creado: {formatDate(order.createdAt)}</p>
-                        <p className="mt-1 text-muted-foreground">Total: {formatCurrency(order.total)}</p>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 rounded-2xl bg-white p-4 text-sm shadow-sm">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Items</p>
-                      <div className="mt-3 space-y-3">
-                        {order.items.length > 0 ? (
-                          order.items.map((item) => (
-                            <div key={`${item.productId}-${item.productName}`} className="flex items-start justify-between gap-4 border-b border-dashed border-border/70 pb-3 last:border-b-0 last:pb-0">
-                              <div>
-                                <p className="font-semibold text-slate-900">{item.productName}</p>
-                                <p className="text-muted-foreground">Cantidad: {item.quantity}</p>
-                              </div>
-                              <div className="text-right font-semibold text-slate-900">
-                                <p>{formatCurrency(item.productPrice)}</p>
-                                <p className="text-muted-foreground">ID: {item.productId}</p>
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-muted-foreground">El backend devolvió la orden, pero sin un listado de items normalizado.</p>
-                        )}
-                      </div>
+                {order.items.length > 0 && (
+                  <div className="mt-3 rounded-xl bg-background p-3 text-sm shadow-sm">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Productos
+                    </p>
+                    <div className="mt-2 space-y-2.5">
+                      {order.items.map((item) => (
+                        <div
+                          key={`${item.productId}-${item.productName}`}
+                          className="flex items-start justify-between gap-3 border-b border-dashed border-border/60 pb-2.5 last:border-0 last:pb-0"
+                        >
+                          <div className="min-w-0">
+                            <p className="font-semibold text-foreground">{item.productName}</p>
+                            <p className="text-muted-foreground">× {item.quantity}</p>
+                          </div>
+                          <p className="shrink-0 font-bold text-foreground">
+                            {formatCurrency(item.productPrice)}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
+              </div>
+            )}
 
-                {lookup.error && !order && (
-                  <div className="mt-8 rounded-[1.5rem] border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
-                    <p className="font-semibold">Detalle limitado</p>
-                    <p className="mt-2 leading-6">{lookup.error}</p>
-                    <p className="mt-2 text-xs text-amber-700">Te mostramos la confirmación mínima mientras el backend público de órdenes no expone la lectura completa.</p>
-                  </div>
-                )}
+            {lookup.error && !order && (
+              <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
+                <p className="font-semibold">Detalle limitado</p>
+                <p className="mt-1.5 leading-5">{lookup.error}</p>
               </div>
-              <div className="flex flex-col gap-3">
-                <Button asChild className="rounded-2xl px-6"><Link href="/#catalogo">Seguir comprando</Link></Button>
-                <Button asChild variant="outline" className="rounded-2xl px-6"><Link href="/cart"><ShoppingBag className="mr-2 h-4 w-4" /> Ver carrito</Link></Button>
-              </div>
+            )}
+
+            {/* CTAs */}
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Button asChild className="h-11 flex-1 rounded-xl sm:rounded-2xl">
+                <Link href="/catalog">Seguir comprando</Link>
+              </Button>
+              <Button asChild variant="outline" className="h-11 flex-1 rounded-xl sm:rounded-2xl">
+                <Link href="/cart">
+                  <ShoppingBag className="mr-2 h-4 w-4" /> Ver carrito
+                </Link>
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </main>
       <StoreFooter />
     </div>

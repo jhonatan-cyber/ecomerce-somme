@@ -21,7 +21,7 @@ export function FeaturedShowcaseSection({
       <div className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
         <aside className="rounded-[1.75rem] border border-yellow-400 bg-card shadow-sm">
           <div className="border-b border-yellow-400/60 px-5 py-4">
-            <p className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Special Offer</p>
+            <p className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Oferta especial</p>
           </div>
           <div className="p-5">
             <div className="relative mx-auto aspect-square max-w-[180px] overflow-hidden rounded-2xl bg-muted">
@@ -54,9 +54,9 @@ export function FeaturedShowcaseSection({
               </>
             )}
             <div className="mt-5 rounded-2xl bg-muted/70 p-4">
-              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Hurry up</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Tiempo limitado</p>
               <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs font-bold text-foreground">
-                <div className="rounded-xl bg-background px-2 py-3">00<br />Days</div>
+                <div className="rounded-xl bg-background px-2 py-3">00<br />Días</div>
                 <div className="rounded-xl bg-background px-2 py-3">00<br />Hrs</div>
                 <div className="rounded-xl bg-background px-2 py-3">00<br />Min</div>
               </div>
@@ -70,9 +70,9 @@ export function FeaturedShowcaseSection({
             className="mb-5 flex flex-col gap-3 border-b border-border/70 pb-4 md:flex-row md:items-center md:justify-between"
           >
             <div className="flex flex-wrap items-center gap-5 text-sm font-bold text-foreground">
-              <span className="border-b-2 border-yellow-400 pb-2">Featured</span>
-              <span className="text-muted-foreground">On Sale</span>
-              <span className="text-muted-foreground">Top Rated</span>
+              <span className="border-b-2 border-yellow-400 pb-2">Destacados</span>
+              <span className="text-muted-foreground">En oferta</span>
+              <span className="text-muted-foreground">Mejor valorados</span>
             </div>
             <Link href="#catalogo" className="text-sm font-semibold text-primary">
               Ver mas

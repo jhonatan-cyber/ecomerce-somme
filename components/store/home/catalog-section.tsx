@@ -30,7 +30,7 @@ export function CatalogSection({
           </div>
 
           {normalizedSearch || selectedCategory ? (
-            <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-cyan-100 bg-cyan-50 px-4 py-3 text-sm text-slate-700 dark:border-cyan-500/20 dark:bg-cyan-500/10 dark:text-cyan-50">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-cyan-200/60 bg-cyan-50/80 px-4 py-3 text-sm dark:border-cyan-500/20 dark:bg-cyan-500/10">
               {normalizedSearch ? (
                 <>
                   <span className="font-semibold text-foreground">Buscando:</span>

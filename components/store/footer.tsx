@@ -1,90 +1,61 @@
-import Link from "next/link"
 import { Facebook, Instagram, Mail, MapPin, Phone, ShieldCheck, Truck, Youtube } from "lucide-react"
-import {
-  defaultStoreNavigationCategories,
-  getStoreCategoryHref,
-  type StoreNavigationCategory,
-} from "@/lib/store-navigation"
 
-const quickLinks = [
-  { href: "/#destacados", label: "Destacados" },
-  { href: "/#catalogo", label: "Catalogo" },
-  { href: "/cart", label: "Carrito" },
-  { href: "/checkout", label: "Checkout" },
-]
-
-export function StoreFooter({
-  categories = defaultStoreNavigationCategories,
-}: {
-  categories?: StoreNavigationCategory[]
-}) {
+export function StoreFooter() {
   return (
-    <footer className="mt-20 border-t border-slate-900/80 bg-[linear-gradient(180deg,#020617_0%,#0f172a_100%)] text-slate-200">
-      <div className="container mx-auto grid gap-10 px-4 py-12 lg:grid-cols-[1.15fr_0.8fr_0.8fr_1fr]">
-        <div>
-          <div className="inline-flex items-center gap-3">
-            <div className="rounded-2xl bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_65%,#22d3ee_100%)] p-3 text-white shadow-lg shadow-cyan-500/20">
-              <ShieldCheck className="h-6 w-6" />
+    <footer className="mt-12 border-t border-slate-900/80 bg-[linear-gradient(180deg,#020617_0%,#0f172a_100%)] text-slate-200 sm:mt-20">
+      <div className="container mx-auto px-4 py-8 sm:py-12">
+        {/* Brand block — full width on mobile */}
+        <div className="mb-8 sm:mb-10">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_65%,#22d3ee_100%)] p-2.5 text-white shadow-lg shadow-cyan-500/20 sm:rounded-2xl sm:p-3">
+              <ShieldCheck className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div>
-              <p className="bg-gradient-to-r from-cyan-300 via-blue-400 to-primary bg-clip-text text-2xl font-black text-transparent">
+              <p className="bg-gradient-to-r from-cyan-300 via-blue-400 to-primary bg-clip-text text-xl font-black text-transparent sm:text-2xl">
                 Somme Technology
               </p>
-              <p className="text-sm text-slate-400">Seguridad electronica y e-commerce con enfoque comercial.</p>
+              <p className="text-xs text-slate-400 sm:text-sm">Seguridad electrónica · Cochabamba, Bolivia</p>
             </div>
           </div>
 
-          <p className="mt-5 max-w-md text-sm leading-6 text-slate-400">
-            Una tienda pensada para mostrar productos reales, comunicar confianza y convertir mejor desde el primer scroll hasta el checkout.
+          <p className="mt-4 text-sm leading-6 text-slate-400 sm:mt-5 sm:max-w-md">
+            Tienda especializada en videovigilancia y seguridad electrónica. Productos reales, asesoramiento técnico y despacho coordinado.
           </p>
 
-          <div className="mt-6 flex flex-wrap gap-3 text-sm text-slate-300">
-            <span className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/60 px-3 py-1.5">
-              <Truck className="h-4 w-4 text-cyan-300" /> Despacho agil
+          <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-300 sm:mt-6 sm:gap-3 sm:text-sm">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900/60 px-3 py-1.5">
+              <Truck className="h-3.5 w-3.5 text-cyan-300" /> Despacho ágil
             </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/60 px-3 py-1.5">
-              <ShieldCheck className="h-4 w-4 text-cyan-300" /> Compra segura
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900/60 px-3 py-1.5">
+              <ShieldCheck className="h-3.5 w-3.5 text-cyan-300" /> Compra segura
             </span>
           </div>
         </div>
 
-        <div>
-          <h3 className="text-sm font-bold uppercase tracking-[0.24em] text-slate-400">Navegacion</h3>
-          <ul className="mt-4 space-y-3 text-sm">
-            {quickLinks.map((link) => (
-              <li key={link.href}>
-                <Link href={link.href} className="text-slate-300 transition hover:text-white">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <h3 className="text-sm font-bold uppercase tracking-[0.24em] text-slate-400">Categorias</h3>
-          <ul className="mt-4 space-y-3 text-sm">
-            {categories.map((category) => (
-              <li key={category.id}>
-                <Link href={getStoreCategoryHref(category.id)} className="text-slate-300 transition hover:text-white">
-                  {category.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <h3 className="text-sm font-bold uppercase tracking-[0.24em] text-slate-400">Contacto</h3>
-          <div className="mt-4 space-y-3 text-sm text-slate-300">
-            <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-cyan-300" /> +54 11 5555 0000</p>
-            <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-cyan-300" /> ventas@somme-technology.com</p>
-            <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-cyan-300" /> Buenos Aires, Argentina</p>
+        {/* Contact — horizontal on mobile */}
+        <div className="border-t border-slate-800/60 pt-6 sm:pt-8">
+          <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-slate-400">Contacto</h3>
+          <div className="grid grid-cols-1 gap-3 text-sm text-slate-300 sm:grid-cols-3">
+            <p className="flex items-center gap-2">
+              <Phone className="h-4 w-4 shrink-0 text-cyan-300" />
+              +591 79960578
+            </p>
+            <p className="flex items-center gap-2">
+              <Mail className="h-4 w-4 shrink-0 text-cyan-300" />
+              edgarmartinez@gmail.com
+            </p>
+            <p className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 shrink-0 text-cyan-300" />
+              Cochabamba, Bolivia
+            </p>
           </div>
 
           <div className="mt-5 flex items-center gap-3">
             {[Facebook, Instagram, Youtube].map((Icon, index) => (
-              <span key={index} className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/60 text-slate-300 transition hover:border-cyan-400/40 hover:text-white">
+              <span
+                key={index}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/60 text-slate-300 transition hover:border-cyan-400/40 hover:text-white sm:h-10 sm:w-10 sm:rounded-2xl"
+              >
                 <Icon className="h-4 w-4" />
               </span>
             ))}
@@ -93,9 +64,9 @@ export function StoreFooter({
       </div>
 
       <div className="border-t border-slate-800/90">
-        <div className="container mx-auto flex flex-col gap-2 px-4 py-5 text-xs text-slate-500 md:flex-row md:items-center md:justify-between">
+        <div className="container mx-auto flex flex-col gap-1 px-4 py-4 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:py-5">
           <p>© 2026 Somme Technology. Todos los derechos reservados.</p>
-          <p>Storefront pensado para seguridad, catalogo real y conversion.</p>
+          <p>Cochabamba, Bolivia · Seguridad electrónica</p>
         </div>
       </div>
     </footer>
