@@ -90,7 +90,13 @@ export function StoreFooter() {
         <div className="container mx-auto flex flex-col gap-2 px-4 py-4 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:py-5">
           <p>© 2026 Somme Technology. Todos los derechos reservados.</p>
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
-            <p>Cochabamba, Bolivia · Seguridad electrónica</p>
+            <div className="flex items-center gap-3">
+              <a href="/privacy" className="transition hover:text-slate-300">Privacidad</a>
+              <span>·</span>
+              <a href="/cookies" className="transition hover:text-slate-300">Cookies</a>
+              <span>·</span>
+              <a href="/terms" className="transition hover:text-slate-300">Términos</a>
+            </div>
             <span className="hidden sm:inline">·</span>
             <p className="text-slate-600">
               Desarrollado por{" "}

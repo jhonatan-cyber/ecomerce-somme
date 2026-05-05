@@ -152,25 +152,27 @@
     display: none;
   }
 
-  /* Scrollbar thin and subtle */
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
-  }
-  .scrollbar-thin::-webkit-scrollbar {
-    height: 2px;
-    width: 2px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 999px;
-  }
-  .scrollbar-thin:hover::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,0.1);
-  }
+
+
+/* Scrollbar thin and subtle */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+  width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 999px;
+}
+.scrollbar-thin:hover::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.4);
+}
 
   .store-surface {
     position: relative;
@@ -200,4 +202,50 @@
       radial-gradient(circle at 85% 0%, rgba(59, 130, 246, 0.12), transparent 24rem);
     z-index: -3;
   }
+}
+
+/* ── Sidebar scrollbar ── fuera de @layer para que webkit lo procese ── */
+.sidebar-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(71, 85, 105, 0.5) transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 3px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.6);
+  border-radius: 999px;
+}
+.sidebar-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(250, 204, 21, 0.7);
+  border-radius: 999px;
+}
+
+/* ── Global page scrollbar ── */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) rgba(226, 232, 240, 0.3);
+}
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(226, 232, 240, 0.3);
+  border-radius: 999px;
+  margin-block: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.5);
+  border-radius: 999px;
+  border: 1px solid rgba(226, 232, 240, 0.2);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.8);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
 }

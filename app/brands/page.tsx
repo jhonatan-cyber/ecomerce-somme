@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft, ArrowRight, Package, Shield } from "lucide-react"
@@ -6,6 +7,46 @@ import { ProductGrid } from "@/components/store/product-grid"
 import { StoreFooter } from "@/components/store/footer"
 import { StoreHeader } from "@/components/store/header"
 import type { Brand, Category } from "@/lib/types"
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>
+}): Promise<Metadata> {
+  const resolved = searchParams ? await searchParams : {}
+  const rawBrand = resolved?.brand
+  const brandId = Array.isArray(rawBrand) ? rawBrand[0] ?? "" : rawBrand ?? ""
+
+  if (!brandId) {
+    return {
+      title: "Marcas",
+      description: "Explorá todas las marcas de videovigilancia disponibles en Somme Technology.",
+      alternates: { canonical: "/brands" },
+      openGraph: { title: "Marcas | Somme Technology", url: "/brands", type: "website" },
+    }
+  }
+
+  const brandsCatalog = await getBrands()
+  const brands = brandsCatalog.ok ? brandsCatalog.brands : []
+  const brand = brands.find((b: Brand) => b.id === brandId) ?? null
+
+  if (!brand) {
+    return { title: "Marca no encontrada" }
+  }
+
+  return {
+    title: brand.name,
+    description: `Todos los productos de ${brand.name} disponibles en Somme Technology. Cámaras, grabadores y accesorios.`,
+    alternates: { canonical: `/brands?brand=${brandId}` },
+    openGraph: {
+      title: `${brand.name} | Somme Technology`,
+      description: `Productos de ${brand.name} en Somme Technology.`,
+      url: `/brands?brand=${brandId}`,
+      type: "website",
+      ...(brand.logo ? { images: [{ url: brand.logo, alt: brand.name }] } : {}),
+    },
+  }
+}
 
 export default async function BrandsPage({
   searchParams,
@@ -28,12 +69,12 @@ export default async function BrandsPage({
   const categories = categoryCatalog.ok ? categoryCatalog.categories : []
 
   const selectedBrand = normalizedBrandId
-    ? brands.find((b) => b.id === normalizedBrandId) ?? null
+    ? brands.find((b: Brand) => b.id === normalizedBrandId) ?? null
     : null
 
   // Count products per brand from all products (only when no brand selected)
-  const brandsWithLogos = brands.filter((b) => b.logo)
-  const brandsWithoutLogos = brands.filter((b) => !b.logo)
+  const brandsWithLogos = brands.filter((b: Brand) => b.logo)
+  const brandsWithoutLogos = brands.filter((b: Brand) => !b.logo)
 
   return (
     <div className="store-surface min-h-screen bg-background text-foreground">
@@ -48,13 +89,14 @@ export default async function BrandsPage({
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-4">
                   {selectedBrand.logo && (
-                    <div className="relative h-14 w-32 overflow-hidden rounded-xl border border-border/60 bg-white p-2 dark:bg-slate-800">
+                    <div className="relative h-14 w-32 overflow-hidden rounded-2xl border border-border/60 bg-white dark:bg-transparent dark:border-transparent p-1.5">
                       <Image
                         src={selectedBrand.logo}
                         alt={selectedBrand.name}
                         fill
-                        className="object-contain p-1"
+                        className="object-contain"
                         unoptimized
+                        style={{ borderRadius: '0.625rem' }}
                       />
                     </div>
                   )}
@@ -99,19 +141,20 @@ export default async function BrandsPage({
               {/* Brands with logos */}
               {brandsWithLogos.length > 0 && (
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-                  {brandsWithLogos.map((brand) => (
+                  {brandsWithLogos.map((brand: Brand) => (
                     <Link
                       key={brand.id}
                       href={`/brands?brand=${brand.id}`}
-                      className="group relative overflow-hidden rounded-2xl border border-border/60 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg dark:bg-slate-800"
+                      className="group relative overflow-hidden rounded-3xl border border-border/60 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg dark:bg-transparent dark:border-transparent"
                     >
-                      <div className="relative aspect-[3/2] overflow-hidden p-4">
+                      <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-white dark:bg-transparent p-2">
                         <Image
                           src={brand.logo!}
                           alt={brand.name}
                           fill
-                          className="object-contain p-3 transition duration-500 group-hover:scale-105"
+                          className="object-contain transition duration-500 group-hover:scale-105"
                           unoptimized
+                          style={{ borderRadius: '0.875rem' }}
                         />
                       </div>
                     </Link>
@@ -126,7 +169,7 @@ export default async function BrandsPage({
                     Otras marcas
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {brandsWithoutLogos.map((brand) => (
+                    {brandsWithoutLogos.map((brand: Brand) => (
                       <Link
                         key={brand.id}
                         href={`/brands?brand=${brand.id}`}

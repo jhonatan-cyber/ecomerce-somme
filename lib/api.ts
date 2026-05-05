@@ -1,5 +1,6 @@
 import type {
   Brand,
+  BrandLoadResult,
   CatalogLoadResult,
   Category,
   CategoryLoadResult,
@@ -36,6 +37,12 @@ function resolveStoreApiRoot() {
 }
 
 const STORE_API_ROOT = resolveStoreApiRoot()
+
+// Skip ngrok browser warning page for API calls
+const BASE_HEADERS: Record<string, string> = {
+  Accept: "application/json",
+  "ngrok-skip-browser-warning": "true",
+}
 
 function joinApiUrl(path: string) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`
@@ -174,16 +181,16 @@ return {
     brandId: toText(rawProduct.brandId ?? rawProduct.brand_id) ?? null,
     brand: toText(rawProduct.brand ?? rawProduct.brandName ?? rawProduct.brand_name),
     brandLogo: toText(rawProduct.brandLogo ?? rawProduct.brand_image) ?? null,
-    resolution: toText(rawProduct.resolution),
+    resolution: toText(rawProduct.resolution) || undefined,
     night_vision: toBoolean(rawProduct.night_vision ?? rawProduct.nightVision),
-    weather_resistance: toText(rawProduct.weather_resistance ?? rawProduct.weatherResistance),
-    field_of_view: toText(rawProduct.field_of_view ?? rawProduct.fieldOfView),
-    storage_capacity: toText(rawProduct.storage_capacity ?? rawProduct.storageCapacity),
-    connectivity: toTextArray(rawProduct.connectivity),
-    sensor_type: toText(rawProduct.sensor_type ?? rawProduct.sensorType),
-    lens_focal_length: toText(rawProduct.lens_focal_length ?? rawProduct.lensFocalLength),
-    power_consumption: toText(rawProduct.power_consumption ?? rawProduct.powerConsumption),
-    operating_temperature: toText(rawProduct.operating_temperature ?? rawProduct.operatingTemperature),
+    weather_resistance: toText(rawProduct.weather_resistance ?? rawProduct.weatherResistance) || undefined,
+    field_of_view: toText(rawProduct.field_of_view ?? rawProduct.fieldOfView) || undefined,
+    storage_capacity: toText(rawProduct.storage_capacity ?? rawProduct.storageCapacity) || undefined,
+    connectivity: toTextArray(rawProduct.connectivity) || undefined,
+    sensor_type: toText(rawProduct.sensor_type ?? rawProduct.sensorType) || undefined,
+    lens_focal_length: toText(rawProduct.lens_focal_length ?? rawProduct.lensFocalLength) || undefined,
+    power_consumption: toText(rawProduct.power_consumption ?? rawProduct.powerConsumption) || undefined,
+    operating_temperature: toText(rawProduct.operating_temperature ?? rawProduct.operatingTemperature) || undefined,
   }
 }
 

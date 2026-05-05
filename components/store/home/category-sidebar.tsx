@@ -28,12 +28,18 @@ export function CategorySidebar({
   const defaultOpenValue = selectedCategoryId ?? undefined
 
   return (
-    <aside className="flex flex-col overflow-hidden rounded-[2rem] border border-slate-900/80 bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] text-white shadow-[0_30px_90px_-50px_rgba(15,23,42,0.95)]">
-      <div className="rounded-t-[2rem] border-b border-white/10 bg-[linear-gradient(90deg,#facc15_0%,#fde68a_100%)] px-5 py-4 text-sm font-black uppercase tracking-[0.18em] text-slate-950">
+    <aside className="flex flex-col rounded-[2rem] border border-slate-900/80 bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] text-white shadow-[0_30px_90px_-50px_rgba(15,23,42,0.95)]" style={{ height: "calc(100vh - 88px - 1rem)" }}>
+      <div className="rounded-t-[2rem] border-b border-white/10 bg-[linear-gradient(90deg,#facc15_0%,#fde68a_100%)] px-5 py-4 text-sm font-black uppercase tracking-[0.18em] text-slate-950 shrink-0">
         Shop Radar
       </div>
 
-      <div className="max-h-[600px] overflow-y-auto scrollbar-hide">
+      <div
+        className="flex-1 overflow-y-auto rounded-b-[2rem]"
+        style={{
+          scrollbarWidth: "thin",
+          scrollbarColor: "rgba(71,85,105,0.6) transparent",
+        }}
+      >
         <Accordion
           type="single"
           collapsible

@@ -96,11 +96,7 @@ export function ProductCardImage({
           <span />
         )}
 
-        {!inStock ? (
-          <span className="rounded-lg bg-slate-900/80 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-300 backdrop-blur-sm">
-            Sin stock
-          </span>
-        ) : onSale && discountPercent ? (
+        {onSale && discountPercent && inStock ? (
           <span className="rounded-lg bg-gradient-to-r from-red-500 to-orange-500 px-2 py-1 text-[10px] font-black text-white shadow-md">
             -{discountPercent}%
           </span>

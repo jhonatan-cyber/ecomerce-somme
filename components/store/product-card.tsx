@@ -1,6 +1,6 @@
 import Link from "next/link"
-import { Package } from "lucide-react"
 import type { Product } from "@/lib/types"
+import { formatPrice } from "@/lib/utils"
 import { ProductCardActions } from "@/components/store/product-card-actions"
 import { ProductCardImage } from "@/components/store/product-card-image"
 
@@ -14,10 +14,6 @@ function getProductImages(product: Product) {
     .map((value) => value.trim())
     .filter(Boolean)
   return Array.from(new Set(values))
-}
-
-function formatPrice(price: number) {
-  return price.toLocaleString("es-CL")
 }
 
 export function ProductCard({ product }: ProductCardProps) {
@@ -88,7 +84,7 @@ export function ProductCard({ product }: ProductCardProps) {
           href={`/product/${encodeURIComponent(product.id)}`}
           className="flex h-8 items-center gap-1.5 rounded-lg border border-border bg-background px-2 text-xs font-bold text-foreground transition hover:border-primary/40 hover:text-primary sm:px-3"
         >
-          Ver detalle
+          Detalle
         </Link>
         <ProductCardActions product={product} />
       </div>

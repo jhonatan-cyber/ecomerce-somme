@@ -1,5 +1,6 @@
-import Link from "next/link"
+import type { Metadata } from "next"
 import { getBrands, getCategories, getProducts } from "@/lib/api"
+import { buildFallbackCategories } from "@/lib/utils"
 import { ActiveFilters } from "@/components/store/home/active-filters"
 import { Breadcrumbs } from "@/components/store/home/breadcrumbs"
 import { CatalogStatusPage } from "@/components/store/home/catalog-status-page"
@@ -8,29 +9,75 @@ import { BrandSidebarFilter } from "@/components/store/home/brand-sidebar-filter
 import { CatalogGrid } from "@/components/store/catalog-grid"
 import { StoreFooter } from "@/components/store/footer"
 import { StoreHeader } from "@/components/store/header"
-import type { Brand, Category, Product } from "@/lib/types"
+import type { Brand, Category } from "@/lib/types"
 
-function buildFallbackCategories(products: Product[]): Category[] {
-  const names = Array.from(
-    new Set(
-      products
-        .map((product) => product.category?.trim())
-        .filter((category): category is string => Boolean(category)),
-    ),
-  )
+// ---------------------------------------------------------------------------
+// SEO metadata — dynamic per active filters
+// ---------------------------------------------------------------------------
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>
+}): Promise<Metadata> {
+  const resolved = searchParams ? await searchParams : {}
+  const rawCategory = resolved?.category
+  const rawBrand = resolved?.brand
+  const rawSearch = resolved?.search
+  const categoryId = Array.isArray(rawCategory) ? rawCategory[0] ?? "" : rawCategory ?? ""
+  const brandId = Array.isArray(rawBrand) ? rawBrand[0] ?? "" : rawBrand ?? ""
+  const search = Array.isArray(rawSearch) ? rawSearch[0] ?? "" : rawSearch ?? ""
 
-  if (names.length > 0) {
-    return names.map((name) => ({
-      id: name.toLowerCase().replace(/\s+/g, "-"),
-      name,
-      icon: null,
-      description: null,
-      active: true,
-      parentId: null,
-    }))
+  // Fetch only what we need for the title
+  const [categoryCatalog, brandsCatalog] = await Promise.all([
+    getCategories(),
+    getBrands(),
+  ])
+
+  const categories = categoryCatalog.ok ? categoryCatalog.categories : []
+  const brands = brandsCatalog.ok ? brandsCatalog.brands : []
+
+  const selectedCategory = categoryId
+    ? categories.find((c: Category) => c.id === categoryId) ?? null
+    : null
+  const selectedBrand = brandId
+    ? brands.find((b: Brand) => b.id === brandId) ?? null
+    : null
+
+  let title = "Catálogo"
+  let description = "Explorá nuestro catálogo completo de cámaras de seguridad, grabadores, kits y accesorios."
+
+  if (search) {
+    title = `Resultados para "${search}"`
+    description = `Productos encontrados para "${search}" en Somme Technology.`
+  } else if (selectedBrand) {
+    title = `${selectedBrand.name} — Productos`
+    description = `Todos los productos de ${selectedBrand.name} disponibles en Somme Technology.`
+  } else if (selectedCategory) {
+    title = selectedCategory.name
+    description = `Catálogo de ${selectedCategory.name}. Encontrá los mejores productos de videovigilancia en Somme Technology.`
   }
 
-  return []
+  const canonicalParams = new URLSearchParams()
+  if (categoryId) canonicalParams.set("category", categoryId)
+  if (brandId) canonicalParams.set("brand", brandId)
+  if (search) canonicalParams.set("search", search)
+  const canonical = `/catalog${canonicalParams.toString() ? `?${canonicalParams}` : ""}`
+
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title: `${title} | Somme Technology`,
+      description,
+      url: canonical,
+      type: "website",
+    },
+    // Paginated/filtered views shouldn't be indexed to avoid duplicate content
+    robots: search
+      ? { index: false, follow: true }
+      : { index: true, follow: true },
+  }
 }
 
 export default async function CatalogPage({
@@ -78,25 +125,21 @@ export default async function CatalogPage({
 
   const products = catalog.products
   const rawCategories = categoryCatalog.ok ? categoryCatalog.categories : []
-  // API now returns root categories with children already nested
   const categories = rawCategories.length > 0 ? rawCategories : buildFallbackCategories(products)
 
-  // Find selected category (root level)
   const selectedCategory = normalizedCategoryId
-    ? categories.find((c) => c.id === normalizedCategoryId) ?? null
+    ? categories.find((c: Category) => c.id === normalizedCategoryId) ?? null
     : null
 
-  // Find selected subcategory within the selected category's children
   const selectedSubcategory =
     normalizedSubcategoryId && selectedCategory?.children
-      ? selectedCategory.children.find((c) => c.id === normalizedSubcategoryId) ?? null
+      ? selectedCategory.children.find((c: Category) => c.id === normalizedSubcategoryId) ?? null
       : null
 
   const selectedBrand = normalizedBrandId
-    ? brands.find((brand) => brand.id === normalizedBrandId) ?? null
+    ? brands.find((brand: Brand) => brand.id === normalizedBrandId) ?? null
     : null
 
-  // Build active filter chips with individual remove hrefs
   function buildCatalogUrl(params: {
     search?: string
     category?: string
@@ -169,7 +212,6 @@ export default async function CatalogPage({
       : []),
   ]
 
-  // Build breadcrumbs
   const breadcrumbs = [
     { label: "Catálogo", href: "/catalog" },
     ...(selectedCategory
@@ -190,14 +232,17 @@ export default async function CatalogPage({
 
       <main className="pb-14">
         <section className="container mx-auto px-4 pt-6">
-          <div className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
+          <div className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)] xl:items-start">
             {/* Sidebar — hidden on mobile, visible on xl+ */}
-            <div className="hidden xl:flex xl:flex-col xl:gap-4">
+            <div className="hidden xl:flex xl:flex-col xl:gap-4 xl:sticky xl:top-[88px]">
               <CategorySidebar
                 categories={categories}
                 selectedCategoryId={selectedCategory?.id ?? null}
                 selectedSubcategoryId={selectedSubcategory?.id ?? null}
               />
+              {brands.length > 0 && (
+                <BrandSidebarFilter brands={brands} />
+              )}
             </div>
 
             <div>

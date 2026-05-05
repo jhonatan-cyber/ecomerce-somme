@@ -1,62 +1,28 @@
-import Link from "next/link"
 import { getBrands, getCategories, getOnSaleProducts, getProducts, getSlides } from "@/lib/api"
+import { buildFallbackCategories } from "@/lib/utils"
 import { BrandsCarousel } from "@/components/store/home/brands-carousel"
-import { ByCategorySection } from "@/components/store/home/by-category-section"
 import { CatalogStatusPage } from "@/components/store/home/catalog-status-page"
-import { CatalogSection } from "@/components/store/home/catalog-section"
 import { CategorySidebar } from "@/components/store/home/category-sidebar"
-import { EditorialDealsSection } from "@/components/store/home/editorial-deals-section"
-import { FeaturedPromoSection } from "@/components/store/home/featured-promo-section"
-import { FeaturedShowcaseSection } from "@/components/store/home/featured-showcase-section"
 import { HeroBanner } from "@/components/store/home/hero-banner"
 import { HeroSection } from "@/components/store/home/hero-section"
 import { NewArrivalsSection } from "@/components/store/home/new-arrivals-section"
 import { OnSaleSection } from "@/components/store/home/on-sale-section"
 import { StoreFooter } from "@/components/store/footer"
 import { StoreHeader } from "@/components/store/header"
-import type { Brand, Category, Product } from "@/lib/types"
+import type { Metadata } from "next"
 
-function formatPrice(price: number) {
-  return `$${price.toLocaleString()}`
-}
-
-function buildFallbackCategories(products: Product[]): Category[] {
-  const names = Array.from(
-    new Set(
-      products
-        .map((product) => product.category?.trim())
-        .filter((category): category is string => Boolean(category)),
-    ),
-  )
-
-  if (names.length > 0) {
-    return names.map((name) => ({
-      id: name.toLowerCase().replace(/\s+/g, "-"),
-      name,
-      icon: null,
-      description: null,
-      active: true,
-      parentId: null,
-    }))
-  }
-
-  return [
-    "Camaras IP",
-    "Kits de seguridad",
-    "Grabadores NVR",
-    "Accesorios",
-    "Video porteros",
-    "Audio y sirenas",
-    "Sensores",
-    "Automatizacion",
-  ].map((name) => ({
-    id: name.toLowerCase().replace(/\s+/g, "-"),
-    name,
-    icon: null,
-    description: null,
-    active: true,
-    parentId: null,
-  }))
+export const metadata: Metadata = {
+  title: "Inicio",
+  description:
+    "Cámaras IP, kits de seguridad, grabadores NVR, video porteros y accesorios de videovigilancia. Asesoramiento técnico y envíos a todo el país.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Somme Technology — Seguridad Electrónica",
+    description:
+      "Cámaras IP, kits de seguridad, grabadores NVR, video porteros y accesorios de videovigilancia.",
+    url: "/",
+    type: "website",
+  },
 }
 
 export default async function HomePage({
@@ -116,13 +82,7 @@ export default async function HomePage({
     ? categories.find((category) => category.id === normalizedCategoryId) ?? null
     : null
 
-  const topRow = products.slice(0, 4)
-  const bestSellers = products.slice(4, 10)
-  const recent = products.slice(2, 8)
-  const editorialLeft = products.slice(0, 3)
-  const editorialRight = products.slice(3, 6)
   const heroProduct = products[0]
-  const centerShowcase = products[1]
   const heroCategoryName =
     selectedCategory?.name ?? heroProduct?.category ?? "Seguridad Electronica"
   const heroCategoryProductCount = selectedCategory
