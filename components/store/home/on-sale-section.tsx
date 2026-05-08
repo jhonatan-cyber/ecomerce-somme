@@ -182,10 +182,10 @@ export function OnSaleSection({ products }: { products: Product[] }) {
           </p>
         </div>
         <Link
-          href="/catalog"
-          className="hidden items-center gap-1.5 text-sm font-semibold text-primary transition hover:underline sm:flex"
+          href="/promotions"
+          className="hidden items-center gap-2 rounded-full border border-orange-200 bg-[linear-gradient(135deg,#fff7ed_0%,#fff1f2_100%)] px-4 py-2 text-sm font-bold text-orange-700 shadow-[0_12px_30px_-24px_rgba(249,115,22,0.8)] transition hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-[0_18px_34px_-22px_rgba(249,115,22,0.9)] sm:flex"
         >
-          Ver catálogo <ArrowRight className="h-4 w-4" />
+          Ver todas las ofertas <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
 
@@ -295,8 +295,8 @@ export function OnSaleSection({ products }: { products: Product[] }) {
       {/* Mobile CTA */}
       <div className="mt-4 sm:hidden">
         <Link
-          href="/catalog"
-          className="flex items-center justify-center gap-2 rounded-full border border-border py-3 text-sm font-semibold text-foreground transition hover:bg-muted/60"
+          href="/promotions"
+          className="flex items-center justify-center gap-2 rounded-full border border-orange-200 bg-[linear-gradient(135deg,#fff7ed_0%,#fff1f2_100%)] py-3 text-sm font-bold text-orange-700 shadow-[0_12px_30px_-24px_rgba(249,115,22,0.8)] transition hover:border-orange-300 hover:shadow-[0_18px_34px_-22px_rgba(249,115,22,0.9)]"
         >
           Ver todas las ofertas <ArrowRight className="h-4 w-4" />
         </Link>

@@ -36,6 +36,10 @@ export function getRemoteStoreOrdersUrl(orderId?: string) {
   return buildRemoteStoreUrl(path)
 }
 
+export function getRemoteStoreQuoteRequestsUrl() {
+  return buildRemoteStoreUrl("/quote-requests")
+}
+
 export function getRemoteStoreProductsUrl(search?: string) {
   return buildRemoteStoreUrl("/products", search)
 }

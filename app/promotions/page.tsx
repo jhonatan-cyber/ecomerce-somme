@@ -1,325 +1,448 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, Clock, Tag, TrendingUp, Users, Zap, ShieldCheck } from "lucide-react"
+import {
+  ArrowRight,
+  Clock3,
+  Flame,
+  Package2,
+  ShieldCheck,
+  Sparkles,
+  Tag,
+  TrendingUp,
+  Users,
+  Zap,
+} from "lucide-react"
+
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { StoreHeader } from "@/components/store/header"
 import { StoreFooter } from "@/components/store/footer"
-import { getProducts } from "@/lib/api"
+import { StoreHeader } from "@/components/store/header"
+import { PromotionProductCard } from "@/components/store/promotion-product-card"
+import { getOnSaleProducts } from "@/lib/api"
 import { formatPrice } from "@/lib/utils"
 import type { Product } from "@/lib/types"
 
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "Promociones y Ofertas Especiales | Somme Technology",
-  description: "Aprovecha nuestras ofertas exclusivas en cámaras de seguridad. Descuentos por volumen, promociones especiales y paquetes B2B.",
+  title: "Ofertas y Promociones | Somme Technology",
+  description:
+    "Descubre descuentos activos, oportunidades por volumen y equipos destacados en promoción para proyectos de seguridad electrónica.",
 }
 
-// Mock data para promociones - en producción vendría de una API
-const promotions = [
+type PromoLane = {
+  id: string
+  label: string
+  title: string
+  description: string
+  accent: string
+  icon: typeof TrendingUp
+}
+
+const promoLanes: PromoLane[] = [
   {
-    id: "bulk-discount-2024",
-    title: "Descuento por Volumen",
-    description: "Hasta 20% de descuento en compras mayores a 25 unidades",
-    type: "bulk" as const,
-    discount: 20,
-    minQuantity: 25,
-    validUntil: "2024-12-31",
-    categories: ["CCTV", "IP Cameras"],
-    icon: TrendingUp,
-    color: "bg-blue-500"
+    id: "express",
+    label: "Rotación rápida",
+    title: "Ofertas que cambian con el stock",
+    description:
+      "Promociones activas sobre productos con mejor movimiento para aprovechar precios agresivos sin perder margen.",
+    accent: "from-rose-500 to-orange-500",
+    icon: Flame,
   },
   {
-    id: "security-package",
-    title: "Paquete de Seguridad Completo",
-    description: "4 cámaras + DVR + instalación con 15% de descuento",
-    type: "package" as const,
-    discount: 15,
-    products: ["camera-1", "camera-2", "dvr-1"],
-    validUntil: "2024-11-30",
-    categories: ["Packages"],
-    icon: ShieldCheck,
-    color: "bg-green-500"
+    id: "project",
+    label: "Ventas por proyecto",
+    title: "Arma paquetes y compras por volumen",
+    description:
+      "La página está pensada para que el cliente vea descuentos visibles y luego te contacte para una propuesta más amplia.",
+    accent: "from-sky-500 to-cyan-500",
+    icon: Package2,
   },
   {
-    id: "flash-sale",
-    title: "Flash Sale 48Hrs",
-    description: "25% de descuento en cámaras 4K seleccionadas",
-    type: "flash" as const,
-    discount: 25,
-    validUntil: "2024-10-20",
-    categories: ["4K Cameras"],
-    icon: Zap,
-    color: "bg-red-500"
-  },
-  {
-    id: "b2b-special",
-    title: "Oferta Especial B2B",
-    description: "Descuentos exclusivos para empresas y proyectos",
-    type: "b2b" as const,
-    discount: 10,
-    minOrder: 5000,
-    validUntil: "2024-12-15",
-    categories: ["All"],
+    id: "b2b",
+    label: "Canal profesional",
+    title: "Cotización rápida para integradores y empresas",
+    description:
+      "Un CTA claro hacia cotización ayuda a convertir promociones sueltas en oportunidades B2B de mayor ticket.",
+    accent: "from-emerald-500 to-lime-500",
     icon: Users,
-    color: "bg-purple-500"
-  }
+  },
 ]
 
-export default async function PromotionsPage() {
-  // Obtener productos para mostrar en promociones
-  const productsLookup = await getProducts()
-  const products = productsLookup.ok ? productsLookup.products : []
+function getSaleDeadlineLabel(dateValue: string | null | undefined) {
+  if (!dateValue) return "Oferta sin fecha límite visible"
 
-  const getTimeRemaining = (validUntil: string) => {
-    const now = new Date()
-    const end = new Date(validUntil)
-    const diff = end.getTime() - now.getTime()
-    
-    if (diff <= 0) return "Expirada"
-    
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-    
-    if (days > 0) return `${days} días restantes`
-    return `${hours} horas restantes`
+  const target = new Date(dateValue)
+  const now = new Date()
+  const diffMs = target.getTime() - now.getTime()
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+
+  if (diffDays <= 0) return "Termina hoy"
+  if (diffDays === 1) return "Termina mañana"
+  if (diffDays <= 6) return `${diffDays} días restantes`
+
+  return `Vigente hasta ${target.toLocaleDateString("es-CL", {
+    day: "numeric",
+    month: "short",
+  })}`
+}
+
+function getSavings(product: Product) {
+  if (!product.originalPrice || product.originalPrice <= product.price) return 0
+  return product.originalPrice - product.price
+}
+
+function getPrimaryImage(product: Product) {
+  return [product.image_url, ...(product.images ?? [])].find(Boolean) ?? null
+}
+
+function buildQuoteGeneratorHref(products: Product[], source: string) {
+  const searchParams = new URLSearchParams()
+  const selectedIds = products.map((product) => product.id).filter(Boolean)
+
+  if (selectedIds.length > 0) {
+    searchParams.set("products", selectedIds.join(","))
   }
 
+  searchParams.set("source", source)
+
+  return `/quote-generator?${searchParams.toString()}`
+}
+
+function PromoHero({
+  product,
+  totalOnSale,
+  quoteHref,
+}: {
+  product: Product
+  totalOnSale: number
+  quoteHref: string
+}) {
+  const image = getPrimaryImage(product)
+  const savings = getSavings(product)
+  const deadline = getSaleDeadlineLabel(product.saleEndDate)
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(251,146,60,0.22),_transparent_32%),linear-gradient(135deg,#111827_0%,#0f172a_44%,#1f2937_100%)] text-white shadow-[0_30px_120px_-40px_rgba(15,23,42,0.95)]">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.08)_0%,transparent_22%,transparent_78%,rgba(255,255,255,0.04)_100%)]" />
+      <div className="pointer-events-none absolute right-[-8%] top-[-12%] h-56 w-56 rounded-full bg-orange-400/20 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[-12%] left-[-4%] h-48 w-48 rounded-full bg-cyan-400/10 blur-3xl" />
+
+      <div className="relative grid gap-8 px-6 py-8 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:px-10 lg:py-10">
+        <div className="flex flex-col justify-between">
+          <div>
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.26em] text-orange-100">
+                <Sparkles className="h-3.5 w-3.5" />
+                Semana de ofertas
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full bg-orange-500 px-3 py-1 text-xs font-black text-white shadow-lg shadow-orange-500/30">
+                <Flame className="h-3.5 w-3.5" />
+                {totalOnSale} promociones activas
+              </span>
+            </div>
+
+            <h1 className="max-w-3xl text-4xl font-black tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">
+              Precios calientes para cerrar compras más rápido.
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+              Reunimos las mejores oportunidades visibles del catálogo en una sola página, con énfasis en stock real,
+              ahorro inmediato y salidas rápidas hacia producto o cotización.
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-orange-200">Mayor descuento</p>
+              <p className="mt-2 text-3xl font-black text-white">-{product.discountPercent ?? 0}%</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">Ahorro destacado</p>
+              <p className="mt-2 text-3xl font-black text-white">${formatPrice(savings || product.price)}</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-200">Ventana activa</p>
+              <p className="mt-2 text-sm font-bold text-white">{deadline}</p>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button
+              asChild
+              size="lg"
+              className="rounded-full bg-orange-500 px-7 text-sm font-bold text-white shadow-[0_18px_40px_-18px_rgba(249,115,22,0.8)] hover:bg-orange-400"
+            >
+              <Link href={`/product/${encodeURIComponent(product.id)}`}>
+                Ver oferta principal
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="rounded-full border-white/20 bg-white/5 px-7 text-sm font-bold text-white hover:bg-white/10 hover:text-white"
+            >
+              <Link href={quoteHref}>
+                Solicitar propuesta B2B
+                <Users className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-4 backdrop-blur-sm">
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),transparent_42%)]" />
+          <div className="relative flex h-full flex-col">
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-orange-200">Oferta protagonista</p>
+                <h2 className="mt-2 text-2xl font-black leading-tight text-white">{product.name}</h2>
+              </div>
+              {product.brandLogo ? (
+                <div className="rounded-2xl bg-white px-3 py-2 shadow-lg">
+                  <Image
+                    src={product.brandLogo}
+                    alt={product.brand ?? "Marca"}
+                    width={80}
+                    height={28}
+                    className="h-6 w-auto object-contain"
+                    unoptimized
+                  />
+                </div>
+              ) : null}
+            </div>
+
+            <div className="relative min-h-[280px] flex-1 overflow-hidden rounded-[1.5rem] bg-slate-950/70">
+              {image ? (
+                <Image
+                  src={image}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-sm font-semibold text-slate-400">
+                  Sin imagen destacada
+                </div>
+              )}
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.08)_0%,rgba(15,23,42,0.68)_100%)]" />
+              <div className="absolute left-4 top-4 rounded-2xl bg-red-500 px-3 py-2 text-white shadow-xl shadow-red-500/30">
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em]">Flash price</p>
+                <p className="text-2xl font-black">-{product.discountPercent ?? 0}%</p>
+              </div>
+              <div className="absolute bottom-4 left-4 right-4 rounded-[1.25rem] border border-white/10 bg-slate-950/70 p-4 backdrop-blur-md">
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    {product.originalPrice ? (
+                      <p className="text-sm text-slate-400 line-through">${formatPrice(product.originalPrice)}</p>
+                    ) : null}
+                    <p className="text-3xl font-black text-white">${formatPrice(product.price)}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-300">Vigencia</p>
+                    <p className="mt-1 text-sm font-semibold text-orange-200">{deadline}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function PromoLaneCard({ lane }: { lane: PromoLane }) {
+  const Icon = lane.icon
+
+  return (
+    <article className="relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.35)]">
+      <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${lane.accent}`} />
+      <div className="flex items-center gap-3">
+        <div className={`flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br ${lane.accent} text-white shadow-lg`}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">{lane.label}</p>
+          <h3 className="text-lg font-black text-slate-900">{lane.title}</h3>
+        </div>
+      </div>
+      <p className="mt-4 text-sm leading-7 text-slate-600">{lane.description}</p>
+    </article>
+  )
+}
+
+export default async function PromotionsPage() {
+  const saleCatalog = await getOnSaleProducts()
+  const saleProducts = saleCatalog.ok
+    ? saleCatalog.products.filter((product) => product.onSale)
+    : []
+
+  const sortedProducts = [...saleProducts].sort(
+    (left, right) => (right.discountPercent ?? 0) - (left.discountPercent ?? 0),
+  )
+  const heroProduct = sortedProducts[0] ?? null
+  const gridProducts = heroProduct ? sortedProducts.slice(1, 9) : sortedProducts.slice(0, 8)
+  const averageDiscount = sortedProducts.length
+    ? Math.round(
+        sortedProducts.reduce((acc, product) => acc + (product.discountPercent ?? 0), 0) /
+          sortedProducts.length,
+      )
+    : 0
+  const heroQuoteHref = buildQuoteGeneratorHref(heroProduct ? [heroProduct] : [], "promociones-hero")
+  const featuredQuoteHref = buildQuoteGeneratorHref(gridProducts.slice(0, 4), "promociones-seleccion")
+  const campaignQuoteHref = buildQuoteGeneratorHref(sortedProducts.slice(0, 4), "promociones-campana")
+
+  return (
+    <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf5_0%,#fff 16%,#fff 100%)] text-foreground">
       <StoreHeader />
 
-      <main className="container mx-auto px-4 py-6 sm:py-10">
-        {/* Hero Section */}
-        <div className="mb-8 rounded-3xl bg-gradient-to-r from-camera-accent/10 to-blue-500/10 p-8 text-center sm:mb-12 sm:p-12">
-          <div className="mx-auto max-w-3xl">
-            <h1 className="mb-4 text-3xl font-black tracking-tight text-camera-charcoal sm:text-4xl md:text-5xl">
-              Promociones Exclusivas
-            </h1>
-            <p className="mb-6 text-lg text-muted-foreground sm:text-xl">
-              Aprovecha nuestras ofertas especiales en equipos de seguridad profesional
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button size="lg" className="bg-camera-accent hover:bg-camera-accent/90">
-                <Tag className="mr-2 h-4 w-4" />
-                Ver Todas las Ofertas
+      <main className="pb-16">
+        <section className="container mx-auto px-4 pt-6 sm:pt-8">
+          {heroProduct ? (
+            <PromoHero product={heroProduct} totalOnSale={sortedProducts.length} quoteHref={heroQuoteHref} />
+          ) : (
+            <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-6 py-10 text-center shadow-[0_20px_80px_-50px_rgba(15,23,42,0.4)] sm:px-10">
+              <div className="mx-auto max-w-2xl">
+                <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-orange-500">Promociones</p>
+                <h1 className="mt-3 text-4xl font-black tracking-[-0.04em] text-slate-950 sm:text-5xl">
+                  Estamos preparando la próxima ola de ofertas.
+                </h1>
+                <p className="mt-4 text-sm leading-7 text-slate-600 sm:text-base">
+                  Cuando activemos descuentos visibles en el catálogo, esta página se convertirá en el centro de campañas,
+                  bundles y oportunidades para clientes finales y B2B.
+                </p>
+                <div className="mt-8 flex flex-wrap justify-center gap-3">
+                  <Button asChild size="lg" className="rounded-full bg-orange-500 px-7 hover:bg-orange-400">
+                    <Link href="/catalog">
+                      Explorar catálogo
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline" className="rounded-full px-7">
+                    <Link href="/quote-generator">Solicitar cotización</Link>
+                  </Button>
+                </div>
+              </div>
+            </section>
+          )}
+        </section>
+
+        <section className="container mx-auto px-4 pt-8 sm:pt-10">
+          <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr_0.9fr]">
+            {promoLanes.map((lane) => (
+              <PromoLaneCard key={lane.id} lane={lane} />
+            ))}
+          </div>
+        </section>
+
+        <section className="container mx-auto px-4 pt-10">
+          <div className="grid gap-4 rounded-[2rem] border border-slate-200 bg-white px-5 py-5 shadow-[0_20px_80px_-55px_rgba(15,23,42,0.5)] sm:grid-cols-3 sm:px-7">
+            <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,#fff7ed_0%,#ffedd5_100%)] p-5">
+              <div className="flex items-center gap-2 text-orange-600">
+                <Flame className="h-4 w-4" />
+                <p className="text-[11px] font-bold uppercase tracking-[0.24em]">Activas</p>
+              </div>
+              <p className="mt-3 text-4xl font-black text-slate-950">{sortedProducts.length}</p>
+              <p className="mt-1 text-sm text-slate-600">productos con precio promocional visible</p>
+            </div>
+            <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,#eff6ff_0%,#e0f2fe_100%)] p-5">
+              <div className="flex items-center gap-2 text-sky-600">
+                <TrendingUp className="h-4 w-4" />
+                <p className="text-[11px] font-bold uppercase tracking-[0.24em]">Promedio</p>
+              </div>
+              <p className="mt-3 text-4xl font-black text-slate-950">{averageDiscount}%</p>
+              <p className="mt-1 text-sm text-slate-600">descuento medio de las ofertas activas</p>
+            </div>
+            <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,#ecfdf5_0%,#d1fae5_100%)] p-5">
+              <div className="flex items-center gap-2 text-emerald-600">
+                <ShieldCheck className="h-4 w-4" />
+                <p className="text-[11px] font-bold uppercase tracking-[0.24em]">Apoyo comercial</p>
+              </div>
+              <p className="mt-3 text-lg font-black text-slate-950">Ventas B2B listas</p>
+              <p className="mt-1 text-sm text-slate-600">usa las ofertas como entrada y empuja la cotización de proyecto</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="container mx-auto px-4 pt-10">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-orange-500">Selección destacada</p>
+                <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-slate-950 dark:text-slate-50 sm:text-4xl">
+                Todo lo que hoy vale la pena mirar.
+              </h2>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+                Una grilla diseñada para que el visitante compare rápido, vea ahorro real y encuentre una salida directa
+                al producto o a una propuesta comercial más amplia.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild variant="outline" className="rounded-full">
+                <Link href="/catalog">
+                  Ver catálogo completo
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link href="/quote-generator">
-                  Solicitar Cotización Personalizada
+              <Button
+                asChild
+                className="rounded-full bg-slate-950 text-white shadow-[0_16px_36px_-20px_rgba(15,23,42,0.85)] hover:bg-orange-500 dark:bg-orange-500 dark:text-slate-950 dark:hover:bg-orange-400"
+              >
+                <Link href={featuredQuoteHref}>
+                  Solicitar precio por volumen
+                  <Zap className="h-4 w-4" />
                 </Link>
               </Button>
             </div>
           </div>
-        </div>
 
-        {/* Active Promotions Grid */}
-        <div className="mb-12">
-          <h2 className="mb-6 text-2xl font-bold text-camera-charcoal sm:text-3xl">
-            Ofertas Activas
-          </h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {promotions.map((promo) => {
-              const Icon = promo.icon
-              const timeRemaining = getTimeRemaining(promo.validUntil)
-              const isExpired = timeRemaining === "Expirada"
-              
-              return (
-                <Card key={promo.id} className={`relative overflow-hidden ${isExpired ? 'opacity-60' : ''}`}>
-                  {/* Header */}
-                  <div className={`${promo.color} p-4 text-white`}>
-                    <div className="flex items-center justify-between">
-                      <Icon className="h-8 w-8" />
-                      <Badge variant="secondary" className="bg-white/20 text-white">
-                        {promo.type === 'bulk' && 'Volumen'}
-                        {promo.type === 'package' && 'Paquete'}
-                        {promo.type === 'flash' && 'Flash'}
-                        {promo.type === 'b2b' && 'B2B'}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg">{promo.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{promo.description}</p>
-                  </CardHeader>
-                  
-                  <CardContent className="space-y-4">
-                    {/* Discount */}
-                    <div className="text-center">
-                      <div className="text-3xl font-black text-camera-accent">
-                        -{promo.discount}%
-                      </div>
-                      <p className="text-sm text-muted-foreground">Descuento</p>
-                    </div>
-                    
-                    {/* Conditions */}
-                    <div className="space-y-2 text-sm">
-                      {promo.minQuantity && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Mínimo:</span>
-                          <span className="font-medium">{promo.minQuantity} unidades</span>
-                        </div>
-                      )}
-                      {promo.minOrder && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Pedido mínimo:</span>
-                          <span className="font-medium">${formatPrice(promo.minOrder)}</span>
-                        </div>
-                      )}
-                      {promo.categories && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Categorías:</span>
-                          <span className="font-medium">{promo.categories.join(', ')}</span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Time Remaining */}
-                    <div className={`rounded-lg p-2 text-center text-sm ${
-                      isExpired ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
-                    }`}>
-                      <Clock className="mr-1 inline h-3 w-3" />
-                      {timeRemaining}
-                    </div>
-                    
-                    {/* CTA */}
-                    <Button 
-                      className="w-full" 
-                      disabled={isExpired}
-                      asChild={!isExpired}
-                    >
-                      {isExpired ? (
-                        "Oferta Expirada"
-                      ) : (
-                        <Link href={`/catalog?promotion=${promo.id}`}>
-                          Aprovechar Oferta
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
-                      )}
-                    </Button>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-        </div>
+          {gridProducts.length > 0 ? (
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {gridProducts.map((product) => (
+                <PromotionProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : heroProduct ? (
+            <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-white px-6 py-10 text-center text-sm font-medium text-slate-500">
+              La oferta principal está activa y pronto sumaremos más productos destacados aquí.
+            </div>
+          ) : null}
+        </section>
 
-        {/* Featured Products on Sale */}
-        {products.length > 0 && (
-          <div className="mb-12">
-            <div className="mb-6 flex items-center justify-between">
+        <section className="container mx-auto px-4 pt-10">
+          <div className="overflow-hidden rounded-[2rem] border border-slate-900 bg-[linear-gradient(135deg,#111827_0%,#0f172a_55%,#1d4ed8_160%)] px-6 py-8 text-white shadow-[0_30px_100px_-45px_rgba(15,23,42,0.95)] sm:px-8">
+            <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
               <div>
-                <h2 className="text-2xl font-bold text-camera-charcoal sm:text-3xl">
-                  Productos en Oferta
+                <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-cyan-200">Canal empresas</p>
+                <h2 className="mt-3 text-3xl font-black tracking-[-0.03em] sm:text-4xl">
+                  Convierte la página de ofertas en una puerta de entrada a proyectos más grandes.
                 </h2>
-                <p className="mt-1 text-muted-foreground">
-                  Equipos seleccionados con descuentos especiales
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+                  Si un cliente encuentra una promoción atractiva, el siguiente paso ideal no siempre es “comprar una unidad”:
+                  muchas veces es pedir una propuesta integral, stock reservado o precio por volumen.
                 </p>
               </div>
-              <Button variant="outline" asChild>
-                <Link href="/catalog?onSale=true">
-                  Ver Todos
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-            
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {products
-                .filter(product => product.onSale)
-                .slice(0, 8)
-                .map((product) => (
-                  <Card key={product.id} className="group overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg">
-                    <div className="relative">
-                      <div className="aspect-[4/3] overflow-hidden bg-muted">
-                        {product.image_url && (
-                          <Image
-                            src={product.image_url}
-                            alt={product.name}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                          />
-                        )}
-                      </div>
-                      
-                      {/* Discount Badge */}
-                      {product.discountPercent && (
-                        <div className="absolute left-2 top-2 rounded-md bg-red-500 px-2 py-1">
-                          <p className="text-xs font-black text-white">
-                            -{product.discountPercent}%
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <CardContent className="p-4">
-                      <div className="mb-2">
-                        {product.brand && (
-                          <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                            {product.brand}
-                          </p>
-                        )}
-                        <h3 className="line-clamp-2 text-sm font-semibold leading-tight">
-                          {product.name}
-                        </h3>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          {product.originalPrice && (
-                            <p className="text-xs text-muted-foreground line-through">
-                              ${formatPrice(product.originalPrice)}
-                            </p>
-                          )}
-                          <p className="text-lg font-black text-red-600">
-                            ${formatPrice(product.price)}
-                          </p>
-                        </div>
-                        
-                        <Button size="sm" asChild>
-                          <Link href={`/product/${encodeURIComponent(product.id)}`}>
-                            Ver
-                          </Link>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-            </div>
-          </div>
-        )}
-
-        {/* B2B Special Section */}
-        <Card className="border-camera-accent/30 bg-gradient-to-r from-camera-accent/5 to-blue-500/5">
-          <CardContent className="p-8 text-center">
-            <div className="mx-auto max-w-2xl">
-              <Users className="mx-auto mb-4 h-12 w-12 text-camera-accent" />
-              <h3 className="mb-4 text-2xl font-bold text-camera-charcoal">
-                ¿Eres un cliente B2B?
-              </h3>
-              <p className="mb-6 text-lg text-muted-foreground">
-                Solicita una cotización personalizada y obtén descuentos exclusivos, 
-                instalación profesional y soporte prioritario para tu proyecto.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Button size="lg" className="bg-camera-accent hover:bg-camera-accent/90" asChild>
-                  <Link href="/quote-generator">
-                    Solicitar Cotización B2B
+              <div className="grid gap-3">
+                <Button asChild size="lg" className="rounded-full bg-orange-500 text-white hover:bg-orange-400">
+                  <Link href={campaignQuoteHref}>
+                    Solicitar cotización personalizada
+                    <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="lg" asChild>
-                  <Link href="/contact">
-                    Contactar Asesor
-                  </Link>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                >
+                  <Link href="/catalog">Explorar todo el catálogo</Link>
                 </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </main>
 
       <StoreFooter />

@@ -12,6 +12,8 @@ import type {
   StoreOrder,
   StoreOrderCustomer,
   StoreOrderItem,
+  QuoteRequest,
+  QuoteRequestCreateResult,
 } from "./types"
 
 // Importar la función createOrder del archivo separado
@@ -401,6 +403,107 @@ export async function getOnSaleProducts(): Promise<CatalogLoadResult> {
   } catch (error) {
     return { ok: false, products: [], error: toErrorMessage(error), sourceUrl }
   }
+}
+
+export async function getQuoteProducts(): Promise<CatalogLoadResult> {
+  const sourceUrl = joinApiUrl("/quote-products")
+
+  try {
+    const response = await fetch(sourceUrl, {
+      next: { revalidate: 30 },
+      headers: {
+        Accept: "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        products: [],
+        error: `No pudimos cargar los productos de cotizacion (${response.status} ${response.statusText || "Error"}).`,
+        sourceUrl,
+        status: response.status,
+      }
+    }
+
+    const payload: unknown = await response.json()
+    const rawProducts = extractCollection(payload, ["products", "data", "items"])
+
+    if (!rawProducts) {
+      return {
+        ok: false,
+        products: [],
+        error: "La API de cotizacion devolvio un formato inesperado.",
+        sourceUrl,
+      }
+    }
+
+    const products = rawProducts.map(normalizeProduct).filter((product): product is Product => product !== null)
+
+    return {
+      ok: true,
+      products,
+      error: null,
+      sourceUrl,
+    }
+  } catch (error) {
+    return {
+      ok: false,
+      products: [],
+      error: toErrorMessage(error),
+      sourceUrl,
+    }
+  }
+}
+
+function resolveApiRoot() {
+  if (typeof window !== "undefined") {
+    return "/api"
+  }
+
+  const explicitApiRoot = process.env.NEXT_PUBLIC_API_URL?.trim()
+  if (explicitApiRoot) {
+    return explicitApiRoot.replace(/\/$/, "")
+  }
+
+  return "/api"
+}
+
+const API_ROOT = resolveApiRoot()
+
+function joinRootUrl(root: string, path: string) {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`
+  const normalizedRoot = root.replace(/\/$/, "")
+
+  if (normalizedRoot.startsWith("http://") || normalizedRoot.startsWith("https://")) {
+    return new URL(normalizedPath.slice(1), `${normalizedRoot}/`).toString()
+  }
+
+  return `${normalizedRoot}${normalizedPath}`
+}
+
+export async function createQuoteRequest(input: QuoteRequest): Promise<QuoteRequestCreateResult> {
+  const sourceUrl = joinRootUrl(API_ROOT, "/store/quote-requests")
+
+  const response = await fetch(sourceUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(input),
+  })
+
+  const payload = await response.json().catch(() => null)
+
+  if (!response.ok) {
+    throw new Error(
+      (payload && typeof payload.error === "string" && payload.error) ||
+        "No se pudo registrar la solicitud de cotizacion.",
+    )
+  }
+
+  return payload as QuoteRequestCreateResult
 }
 
 export function getRelatedCategoryIds(

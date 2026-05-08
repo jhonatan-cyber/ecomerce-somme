@@ -260,15 +260,15 @@ export default async function CatalogPage({
 
       <main className="pb-14">
         <section className="container mx-auto px-4 pt-6">
-          <div className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)] xl:items-start">
+          <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start">
             {/* Sidebar — hidden on mobile, visible on xl+ */}
-            <div className="hidden xl:flex xl:flex-col xl:gap-4 xl:sticky xl:top-[88px]">
+            <div className="hidden lg:flex lg:flex-col lg:gap-4 lg:self-start">
               <CategorySidebar
                 categories={finalCategories}
                 selectedCategoryId={selectedCategory?.id ?? null}
                 selectedSubcategoryId={selectedSubcategory?.id ?? null}
               />
-              {brands.length > 0 && (
+              {brands.length > 0 && !selectedCategory && !selectedSubcategory && (
                 <BrandSidebarFilter brands={brands} />
               )}
             </div>

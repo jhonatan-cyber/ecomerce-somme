@@ -121,6 +121,7 @@ export interface Customer {
   email: string
   phone: string | null
   address: string
+  company?: string | null
 }
 
 export interface OrderRequest {
@@ -169,4 +170,16 @@ export interface QuoteRequest {
   }[]
   project_type: 'residential' | 'commercial' | 'industrial'
   installation_required: boolean
+  notes?: string
+  source?: string
+}
+
+export interface QuoteRequestCreateResult {
+  success: boolean
+  request: {
+    id: string
+    code: string
+    status: string
+    createdAt: string
+  }
 }

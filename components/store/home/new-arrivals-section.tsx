@@ -29,10 +29,10 @@ export function NewArrivalsSection({ products }: { products: Product[] }) {
           </div>
         </div>
         <Link
-          href="/catalog"
-          className="hidden items-center gap-1.5 text-sm font-semibold text-primary transition hover:underline sm:inline-flex"
+          href="/new-arrivals"
+          className="hidden items-center gap-2 rounded-full border border-cyan-200 bg-[linear-gradient(135deg,#ecfeff_0%,#f0f9ff_100%)] px-4 py-2 text-sm font-bold text-cyan-800 shadow-[0_12px_30px_-24px_rgba(6,182,212,0.8)] transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_-22px_rgba(6,182,212,0.9)] sm:inline-flex"
         >
-          Ver todos
+          Ver todas las novedades
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
@@ -94,10 +94,10 @@ export function NewArrivalsSection({ products }: { products: Product[] }) {
       </div>
 
       <Link
-        href="/catalog"
-        className="mt-4 flex items-center justify-center gap-2 text-sm font-semibold text-primary transition hover:underline sm:hidden"
+        href="/new-arrivals"
+        className="mt-4 flex items-center justify-center gap-2 rounded-full border border-cyan-200 bg-[linear-gradient(135deg,#ecfeff_0%,#f0f9ff_100%)] px-4 py-3 text-sm font-bold text-cyan-800 shadow-[0_12px_30px_-24px_rgba(6,182,212,0.8)] transition hover:border-cyan-300 hover:shadow-[0_18px_34px_-22px_rgba(6,182,212,0.9)] sm:hidden"
       >
-        Ver todos los productos
+        Ver todas las novedades
         <ArrowRight className="h-4 w-4" />
       </Link>
     </section>
