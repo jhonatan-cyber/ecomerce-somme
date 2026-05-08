@@ -4,6 +4,7 @@ import Image from "next/image"
 import { ArrowLeft, Camera, PackageSearch, ShieldCheck, Truck, Wifi } from "lucide-react"
 import { ProductDetailActions } from "@/components/store/product-detail-actions"
 import { ProductGallery } from "@/components/store/product-gallery"
+import { TechnicalSpecs } from "@/components/store/technical-specs"
 import { StoreHeader } from "@/components/store/header"
 import { StoreFooter } from "@/components/store/footer"
 import { getProductById, getProducts } from "@/lib/api"
@@ -193,12 +194,17 @@ export default async function ProductDetailPage({
     ...brandProducts.slice(0, Math.max(0, 6 - categoryProducts.length)),
   ].slice(0, 6)
 
-  const hasSpecs =
+  const hasTechnicalSpecs =
     product.night_vision !== undefined ||
     product.resolution ||
     (product.connectivity && product.connectivity.length > 0) ||
     product.weather_resistance ||
-    product.field_of_view
+    product.field_of_view ||
+    product.storage_capacity ||
+    product.sensor_type ||
+    product.lens_focal_length ||
+    product.power_consumption ||
+    product.operating_temperature
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -299,68 +305,27 @@ export default async function ProductDetailPage({
               <ProductDetailActions product={product} />
             </div>
 
-            {/* Specs + support */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              {hasSpecs && (
-                <div className="rounded-[1.25rem] border border-border/70 bg-card p-4 shadow-sm sm:rounded-[1.5rem]">
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-foreground">
-                    Ficha rápida
-                  </p>
-                  <div className="mt-3 space-y-2.5 text-sm">
-                    {product.resolution && (
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-muted-foreground">Resolución</span>
-                        <span className="font-semibold">{product.resolution}</span>
-                      </div>
-                    )}
-                    {product.night_vision !== undefined && (
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-muted-foreground">Visión nocturna</span>
-                        <span className="font-semibold">
-                          {product.night_vision ? "Sí" : "No"}
-                        </span>
-                      </div>
-                    )}
-                    {product.connectivity && product.connectivity.length > 0 && (
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-muted-foreground">Conectividad</span>
-                        <span className="font-semibold">
-                          {product.connectivity.join(", ")}
-                        </span>
-                      </div>
-                    )}
-                    {product.weather_resistance && (
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-muted-foreground">Resistencia</span>
-                        <span className="font-semibold">{product.weather_resistance}</span>
-                      </div>
-                    )}
-                    {product.field_of_view && (
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-muted-foreground">Campo visual</span>
-                        <span className="font-semibold">{product.field_of_view}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
+            {/* Technical Specs + Support */}
+            <div className="space-y-4">
+              <TechnicalSpecs product={product} />
+              
+              {/* Support Info */}
               <div className="rounded-[1.25rem] border border-border/70 bg-card p-4 shadow-sm sm:rounded-[1.5rem]">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-foreground">
-                  Soporte
+                  Soporte y Servicios
                 </p>
                 <div className="mt-3 space-y-2.5 text-sm">
                   <div className="flex items-center gap-2 text-foreground">
                     <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />
-                    Garantía y asesoramiento
+                    Garantía y asesoramiento técnico
                   </div>
                   <div className="flex items-center gap-2 text-foreground">
                     <Truck className="h-4 w-4 shrink-0 text-primary" />
-                    Envío coordinado
+                    Envío coordinado a todo el país
                   </div>
                   <div className="flex items-center gap-2 text-foreground">
                     <Wifi className="h-4 w-4 shrink-0 text-primary" />
-                    Catálogo en tiempo real
+                    Soporte remoto y configuración
                   </div>
                 </div>
               </div>

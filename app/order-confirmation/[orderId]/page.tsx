@@ -4,6 +4,20 @@ import { StoreHeader } from "@/components/store/header"
 import { StoreFooter } from "@/components/store/footer"
 import { Button } from "@/components/ui/button"
 import { getOrderById } from "@/lib/api"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Confirmación de Pedido",
+  description: "Tu pedido ha sido confirmado. Cámaras IP, grabadores NVR, kits de seguridad y más en Somme Technology.",
+  alternates: { canonical: "/order-confirmation" },
+  robots: { index: false },
+  openGraph: {
+    title: "Confirmación de Pedido | Somme Technology",
+    description: "Pedido confirmado",
+    url: "/order-confirmation",
+    type: "website",
+  },
+}
 
 function formatCurrency(value: number | null | undefined) {
   if (typeof value !== "number" || Number.isNaN(value)) return "A coordinar"
@@ -37,10 +51,10 @@ export default async function OrderConfirmationPage({
           <div className="bg-gradient-to-br from-slate-900 to-slate-800 px-5 py-8 text-white sm:px-8 sm:py-10">
             <CheckCircle2 className="h-12 w-12 text-cyan-300 sm:h-16 sm:w-16" />
             <h1 className="mt-4 text-2xl font-black tracking-tight sm:mt-5 sm:text-4xl">
-              ¡Pedido confirmado!
+              ¡Pedido recibido!
             </h1>
             <p className="mt-2 max-w-xl text-sm text-slate-300 sm:mt-3 sm:text-base">
-              Tu compra fue recibida correctamente y ya entró al flujo de coordinación comercial.
+              Tu pedido quedó registrado como pendiente y ya entró al flujo de coordinación comercial.
             </p>
           </div>
 
@@ -54,7 +68,7 @@ export default async function OrderConfirmationPage({
               #{shortId}
             </p>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              Recibirás un email con el detalle. El equipo de Somme Technology se contactará para coordinar.
+              Recibirás el detalle de tu pedido y el equipo de Somme Technology se comunicará contigo por WhatsApp para coordinar la atención.
             </p>
 
             {/* Info cards */}
@@ -63,13 +77,13 @@ export default async function OrderConfirmationPage({
                 <p className="flex items-center gap-2 font-semibold text-foreground">
                   <ShieldCheck className="h-4 w-4 text-primary" /> Confirmación segura
                 </p>
-                <p className="mt-1.5 text-muted-foreground">Pedido registrado y listo para seguimiento.</p>
+                <p className="mt-1.5 text-muted-foreground">Pedido registrado en estado pendiente y listo para seguimiento.</p>
               </div>
               <div className="rounded-xl border bg-muted/50 p-4 text-sm">
                 <p className="flex items-center gap-2 font-semibold text-foreground">
                   <Truck className="h-4 w-4 text-primary" /> Próximo paso
                 </p>
-                <p className="mt-1.5 text-muted-foreground">Coordinación de despacho y contacto postventa.</p>
+                <p className="mt-1.5 text-muted-foreground">Nos comunicaremos por WhatsApp para coordinar entrega, pago y seguimiento.</p>
               </div>
             </div>
 

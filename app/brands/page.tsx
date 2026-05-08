@@ -14,7 +14,7 @@ export async function generateMetadata({
   searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>
 }): Promise<Metadata> {
   const resolved = searchParams ? await searchParams : {}
-  const rawBrand = resolved?.brand
+  const rawBrand = resolved?.brandId
   const brandId = Array.isArray(rawBrand) ? rawBrand[0] ?? "" : rawBrand ?? ""
 
   if (!brandId) {
@@ -37,11 +37,11 @@ export async function generateMetadata({
   return {
     title: brand.name,
     description: `Todos los productos de ${brand.name} disponibles en Somme Technology. Cámaras, grabadores y accesorios.`,
-    alternates: { canonical: `/brands?brand=${brandId}` },
+    alternates: { canonical: `/brands?brandId=${brandId}` },
     openGraph: {
       title: `${brand.name} | Somme Technology`,
       description: `Productos de ${brand.name} en Somme Technology.`,
-      url: `/brands?brand=${brandId}`,
+      url: `/brands?brandId=${brandId}`,
       type: "website",
       ...(brand.logo ? { images: [{ url: brand.logo, alt: brand.name }] } : {}),
     },
@@ -54,7 +54,7 @@ export default async function BrandsPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : {}
-  const rawBrand = resolvedSearchParams?.brand
+  const rawBrand = resolvedSearchParams?.brandId
   const brandId = Array.isArray(rawBrand) ? rawBrand[0] ?? "" : rawBrand ?? ""
   const normalizedBrandId = brandId.trim()
 
@@ -144,17 +144,16 @@ export default async function BrandsPage({
                   {brandsWithLogos.map((brand: Brand) => (
                     <Link
                       key={brand.id}
-                      href={`/brands?brand=${brand.id}`}
+                      href={`/brands?brandId=${brand.id}`}
                       className="group relative overflow-hidden rounded-3xl border border-border/60 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg dark:bg-transparent dark:border-transparent"
                     >
-                      <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-white dark:bg-transparent p-2">
+                      <div className="relative h-20 w-full overflow-hidden rounded-2xl bg-white dark:bg-transparent p-3">
                         <Image
                           src={brand.logo!}
                           alt={brand.name}
                           fill
-                          className="object-contain transition duration-500 group-hover:scale-105"
+                          className="object-cover transition duration-500 group-hover:scale-105"
                           unoptimized
-                          style={{ borderRadius: '0.875rem' }}
                         />
                       </div>
                     </Link>
@@ -172,7 +171,7 @@ export default async function BrandsPage({
                     {brandsWithoutLogos.map((brand: Brand) => (
                       <Link
                         key={brand.id}
-                        href={`/brands?brand=${brand.id}`}
+                        href={`/brands?brandId=${brand.id}`}
                         className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-4 py-2 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:text-primary"
                       >
                         <Shield className="h-3.5 w-3.5 text-muted-foreground" />

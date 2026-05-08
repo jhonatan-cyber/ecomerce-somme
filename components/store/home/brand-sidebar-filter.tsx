@@ -13,8 +13,7 @@ interface Brand {
 
 export function BrandSidebarFilter({ brands }: { brands: Brand[] }) {
   const searchParams = useSearchParams()
-  const currentBrand = searchParams?.get("brand")
-  const currentCategory = searchParams?.get("category")
+  const currentBrand = searchParams?.get("brandId")
   const [isOpen, setIsOpen] = useState(!!currentBrand)
 
   if (brands.length === 0) return null
@@ -41,7 +40,7 @@ export function BrandSidebarFilter({ brands }: { brands: Brand[] }) {
         {isOpen && (
           <div className="bg-slate-900/50 max-h-[300px] overflow-y-auto pb-2">
             <Link
-              href={`/catalog${currentCategory ? "?category=" + currentCategory : ""}`}
+              href="/catalog"
               className={`block px-6 py-2 text-xs transition hover:bg-white/5 ${
                 !currentBrand
                   ? "text-cyan-300 font-semibold"
@@ -51,7 +50,7 @@ export function BrandSidebarFilter({ brands }: { brands: Brand[] }) {
               Todas las marcas
             </Link>
             {brands.map((brand) => {
-              const href = `/catalog?${currentCategory ? "category=" + currentCategory + "&" : ""}brand=${brand.id}`
+              const href = `/catalog?brandId=${brand.id}`
               return (
                 <Link
                   key={brand.id}

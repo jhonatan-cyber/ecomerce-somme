@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, lazy, Suspense } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -16,8 +16,6 @@ import {
   Truck,
   X,
 } from "lucide-react"
-import { CartButton } from "./cart-button"
-import { ThemeToggle } from "./theme-toggle"
 import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
@@ -34,6 +32,10 @@ import {
   type StoreNavigationCategory,
 } from "@/lib/store-navigation"
 import type { Category } from "@/lib/types"
+
+// Dynamic imports para componentes no críticos
+const CartButton = lazy(() => import("./cart-button").then(mod => ({ default: mod.CartButton })))
+const ThemeToggle = lazy(() => import("./theme-toggle").then(mod => ({ default: mod.ThemeToggle })))
 
 const primaryLinks = [
   { href: "/#ofertas", label: "Ofertas" },
@@ -151,8 +153,12 @@ export function StoreHeader({
             </Link>
 
             <div className="flex items-center gap-2 lg:hidden">
-              <ThemeToggle />
-              <CartButton />
+              <Suspense fallback={<div className="h-8 w-8 animate-pulse rounded bg-muted" />}>
+                <ThemeToggle />
+              </Suspense>
+              <Suspense fallback={<div className="h-8 w-8 animate-pulse rounded bg-muted" />}>
+                <CartButton />
+              </Suspense>
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen((v) => !v)}
@@ -301,7 +307,7 @@ export function StoreHeader({
                     {brands.map((brand) => (
                       <Link
                         key={brand.id}
-                        href={`/catalog?brand=${brand.id}`}
+                        href={`/catalog?brandId=${brand.id}`}
                         onClick={closeMobileMenu}
                         className="flex items-center gap-3 border-b border-border/50 px-4 py-2.5 text-sm font-semibold text-foreground transition last:border-0 hover:bg-muted/50 hover:text-primary"
                       >
@@ -402,8 +408,12 @@ export function StoreHeader({
               ))}
             </nav>
             <div className="h-5 w-px bg-border/70" />
-            <ThemeToggle />
-            <CartButton />
+            <Suspense fallback={<div className="h-8 w-8 animate-pulse rounded bg-muted" />}>
+              <ThemeToggle />
+            </Suspense>
+            <Suspense fallback={<div className="h-8 w-8 animate-pulse rounded bg-muted" />}>
+              <CartButton />
+            </Suspense>
           </div>
         </div>
 

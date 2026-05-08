@@ -22,7 +22,6 @@ export function CatalogSidebarWithBrands({
 }) {
   const searchParams = useSearchParams()
   const currentBrand = searchParams?.get("brand")
-  const currentCategory = searchParams?.get("category")
   const [brandFilterOpen, setBrandFilterOpen] = useState(!!currentBrand)
 
   return (
@@ -48,7 +47,7 @@ export function CatalogSidebarWithBrands({
           {brandFilterOpen && (
             <div className="bg-slate-900/50 pb-2">
               <Link
-                href={`/catalog${currentCategory ? "?category=" + currentCategory : ""}`}
+                href="/catalog"
                 className={`block px-8 py-2 text-xs transition ${
                   !currentBrand
                     ? "text-cyan-300 font-semibold"
@@ -58,7 +57,7 @@ export function CatalogSidebarWithBrands({
                 Todas las marcas
               </Link>
               {brands.map((brand) => {
-                const href = `/catalog?${currentCategory ? "category=" + currentCategory + "&" : ""}brand=${brand.id}`
+                const href = `/catalog?brand=${brand.id}`
                 return (
                   <Link
                     key={brand.id}

@@ -7,10 +7,9 @@ import { Camera } from "lucide-react"
 interface ProductCardImageProps {
   images: string[]
   name: string
-  brandLogo: string | null
-  brand: string | null
-  inStock: boolean
-  lowStock: boolean
+  brandLogo?: string | null
+  inStock?: boolean
+  lowStock?: boolean
   discountPercent?: number | null
   onSale?: boolean
 }
@@ -19,7 +18,6 @@ export function ProductCardImage({
   images,
   name,
   brandLogo,
-  brand,
   inStock,
   lowStock,
   discountPercent,
@@ -49,7 +47,7 @@ export function ProductCardImage({
 
   return (
     <div
-      className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-900 dark:to-slate-800"
+      className="relative aspect-square overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-900 dark:to-slate-800 transition-transform duration-300 group-hover:scale-105"
       onMouseEnter={startSlide}
       onMouseLeave={stopSlide}
     >
@@ -65,8 +63,10 @@ export function ProductCardImage({
               className={`object-cover transition-opacity duration-300 ${
                 i === activeIndex ? "opacity-100" : "opacity-0"
               }`}
-              unoptimized
+              placeholder="blur"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A8A"
               priority={i === 0}
+              loading={i === 0 ? "eager" : "lazy"}
             />
           ))}
         </>
@@ -85,11 +85,12 @@ export function ProductCardImage({
           <div className="overflow-hidden rounded-md bg-white/95 px-1.5 py-1 shadow-sm backdrop-blur-sm sm:px-2 sm:py-1">
             <Image
               src={brandLogo}
-              alt={brand || "Marca"}
+              alt="Marca"
               width={56}
               height={20}
               className="h-4 w-auto object-contain sm:h-4"
-              unoptimized
+              placeholder="blur"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A8A"
             />
           </div>
         ) : (

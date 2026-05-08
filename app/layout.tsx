@@ -14,6 +14,25 @@ const SITE_NAME = "Somme Technology"
 const SITE_DESCRIPTION =
   "Cámaras IP, kits de seguridad, grabadores NVR, video porteros y accesorios. Asesoramiento técnico especializado y envíos a todo el país."
 
+// Organization JSON-LD for local SEO
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE_NAME,
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo.webp`,
+  description: SITE_DESCRIPTION,
+  areaServed: {
+    "@type": "Country",
+    name: "Argentina",
+  },
+  serviceType: "Tienda online de videovigilancia",
+  sameAs: [
+    "https://www.instagram.com/sommetechnology",
+    "https://www.facebook.com/sommetechnology",
+  ],
+}
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -72,6 +91,10 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning data-scroll-behavior="smooth">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

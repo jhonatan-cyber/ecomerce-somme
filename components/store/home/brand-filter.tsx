@@ -47,7 +47,7 @@ export function BrandFilter({ brands }: { brands: Brand[] }) {
           {brands.map((brand) => (
             <Link
               key={brand.id}
-              href={`/catalog?brand=${brand.id}${searchParams.get("category") ? "&category=" + searchParams.get("category") : ""}`}
+              href={`/catalog?brand=${brand.id}`}
               className={`block px-8 py-2 text-xs transition ${
                 currentBrand === brand.id
                   ? "text-cyan-300 font-semibold"

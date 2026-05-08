@@ -14,7 +14,6 @@ export interface Product {
   category: string | null
   categoryId?: string | null
   brandId?: string | null
-  brand?: string | null
   brandLogo?: string | null
   // Camera-specific technical specifications
   resolution?: string

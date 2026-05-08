@@ -14,9 +14,16 @@ import type {
   StoreOrderItem,
 } from "./types"
 
+// Importar la función createOrder del archivo separado
+export { createOrder } from './api-create-order'
+
 export type { BrandLoadResult } from "./types"
 
 function resolveStoreApiRoot() {
+  if (typeof window !== "undefined") {
+    return "/api/store"
+  }
+
   const explicitStoreRoot = process.env.NEXT_PUBLIC_STORE_API_URL?.trim()
   if (explicitStoreRoot) {
     return explicitStoreRoot
@@ -163,6 +170,8 @@ function normalizeProductRecord(rawProduct: unknown): Product | null {
     return null
   }
 
+  const brandId = toText(rawProduct.brandId ?? rawProduct.brand_id) ?? null
+
 return {
     id,
     name,
@@ -178,8 +187,7 @@ return {
     minimumStock: toNumber(rawProduct.minimumStock ?? rawProduct.minimum_stock) ?? 0,
     category: getCategory(rawProduct.category) ?? toText(rawProduct.categoryName ?? rawProduct.category_name),
     categoryId: toText(rawProduct.categoryId ?? rawProduct.category_id) ?? null,
-    brandId: toText(rawProduct.brandId ?? rawProduct.brand_id) ?? null,
-    brand: toText(rawProduct.brand ?? rawProduct.brandName ?? rawProduct.brand_name),
+    brandId,
     brandLogo: toText(rawProduct.brandLogo ?? rawProduct.brand_image) ?? null,
     resolution: toText(rawProduct.resolution) || undefined,
     night_vision: toBoolean(rawProduct.night_vision ?? rawProduct.nightVision),
@@ -378,11 +386,44 @@ export async function getOnSaleProducts(): Promise<CatalogLoadResult> {
   }
 }
 
+export function getRelatedCategoryIds(
+  categories: Category[],
+  categoryId: string
+): string[] {
+  const category = categories.find(c => c.id === categoryId)
+  if (!category) return [categoryId]
+  
+  const relatedIds = [categoryId]
+  
+  // Add direct children
+  if (category.children) {
+    relatedIds.push(...category.children.map(child => child.id))
+  }
+  
+  // Add categories with similar names (for cameras, etc.)
+  const categoryName = category.name.toLowerCase()
+  const similarCategories = categories.filter(c => 
+    c.id !== categoryId && 
+    !c.parentId && // Only root categories
+    (
+      c.name.toLowerCase().includes(categoryName) || 
+      categoryName.includes(c.name.toLowerCase()) ||
+      (c.name.toLowerCase().includes('camara') && categoryName.includes('camara')) ||
+      (c.name.toLowerCase().includes('cámara') && categoryName.includes('cámara'))
+    )
+  )
+  
+  relatedIds.push(...similarCategories.map(c => c.id))
+  
+  return [...new Set(relatedIds)] // Remove duplicates
+}
+
 export async function getProducts(options: {
   search?: string | null
   categoryId?: string | null
   subcategoryId?: string | null
   brandId?: string | null
+  categories?: Category[] // Pass categories for related category logic
 } = {}): Promise<CatalogLoadResult> {
   const url = new URL(joinApiUrl("/products"))
   const normalizedSearch = toText(options.search)
@@ -409,7 +450,7 @@ export async function getProducts(options: {
   try {
     const response = await fetch(sourceUrl, {
       next: {
-        revalidate: normalizedSearch || normalizedCategoryId || normalizedSubcategoryId ? 30 : 120,
+        revalidate: normalizedSearch || normalizedCategoryId || normalizedSubcategoryId || normalizedBrandId ? 30 : 120,
       },
       headers: {
         Accept: "application/json",
@@ -440,7 +481,55 @@ export async function getProducts(options: {
 
     const products = rawProducts.map(normalizeProduct).filter((product): product is Product => product !== null)
 
-    if (rawProducts.length > 0 && products.length === 0) {
+    // Fallback: If brandId filter is used, also get products by brand name
+    // to catch products that might not have brandId properly set
+    let finalProducts = products
+    if (normalizedBrandId) {
+      try {
+        const allProductsUrl = joinApiUrl("/products")
+        const allResponse = await fetch(allProductsUrl, {
+          next: { revalidate: 120 },
+          headers: { Accept: "application/json" },
+        })
+        
+        if (allResponse.ok) {
+          const allPayload = await allResponse.json()
+          const allRawProducts = extractCollection(allPayload, ["products", "data", "items"])
+          if (allRawProducts) {
+            const allProducts = allRawProducts.map(normalizeProduct).filter((p): p is Product => p !== null)
+            // Get brand name from brands API or use a simple mapping
+            const brandsResponse = await fetch(joinApiUrl("/brands"), {
+              next: { revalidate: 300 },
+              headers: { Accept: "application/json" },
+            })
+            
+            if (brandsResponse.ok) {
+              const brandsPayload = await brandsResponse.json()
+              const rawBrands = extractCollection(brandsPayload, ["brands", "data", "items"])
+              if (rawBrands) {
+                const brands = rawBrands.map(normalizeBrand).filter((b): b is Brand => b !== null)
+                const targetBrand = brands.find(b => b.id === normalizedBrandId)
+                
+                if (targetBrand) {
+                  const productsByBrandId = allProducts.filter(p => p.brandId === targetBrand.id)
+                  // Combine products from brandId filter and brand name filter, removing duplicates
+                  const combinedProducts = [...finalProducts, ...productsByBrandId]
+                  const uniqueProducts = combinedProducts.filter((product, index, self) =>
+                    index === self.findIndex((p) => p.id === product.id)
+                  )
+                  finalProducts = uniqueProducts
+                }
+              }
+            }
+          }
+        }
+      } catch (error) {
+        // If fallback fails, continue with empty results
+        console.warn("Fallback brand search failed:", error)
+      }
+    }
+
+    if (rawProducts.length > 0 && finalProducts.length === 0) {
       return {
         ok: false,
         products: [],
@@ -451,7 +540,7 @@ export async function getProducts(options: {
 
     return {
       ok: true,
-      products,
+      products: finalProducts,
       error: null,
       sourceUrl,
     }
@@ -616,6 +705,11 @@ export async function getCategories(): Promise<CategoryLoadResult> {
   }
 }
 
+export function getBrandNameById(brands: Brand[], brandId: string): string {
+  const brand = brands.find(b => b.id === brandId)
+  return brand ? brand.name : `Marca Desconocida (${brandId})`
+}
+
 export async function getBrands(): Promise<BrandLoadResult> {
   const sourceUrl = joinApiUrl("/brands")
 
@@ -680,55 +774,7 @@ export async function getBrands(): Promise<BrandLoadResult> {
   }
 }
 
-export async function createOrder(orderData: OrderRequest): Promise<OrderResponse> {
-  const sourceUrl = joinApiUrl("/orders")
-
-  try {
-    const response = await fetch(sourceUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(orderData),
-    })
-
-    const payload = await parseJsonResponse(response)
-    const payloadRecord = isPlainObject(payload) ? payload : null
-    const payloadData = payloadRecord
-      ? extractRecord(payloadRecord.data, ["order", "item", "result"]) ?? payloadRecord.data
-      : null
-    const payloadDataRecord = isPlainObject(payloadData) ? payloadData : null
-    const orderId = toText(
-      payloadRecord?.orderId ??
-        payloadRecord?.id ??
-        payloadRecord?.order_id ??
-        payloadDataRecord?.orderId ??
-        payloadDataRecord?.id,
-    )
-    const successFlag = payloadRecord
-      ? toBoolean(payloadRecord.success ?? payloadRecord.ok ?? payloadRecord.created)
-      : undefined
-    const success = response.ok && (successFlag ?? Boolean(orderId))
-    const message = payloadRecord
-      ? toText(payloadRecord.message ?? payloadRecord.error ?? payloadRecord.detail)
-      : null
-
-    return {
-      orderId: orderId ?? "",
-      success,
-      message: message ?? (success ? undefined : `Error al procesar el pedido (${response.status})`),
-    }
-  } catch (error) {
-    console.error("Error creating order:", error)
-    return {
-      orderId: "",
-      success: false,
-      message: "Error al procesar el pedido",
-    }
-  }
-}
-
+// Función para obtener un pedido por ID (usada en página de confirmación)
 export async function getOrderById(orderId: string): Promise<OrderLookupResult> {
   const trimmedOrderId = orderId.trim()
   const sourceUrl = joinApiUrl(`/orders/${encodeURIComponent(trimmedOrderId)}`)
@@ -764,7 +810,6 @@ export async function getOrderById(orderId: string): Promise<OrderLookupResult> 
         order: null,
         error: "La API de órdenes devolvió un formato inesperado.",
         sourceUrl,
-        status: response.status,
       }
     }
 
@@ -776,6 +821,28 @@ export async function getOrderById(orderId: string): Promise<OrderLookupResult> 
       status: response.status,
     }
   } catch (error) {
+    // Si el backend falla, intentar buscar en localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const unifiedOrders = JSON.parse(localStorage.getItem('somme_local_orders') || '[]')
+        const legacyOrders = JSON.parse(localStorage.getItem('somme_orders') || '[]')
+        const localOrders = [...unifiedOrders, ...legacyOrders]
+        const localOrder = localOrders.find((order: any) => order.id === trimmedOrderId)
+        
+        if (localOrder) {
+          return {
+            ok: true,
+            order: normalizeStoreOrder(localOrder),
+            error: null,
+            sourceUrl: 'localStorage',
+            status: 200,
+          }
+        }
+      } catch {
+        // Ignorar error de localStorage
+      }
+    }
+
     return {
       ok: false,
       order: null,

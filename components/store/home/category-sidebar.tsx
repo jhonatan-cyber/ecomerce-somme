@@ -21,7 +21,7 @@ export function CategorySidebar({
   selectedCategoryId?: string | null
   selectedSubcategoryId?: string | null
 }) {
-  // Only show root categories (parentId null/undefined)
+  // Show all categories but organize by hierarchy
   const rootCategories = categories.filter((c) => !c.parentId)
 
   // Keep the selected category open by default

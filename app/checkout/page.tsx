@@ -1,6 +1,6 @@
 ﻿"use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -12,49 +12,71 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { createOrder } from "@/lib/api-create-order"
 import { useCartStore } from "@/lib/store/cart-store"
-import { createOrder } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
-// ---------------------------------------------------------------------------
-// Validation schema
-// ---------------------------------------------------------------------------
+type CheckoutFormValues = {
+  name: string
+  email: string
+  phone: string
+  address: string
+  deliveryMethod: "pickup" | "delivery"
+  branchId?: string
+  notes?: string
+}
+
 const checkoutSchema = z
   .object({
-    name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
-    email: z.string().email("Ingresá un email válido"),
-    phone: z.string().optional(),
+    name: z.string().min(1, "Nombre requerido"),
+    email: z.string().email("Email inválido"),
+    phone: z.string().min(1, "Teléfono requerido"),
     address: z.string().optional(),
     deliveryMethod: z.enum(["pickup", "delivery"]),
+    branchId: z.string().optional(),
+    notes: z.string().optional(),
   })
-  .refine(
-    (data) => {
-      if (data.deliveryMethod === "delivery") {
-        return Boolean(data.address?.trim())
-      }
-      return true
-    },
-    {
-      message: "La dirección es requerida para envío",
-      path: ["address"],
-    },
-  )
+  .superRefine((data, ctx) => {
+    if (data.deliveryMethod === "delivery" && !data.address?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["address"],
+        message: "Dirección requerida para envíos",
+      })
+    }
 
-type CheckoutFormValues = z.infer<typeof checkoutSchema>
+    if (data.deliveryMethod === "pickup" && !data.branchId?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["branchId"],
+        message: "Selecciona una sucursal para recoger tu pedido",
+      })
+    }
+  })
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
+type StoreBranch = {
+  id: string
+  name: string
+  address?: string | null
+  phone?: string | null
+  email?: string | null
+  type: string
+}
+
 export default function CheckoutPage() {
   const { items, getTotal, clearCart } = useCartStore()
   const router = useRouter()
   const { toast } = useToast()
+  const [branches, setBranches] = useState<StoreBranch[]>([])
+  const [isLoadingBranches, setIsLoadingBranches] = useState(false)
 
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -64,29 +86,87 @@ export default function CheckoutPage() {
       phone: "",
       address: "",
       deliveryMethod: "pickup",
+      branchId: "",
     },
   })
 
   const deliveryMethod = watch("deliveryMethod")
+  const selectedBranchId = watch("branchId")
 
   useEffect(() => {
     if (items.length === 0) router.push("/cart")
   }, [items.length, router])
 
+  useEffect(() => {
+    if (deliveryMethod !== "pickup") {
+      setValue("branchId", "")
+      return
+    }
+
+    let isMounted = true
+    setIsLoadingBranches(true)
+
+    void fetch("/api/store/branches", { cache: "no-store" })
+      .then(async (response) => {
+        const payload = await response.json().catch(() => null)
+
+        if (!response.ok) {
+          throw new Error(
+            typeof payload?.error === "string"
+              ? payload.error
+              : "No se pudieron cargar las sucursales",
+          )
+        }
+
+        return Array.isArray(payload?.data) ? (payload.data as StoreBranch[]) : []
+      })
+      .then((data) => {
+        if (!isMounted) return
+        setBranches(data)
+      })
+      .catch((error) => {
+        if (!isMounted) return
+        setBranches([])
+        toast({
+          title: "No se pudieron cargar las sucursales",
+          description: error instanceof Error ? error.message : "Intentá nuevamente.",
+          variant: "destructive",
+        })
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoadingBranches(false)
+        }
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [deliveryMethod, setValue, toast])
+
   if (items.length === 0) return null
 
   const subtotal = getTotal()
-  const shippingFee = deliveryMethod === "delivery" ? Math.round(subtotal * 0.1 * 100) / 100 : 0
+  const shippingFee = deliveryMethod === "delivery" ? 0 : 0 // Envío a coordinar, sin costo automático
   const finalTotal = subtotal + shippingFee
 
   const onSubmit = async (data: CheckoutFormValues) => {
     try {
+      const selectedBranch = branches.find((branch) => branch.id === data.branchId)
+      const pickupBranchLabel =
+        selectedBranch?.address?.trim()
+          ? `${selectedBranch.name} - ${selectedBranch.address.trim()}`
+          : selectedBranch?.name ?? "Recoger en tienda"
+
       const result = await createOrder({
         customer: {
           name: data.name.trim(),
           email: data.email.trim(),
-          phone: data.phone?.trim() || null,
-          address: data.deliveryMethod === "delivery" ? (data.address?.trim() ?? "") : "",
+          phone: data.phone.trim(),
+          address:
+            data.deliveryMethod === "delivery"
+              ? (data.address?.trim() ?? "")
+              : pickupBranchLabel,
         },
         items: items.map((item) => ({
           product_id: item.id,
@@ -100,8 +180,8 @@ export default function CheckoutPage() {
         paymentMethod: "qr",
         notes:
           data.deliveryMethod === "delivery"
-            ? "Metodo de entrega: envio"
-            : "Metodo de entrega: recoger en tienda",
+            ? "Metodo de entrega: envio - Costo a coordinar con cliente"
+            : `Metodo de entrega: recoger en tienda${selectedBranch ? ` - Sucursal: ${selectedBranch.name}` : ""}${selectedBranch ? ` [pickup_branch_id:${selectedBranch.id}] [pickup_branch_name:${selectedBranch.name}]` : ""}`,
       })
 
       if (!result.success || !result.orderId) {
@@ -109,15 +189,24 @@ export default function CheckoutPage() {
       }
 
       clearCart()
+      
+      // Determinar si el pedido se guardó localmente
+      const isLocalOrder = result.message?.includes('guardado localmente')
+      
       toast({
-        title: "Pedido realizado",
-        description: `Tu pedido #${result.orderId.slice(0, 8)} fue creado exitosamente.`,
+        title: "Pedido pendiente registrado",
+        description: `Tu pedido #${result.orderId.slice(0, 8)} quedó pendiente. ${isLocalOrder ? "Lo guardamos temporalmente" : "Lo registramos correctamente"} y te contactaremos por WhatsApp.`,
+        variant: isLocalOrder ? "default" : "default",
       })
+      
       router.push(`/order-confirmation/${result.orderId}`)
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo procesar tu pedido. Intentá nuevamente.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "No se pudo procesar tu pedido. Intentá nuevamente.",
         variant: "destructive",
       })
     }
@@ -187,7 +276,7 @@ export default function CheckoutPage() {
                         Envio
                       </span>
                       <p className="mt-2 text-sm text-muted-foreground">
-                        Se agrega automaticamente el 10% sobre el subtotal.
+                        El costo de envío se coordina directamente con el cliente.
                       </p>
                     </label>
                   </div>
@@ -222,10 +311,10 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                {/* Phone + Address */}
+                {/* Phone + Branch/Address */}
                 <div className="grid gap-5 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Teléfono</Label>
+                    <Label htmlFor="phone">Teléfono *</Label>
                     <Input
                       id="phone"
                       type="tel"
@@ -233,28 +322,54 @@ export default function CheckoutPage() {
                       className="h-12 rounded-2xl"
                       {...register("phone")}
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="address">
-                      {deliveryMethod === "delivery"
-                        ? "Direccion de envio *"
-                        : "Direccion o referencia"}
-                    </Label>
-                    <Textarea
-                      id="address"
-                      placeholder={
-                        deliveryMethod === "delivery"
-                          ? "Calle Principal 123, ciudad, provincia"
-                          : "Sucursal o referencia opcional"
-                      }
-                      rows={4}
-                      className="rounded-2xl"
-                      {...register("address")}
-                    />
-                    {errors.address && (
-                      <p className="text-xs text-destructive">{errors.address.message}</p>
+                    {errors.phone && (
+                      <p className="text-xs text-destructive">{errors.phone.message}</p>
                     )}
                   </div>
+                  {deliveryMethod === "delivery" ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="address">Direccion de envio *</Label>
+                      <Textarea
+                        id="address"
+                        placeholder="Calle Principal 123, ciudad, provincia"
+                        rows={4}
+                        className="rounded-2xl"
+                        {...register("address")}
+                      />
+                      {errors.address && (
+                        <p className="text-xs text-destructive">{errors.address.message}</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label>Sucursal para recoger *</Label>
+                      <Select
+                        value={selectedBranchId || ""}
+                        onValueChange={(value) => setValue("branchId", value, { shouldValidate: true })}
+                      >
+                        <SelectTrigger className="h-12 rounded-2xl">
+                          <SelectValue
+                            placeholder={isLoadingBranches ? "Cargando sucursales..." : "Selecciona una sucursal"}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {branches.map((branch) => (
+                            <SelectItem key={branch.id} value={branch.id}>
+                              {branch.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {selectedBranchId ? (
+                        <p className="text-xs text-muted-foreground">
+                          {branches.find((branch) => branch.id === selectedBranchId)?.address || "Sucursal seleccionada"}
+                        </p>
+                      ) : null}
+                      {errors.branchId && (
+                        <p className="text-xs text-destructive">{errors.branchId.message}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Trust badges */}
@@ -321,12 +436,8 @@ export default function CheckoutPage() {
                 </div>
                 <div className="mt-2 flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Cargo por envio</span>
-                  <span
-                    className={`font-semibold ${
-                      shippingFee > 0 ? "text-amber-600" : "text-emerald-600"
-                    }`}
-                  >
-                    {shippingFee > 0 ? `+${shippingFee.toLocaleString()}` : "Sin recargo"}
+                  <span className="font-semibold text-amber-600">
+                    {deliveryMethod === "delivery" ? "A coordinar" : "Sin recargo"}
                   </span>
                 </div>
                 <div className="mt-4 flex items-center justify-between border-t pt-4">

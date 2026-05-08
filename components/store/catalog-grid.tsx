@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 import { ArrowDownUp, ChevronLeft, ChevronRight } from "lucide-react"
 import { ProductCard } from "@/components/store/product-card"
-import type { Product } from "@/lib/types"
+import type { Product, Brand } from "@/lib/types"
 
 type SortOption = "default" | "price-asc" | "price-desc" | "name-asc"
 
@@ -18,8 +18,9 @@ const PAGE_SIZE = 24
 
 interface CatalogGridProps {
   products: Product[]
-  grouped?: boolean
   search?: string
+  grouped?: boolean
+  brands?: Brand[]
 }
 
 function sortProducts(products: Product[], sort: SortOption): Product[] {
@@ -36,7 +37,7 @@ function filterBySearch(products: Product[], search: string): Product[] {
   if (!search.trim()) return products
   const terms = search.toLowerCase().trim().split(/\s+/)
   return products.filter((p) => {
-    const haystack = [p.name, p.category, p.brand, p.description]
+    const haystack = [p.name, p.category, p.description]
       .filter(Boolean)
       .join(" ")
       .toLowerCase()
@@ -56,7 +57,7 @@ function groupByCategory(products: Product[]): { category: string; items: Produc
     .map(([category, items]) => ({ category, items }))
 }
 
-export function CatalogGrid({ products, grouped = false, search = "" }: CatalogGridProps) {
+export function CatalogGrid({ products, grouped = false, search = "", brands }: CatalogGridProps) {
   const [sort, setSort] = useState<SortOption>("default")
   const [sortOpen, setSortOpen] = useState(false)
   const [page, setPage] = useState(1)
@@ -148,7 +149,7 @@ export function CatalogGrid({ products, grouped = false, search = "" }: CatalogG
               </div>
               <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {items.map((p) => (
-                  <ProductCard key={p.id} product={p} />
+                  <ProductCard key={p.id} product={p} brands={brands} />
                 ))}
               </div>
             </div>
@@ -158,7 +159,7 @@ export function CatalogGrid({ products, grouped = false, search = "" }: CatalogG
         /* Flat grid */
         <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {paginated.map((p) => (
-            <ProductCard key={p.id} product={p} />
+            <ProductCard key={p.id} product={p} brands={brands} />
           ))}
         </div>
       )}

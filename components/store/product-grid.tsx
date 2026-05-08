@@ -1,19 +1,24 @@
 import { Loader2, PackageSearch } from "lucide-react"
 import { ProductCard } from "./product-card"
-import type { Product } from "@/lib/types"
+import { ProductGridSkeleton } from "./product-card-skeleton"
+import type { Product, Brand } from "@/lib/types"
 
 interface ProductGridProps {
   products: Product[]
   loading?: boolean
   error?: string
+  brands?: Brand[]
 }
 
-export function ProductGrid({ products, loading, error }: ProductGridProps) {
+export function ProductGrid({ products, loading, error, brands }: ProductGridProps) {
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-7 w-7 animate-spin text-primary" />
-        <span className="ml-3 text-sm text-muted-foreground">Cargando productos...</span>
+      <div className="space-y-4">
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          <span className="ml-2 text-sm text-muted-foreground">Cargando productos...</span>
+        </div>
+        <ProductGridSkeleton count={8} />
       </div>
     )
   }
@@ -40,9 +45,9 @@ export function ProductGrid({ products, loading, error }: ProductGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} brands={brands} />
       ))}
     </div>
   )
