@@ -13,6 +13,7 @@ export interface Product {
   minimumStock?: number
   category: string | null
   categoryId?: string | null
+  brand?: string | null
   brandId?: string | null
   brandLogo?: string | null
   // Camera-specific technical specifications

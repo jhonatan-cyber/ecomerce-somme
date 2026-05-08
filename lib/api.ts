@@ -156,6 +156,19 @@ function getCategory(value: unknown): string | null {
   return null
 }
 
+function getBrandName(value: unknown): string | null {
+  if (typeof value === "string") {
+    return toText(value)
+  }
+
+  if (value && typeof value === "object") {
+    const brand = value as Record<string, unknown>
+    return toText(brand.name ?? brand.label ?? brand.title)
+  }
+
+  return null
+}
+
 function normalizeProductRecord(rawProduct: unknown): Product | null {
   if (!isPlainObject(rawProduct)) {
     return null
@@ -172,7 +185,7 @@ function normalizeProductRecord(rawProduct: unknown): Product | null {
 
   const brandId = toText(rawProduct.brandId ?? rawProduct.brand_id) ?? null
 
-return {
+  return {
     id,
     name,
     description: toText(rawProduct.description),
@@ -187,6 +200,10 @@ return {
     minimumStock: toNumber(rawProduct.minimumStock ?? rawProduct.minimum_stock) ?? 0,
     category: getCategory(rawProduct.category) ?? toText(rawProduct.categoryName ?? rawProduct.category_name),
     categoryId: toText(rawProduct.categoryId ?? rawProduct.category_id) ?? null,
+    brand:
+      getBrandName(rawProduct.brand) ??
+      toText(rawProduct.brandName ?? rawProduct.brand_name) ??
+      null,
     brandId,
     brandLogo: toText(rawProduct.brandLogo ?? rawProduct.brand_image) ?? null,
     resolution: toText(rawProduct.resolution) || undefined,
