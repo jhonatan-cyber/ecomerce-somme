@@ -179,13 +179,7 @@ export default async function ProductDetailPage({
                 </p>
               </div>
 
-              {/* Stock indicator */}
-              {product.stock > 0 && (
-                <p className="mt-3 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                  ✓ {product.stock} unidades disponibles
-                </p>
-              )}
-
+              
               {/* Actions */}
               <ProductDetailActions product={product} />
             </div>

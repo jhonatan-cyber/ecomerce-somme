@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowDownUp, Check } from "lucide-react"
 import { ProductCard } from "@/components/store/product-card"
 import { ProductSlider } from "@/components/store/product-slider"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import type { Product } from "@/lib/types"
 
 type SortOption = "default" | "price-asc" | "price-desc" | "name-asc"
@@ -166,7 +167,7 @@ function CatalogGridContent({ products, grouped = false, search }: CatalogGridPr
   }, [filtered, sort, groups])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-x-hidden">
       {/* Sort toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
@@ -236,22 +237,20 @@ function CatalogGridContent({ products, grouped = false, search }: CatalogGridPr
         <div className="space-y-8 sm:space-y-10">
           {groups.map((group) => (
             <div key={group.category}>
-              <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+              <div className="mb-4 flex flex-wrap items-center gap-2">
                 <h2 className={`font-semibold uppercase tracking-[0.14em] text-foreground ${
                   /^[A-Z#]$/.test(group.category) ? 'text-xl sm:text-2xl' : 'text-sm sm:text-base'
                 }`}>
                   {group.category}
                 </h2>
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <span className="rounded-full bg-muted px-2 sm:px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
-                    {group.items.length}
+                <span className="rounded-full bg-muted px-2 sm:px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                  {group.items.length}
+                </span>
+                {sort !== "default" && !/^[A-Z#]$/.test(group.category) && (
+                  <span className="rounded-full bg-primary/10 px-2 sm:px-2.5 py-0.5 text-xs font-medium text-primary">
+                    {SORT_OPTIONS.find(o => o.value === sort)?.label}
                   </span>
-                  {sort !== "default" && !/^[A-Z#]$/.test(group.category) && (
-                    <span className="rounded-full bg-primary/10 px-2 sm:px-2.5 py-0.5 text-xs font-medium text-primary">
-                      {SORT_OPTIONS.find(o => o.value === sort)?.label}
-                    </span>
-                  )}
-                </div>
+                )}
                 <div className="hidden sm:block h-px flex-1 bg-border/60" />
               </div>
               <div data-tour="catalog-grid">
@@ -265,7 +264,7 @@ function CatalogGridContent({ products, grouped = false, search }: CatalogGridPr
         </div>
       ) : (
         /* Flat grid */
-        <div data-tour="catalog-grid" className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        <div data-tour="catalog-grid" className="grid grid-cols-2 gap-y-6 gap-x-6 sm:gap-y-8 sm:gap-x-8 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {sorted.map((p) => <ProductCard key={p.id} product={p} />)}
         </div>
       )}
@@ -275,7 +274,11 @@ function CatalogGridContent({ products, grouped = false, search }: CatalogGridPr
 
 export function CatalogGrid(props: CatalogGridProps) {
   return (
-    <Suspense fallback={<div className="animate-pulse">Cargando...</div>}>
+    <Suspense fallback={
+      <div className="flex min-h-[200px] items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    }>
       <CatalogGridContent {...props} />
     </Suspense>
   )

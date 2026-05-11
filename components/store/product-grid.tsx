@@ -1,6 +1,7 @@
 import { Loader2, PackageSearch } from "lucide-react"
 import { ProductCard } from "./product-card"
 import { ProductGridSkeleton } from "./product-card-skeleton"
+import { LoadingSpinnerCentered } from "@/components/ui/loading-spinner"
 import type { Product, Brand } from "@/lib/types"
 
 interface ProductGridProps {
@@ -14,10 +15,7 @@ export function ProductGrid({ products, loading, error, brands }: ProductGridPro
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-primary" />
-          <span className="ml-2 text-sm text-muted-foreground">Cargando productos...</span>
-        </div>
+        <LoadingSpinnerCentered size="md" />
         <ProductGridSkeleton count={8} />
       </div>
     )

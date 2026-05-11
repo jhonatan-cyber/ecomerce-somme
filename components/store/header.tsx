@@ -141,7 +141,7 @@ export function StoreHeader({
               </div>
             </Link>
 
-            <div className="flex items-center gap-2 lg:hidden">
+            <div className="relative z-50 flex items-center gap-2 lg:hidden">
               <ThemeToggle />
               <CartButton />
               <button
@@ -149,7 +149,7 @@ export function StoreHeader({
                 onClick={() => setIsMobileMenuOpen((v) => !v)}
                 aria-label={isMobileMenuOpen ? "Cerrar menu" : "Abrir menu"}
                 aria-expanded={isMobileMenuOpen}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-[1rem] border border-border/70 bg-card/80 shadow-sm"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-[1rem] border border-border/70 bg-card/80 shadow-sm pointer-events-auto relative z-50"
               >
                 {isMobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </button>
@@ -427,14 +427,7 @@ export function StoreHeader({
               <TooltipContent side="bottom">Tour interactivo</TooltipContent>
             </Tooltip>
 
-            <Tooltip delayDuration={200}>
-              <TooltipTrigger asChild>
-                <span>
-                  <ThemeToggle />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">Cambiar tema</TooltipContent>
-            </Tooltip>
+            <ThemeToggle />
 
             <Tooltip delayDuration={200}>
               <TooltipTrigger asChild>

@@ -12,6 +12,7 @@ interface ProductCardImageProps {
   lowStock?: boolean
   discountPercent?: number | null
   onSale?: boolean
+  isNew?: boolean
 }
 
 export function ProductCardImage({
@@ -22,6 +23,7 @@ export function ProductCardImage({
   lowStock,
   discountPercent,
   onSale,
+  isNew,
 }: ProductCardImageProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -97,13 +99,18 @@ export function ProductCardImage({
           <span />
         )}
 
-        {onSale && discountPercent && inStock ? (
+        {isNew ? (
+          <span className="rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-white shadow-md shadow-cyan-500/25">
+            Nuevo
+          </span>
+        ) : onSale && discountPercent && inStock ? (
           <span className="rounded-lg bg-gradient-to-r from-red-500 to-orange-500 px-2 py-1 text-[10px] font-black text-white shadow-md">
             -{discountPercent}%
           </span>
         ) : lowStock ? (
-          <span className="rounded-lg bg-amber-500/90 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-sm">
-            Últimas unidades
+          <span className="rounded-lg bg-amber-500/90 px-1.5 py-1 text-[9px] sm:px-2 sm:py-1 sm:text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-sm">
+            <span className="hidden sm:inline">Últimas unidades</span>
+            <span className="sm:hidden">¡Últimas!</span>
           </span>
         ) : null}
       </div>

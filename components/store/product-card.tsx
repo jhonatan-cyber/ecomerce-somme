@@ -1,17 +1,19 @@
 import Link from "next/link"
+import { Eye } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Scale } from "lucide-react"
 import type { Product, Brand } from "@/lib/types"
 import { formatPrice } from "@/lib/utils"
 import { ProductCardActions } from "@/components/store/product-card-actions"
 import { ProductCardImage } from "@/components/store/product-card-image"
 import { getBrandNameById } from "@/lib/api"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface ProductCardProps {
   product: Product
   onComparisonToggle?: (productId: string, checked: boolean) => void
   isComparisonEnabled?: boolean
   brands?: Brand[]
+  isNew?: boolean
 }
 
 function getProductImages(product: Product) {
@@ -26,7 +28,8 @@ export function ProductCard({
   product, 
   onComparisonToggle, 
   isComparisonEnabled = false,
-  brands = []
+  brands = [],
+  isNew = false
 }: ProductCardProps) {
   const productImages = getProductImages(product)
   const inStock = product.stock > 0
@@ -49,6 +52,7 @@ export function ProductCard({
           lowStock={lowStock}
           discountPercent={product.discountPercent}
           onSale={product.onSale}
+          isNew={isNew}
         />
       </Link>
 
@@ -99,13 +103,20 @@ export function ProductCard({
       </div>
 
       {/* Footer actions */}
-      <div className="flex items-center justify-between gap-1 border-t border-border/50 px-2 py-1.5">
-        <Link
-          href={`/product/${encodeURIComponent(product.id)}`}
-          className="flex h-6 items-center gap-1 rounded-md border border-border bg-background px-1.5 text-[10px] font-bold text-foreground transition-all hover:border-primary/60 hover:text-primary hover:shadow-md hover:shadow-primary/20 cursor-pointer"
-        >
-          Ver
-        </Link>
+      <div className="flex flex-nowrap items-center justify-between gap-2 border-t border-border/50 px-2 py-2">
+        <Tooltip delayDuration={150}>
+          <TooltipTrigger asChild>
+            <Link
+              href={`/product/${encodeURIComponent(product.id)}`}
+              className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-xs font-bold text-foreground transition-all hover:border-primary/60 hover:text-primary hover:shadow-md hover:shadow-primary/20 sm:gap-2"
+              title="Ver producto"
+            >
+              <Eye className="h-4 w-4 flex-shrink-0" />
+              <span className="hidden sm:inline">Ver</span>
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="top">Ver producto</TooltipContent>
+        </Tooltip>
         <ProductCardActions product={product} />
       </div>
     </article>

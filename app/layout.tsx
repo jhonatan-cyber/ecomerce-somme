@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { WhatsAppWidget } from "@/components/store/whatsapp-widget"
 import { TourProvider, TourComponent } from "@/components/tour"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import "../styles/globals.css"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sommetechnology.com"
@@ -103,7 +104,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TourProvider>
-            <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+            <Suspense fallback={
+  <div className="flex min-h-screen items-center justify-center">
+    <LoadingSpinner size="lg" />
+  </div>
+}>{children}</Suspense>
             <TourComponent />
             <Toaster />
             <WhatsAppWidget />

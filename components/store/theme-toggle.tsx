@@ -51,8 +51,9 @@ export function ThemeToggle() {
         <Button
           variant="outline"
           size="icon"
-          className="h-9 w-9 rounded-[1rem] border-border/70 bg-card/80 shadow-sm md:h-10 md:w-10"
+          className="h-9 w-9 pointer-events-auto relative z-50 rounded-[1rem] border-border/70 bg-card/80 shadow-sm md:h-10 md:w-10"
           aria-label="Cambiar tema"
+          title="Cambiar tema"
         >
           <ActiveIcon className="h-4.5 w-4.5" />
         </Button>

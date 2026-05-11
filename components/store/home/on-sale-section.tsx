@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, Camera, Clock, Flame } from "lucide-react"
+import { ProductCard } from "@/components/store/product-card"
 import type { Product } from "@/lib/types"
 
 function formatPrice(price: number) {
@@ -194,100 +195,10 @@ export function OnSaleSection({ products }: { products: Product[] }) {
 
         {/* Side grid */}
         {rest.length > 0 && (
-          <div className="grid grid-cols-2 gap-3">
-            {rest.slice(0, 4).map((product) => {
-              const expiry = product.saleEndDate ? formatExpiry(product.saleEndDate) : null
-              return (
-                <Link
-                  key={product.id}
-                  href={`/product/${encodeURIComponent(product.id)}`}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg"
-                >
-                  {/* Image */}
-                  <div className="relative aspect-square overflow-hidden bg-muted">
-                    {/* Discount badge */}
-                    {product.discountPercent && (
-                      <div className="absolute left-1.5 top-1.5 z-10 rounded-lg bg-red-500 px-2 py-1 shadow sm:left-2 sm:top-2">
-                        <p className="text-[10px] font-black text-white">-{product.discountPercent}%</p>
-                      </div>
-                    )}
-
-                    {/* Brand logo */}
-                    {product.brandLogo && (
-                      <div className="absolute right-1.5 top-1.5 z-10 overflow-hidden rounded-md bg-white/95 px-1.5 py-1 shadow backdrop-blur sm:right-2 sm:top-2 sm:px-2 sm:py-1">
-                        <Image
-                          src={product.brandLogo}
-                          alt={product.brand || "Marca"}
-                          width={50}
-                          height={20}
-                          className="h-4 w-auto object-contain sm:h-4"
-                          unoptimized
-                        />
-                      </div>
-                    )}
-
-                    {product.image_url ? (
-                      <Image
-                        src={product.image_url}
-                        alt={product.name}
-                        fill
-                        className="object-cover transition duration-500 group-hover:scale-105"
-                        unoptimized
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center">
-                        <Camera className="h-8 w-8 text-muted-foreground/30" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex flex-1 flex-col gap-1.5 p-3">
-                    <p className="line-clamp-2 text-xs font-semibold leading-tight text-foreground">
-                      {product.name}
-                    </p>
-                    <div className="mt-auto space-y-0.5">
-                      {product.originalPrice && (
-                        <p className="text-[10px] text-muted-foreground line-through">
-                          ${formatPrice(product.originalPrice)}
-                        </p>
-                      )}
-                      <p className="text-sm font-black text-red-600 dark:text-red-400">
-                        ${formatPrice(product.price)}
-                      </p>
-                    </div>
-
-                    {/* Savings badge */}
-                    {product.originalPrice && (
-                      <div className="rounded-md bg-emerald-50 px-2 py-1 dark:bg-emerald-500/10">
-                        <p className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
-                          Ahorras ${formatPrice(product.originalPrice - product.price)}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Expiry */}
-                    {product.saleEndDate ? (
-                      <div className={`flex items-center gap-1 rounded-md px-2 py-1 ${
-                        expiry?.urgent ? "bg-red-50 dark:bg-red-500/10" : "bg-muted/60"
-                      }`}>
-                        <Clock className={`h-2.5 w-2.5 shrink-0 ${expiry?.urgent ? "text-red-500" : "text-amber-500"}`} />
-                        <p className={`text-[9px] font-bold ${expiry?.urgent ? "text-red-600 dark:text-red-400" : "text-muted-foreground"}`}>
-                          Válido hasta: {new Date(product.saleEndDate).toLocaleDateString("es-CL", { day: "numeric", month: "short", year: "numeric" })}
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1">
-                        <Clock className="h-2.5 w-2.5 shrink-0 text-muted-foreground" />
-                        <p className="text-[9px] font-bold text-muted-foreground">
-                          Promoción sin fecha límite
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              )
-            })}
+          <div className="grid grid-cols-2 gap-6 gap-x-6 gap-y-6 sm:gap-y-8 sm:gap-x-8">
+            {rest.slice(0, 4).map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
         )}
       </div>

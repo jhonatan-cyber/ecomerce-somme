@@ -1,6 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, Camera } from "lucide-react"
+import { ProductCard } from "@/components/store/product-card"
 import type { Category, Product } from "@/lib/types"
 
 interface HeroSectionProps {
@@ -67,57 +68,9 @@ export function HeroSection({
       </div>
 
       {showcaseProducts.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3 pt-4 sm:grid-cols-4 md:gap-4 lg:grid-rows-2">
+        <div className="grid grid-cols-2 gap-6 gap-x-6 gap-y-6 sm:gap-y-8 sm:gap-x-8 sm:grid-cols-4 md:gap-4 lg:grid-rows-2">
           {showcaseProducts.map((product) => (
-            <Link
-              key={product.id}
-              href={`/product/${encodeURIComponent(product.id)}`}
-              className="group flex flex-col overflow-hidden rounded-xl border border-border/60 bg-background transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
-            >
-              {/* Image */}
-              <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                {product.brandLogo && (
-                  <div className="absolute right-1.5 top-1.5 z-10 overflow-hidden rounded-md bg-white/95 px-1.5 py-1 shadow backdrop-blur sm:px-2 sm:py-1">
-                    <Image
-                      src={product.brandLogo}
-                      alt={product.brand || "Marca"}
-                      width={50}
-                      height={20}
-                      className="h-4 w-auto object-contain sm:h-4"
-                      unoptimized
-                    />
-                  </div>
-                )}
-                {product.onSale && product.discountPercent && (
-                  <div className="absolute left-1.5 top-1.5 z-10 rounded-md bg-red-500 px-1.5 py-0.5">
-                    <p className="text-[9px] font-black text-white sm:text-[10px]">-{product.discountPercent}%</p>
-                  </div>
-                )}
-                {product.image_url ? (
-                  <Image
-                    src={product.image_url}
-                    alt={product.name}
-                    fill
-                    className="object-cover transition duration-500 group-hover:scale-105"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <Camera className="h-6 w-6 text-muted-foreground/30" />
-                  </div>
-                )}
-              </div>
-
-              {/* Info */}
-              <div className="flex flex-1 flex-col gap-1 p-2.5">
-                <p className="line-clamp-1 text-[11px] font-semibold text-foreground sm:text-xs">
-                  {product.name}
-                </p>
-                <p className={`mt-auto text-sm font-black ${product.onSale ? "text-red-600 dark:text-red-400" : "text-primary"}`}>
-                  ${formatPrice(product.price)}
-                </p>
-              </div>
-            </Link>
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       ) : (
