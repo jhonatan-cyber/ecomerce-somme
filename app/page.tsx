@@ -41,7 +41,7 @@ export default async function HomePage({
   const normalizedCategoryId = categoryId.trim()
 
   const [catalog, categoryCatalog, brandsCatalog, onSaleCatalog, slidesCatalog] = await Promise.all([
-    getProducts({ search: normalizedSearch, categoryId: normalizedCategoryId }),
+    getProducts({ search: normalizedSearch, categoryId: normalizedCategoryId, limit: 1000 }),
     getCategories(),
     getBrands(),
     getOnSaleProducts(),

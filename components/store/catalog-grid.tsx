@@ -1,8 +1,10 @@
 "use client"
 
-import { useMemo, useState, useEffect, useRef, useCallback } from "react"
+import { useMemo, useState, useEffect, useRef, useCallback, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowDownUp, Check } from "lucide-react"
 import { ProductCard } from "@/components/store/product-card"
+import { ProductSlider } from "@/components/store/product-slider"
 import type { Product } from "@/lib/types"
 
 type SortOption = "default" | "price-asc" | "price-desc" | "name-asc"
@@ -56,15 +58,54 @@ function groupByCategory(products: Product[]): { category: string; items: Produc
     .map(([category, items]) => ({ category, items }))
 }
 
-export function CatalogGrid({ products, grouped = false, search = "" }: CatalogGridProps) {
-  const [sort, setSort] = useState<SortOption>("default")
+function groupByFirstLetter(products: Product[]): { letter: string; items: Product[] }[] {
+  const map = new Map<string, Product[]>()
+  for (const p of products) {
+    const firstLetter = p.name.charAt(0).toUpperCase()
+    const key = /^[A-Z]$/.test(firstLetter) ? firstLetter : "#"
+    if (!map.has(key)) map.set(key, [])
+    map.get(key)!.push(p)
+  }
+  return Array.from(map.entries())
+    .sort(([a], [b]) => {
+      // Sort letters A-Z, then # at the end
+      if (a === "#") return 1
+      if (b === "#") return -1
+      return a.localeCompare(b, "es")
+    })
+    .map(([letter, items]) => ({ letter, items }))
+}
+
+function CatalogGridContent({ products, grouped = false, search }: CatalogGridProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Get initial sort from URL params or default to "default"
+  const [sort, setSort] = useState<SortOption>(() => {
+    const sortParam = searchParams.get("sort")
+    return (sortParam as SortOption) || "default"
+  })
 
   const handleSelect = useCallback((option: SortOption) => {
     setSort(option)
     setOpen(false)
-  }, [])
+    
+    // Update URL with new sort parameter
+    const newParams = new URLSearchParams(searchParams.toString())
+    if (option === "default") {
+      newParams.delete("sort")
+    } else {
+      newParams.set("sort", option)
+    }
+    
+    const newUrl = newParams.toString()
+      ? `/catalog?${newParams.toString()}`
+      : "/catalog"
+    
+    router.push(newUrl, { scroll: false })
+  }, [router, searchParams])
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -87,23 +128,65 @@ export function CatalogGrid({ products, grouped = false, search = "" }: CatalogG
     }
   }, [open])
 
-  const filtered = useMemo(() => filterBySearch(products, search), [products, search])
-  const sorted = useMemo(() => sortProducts(filtered, sort), [filtered, sort])
-  const groups = useMemo(() => (grouped ? groupByCategory(sorted) : null), [sorted, grouped])
+  // Sync sort state with URL params
+  useEffect(() => {
+    const sortParam = searchParams.get("sort")
+    const newSort = (sortParam as SortOption) || "default"
+    setSort(newSort)
+  }, [searchParams])
+
+  const filtered = useMemo(() => filterBySearch(products, search || ""), [products, search])
+  
+  // Determine grouping behavior based on sort type
+  const shouldIgnoreGrouping = sort !== "default"
+  const isAlphabeticalSort = sort === "name-asc"
+  
+  // Group by categories when no sorting, by letters when alphabetical, or no grouping
+  const groups = useMemo(() => {
+    if (!shouldIgnoreGrouping && grouped) {
+      // Default: group by categories
+      return groupByCategory(filtered)
+    }
+    if (isAlphabeticalSort && grouped) {
+      // Alphabetical: group by first letter
+      return groupByFirstLetter(sortProducts(filtered, sort)).map(group => ({
+        category: group.letter,
+        items: group.items
+      }))
+    }
+    return null
+  }, [filtered, sort, shouldIgnoreGrouping, grouped, isAlphabeticalSort])
+  
+  // Apply global sorting when not grouping or when using price sorting
+  const sorted = useMemo(() => {
+    if (!groups) {
+      return sortProducts(filtered, sort)
+    }
+    return []
+  }, [filtered, sort, groups])
 
   return (
     <div className="space-y-6">
       {/* Sort toolbar */}
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          <span className="font-bold text-foreground">{sorted.length}</span>{" "}
-          producto{sorted.length !== 1 ? "s" : ""}
-          {search && sorted.length !== products.length && (
-            <span className="ml-1 text-muted-foreground">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <p className="text-sm text-muted-foreground">
+            <span className="font-bold text-foreground">
+              {groups ? filtered.length : sorted.length}
+            </span>{" "}
+            producto{(groups ? filtered.length : sorted.length) !== 1 ? "s" : ""}
+          </p>
+          {search && filtered.length !== products.length && (
+            <span className="text-xs text-muted-foreground">
               de {products.length} totales
             </span>
           )}
-        </p>
+          {shouldIgnoreGrouping && grouped && (
+            <span className="text-xs text-primary font-medium">
+              {isAlphabeticalSort ? "Agrupado por letra" : "Vista ordenada"}
+            </span>
+          )}
+        </div>
 
         {/* Sort selector */}
         <div ref={dropdownRef} className="relative">
@@ -121,7 +204,7 @@ export function CatalogGrid({ products, grouped = false, search = "" }: CatalogG
           {open && (
             <div
               role="listbox"
-              className="absolute right-0 top-full z-[100] mt-1 min-w-[220px] overflow-hidden rounded-xl border border-border/70 bg-popover p-1 shadow-xl"
+              className="absolute right-0 top-full z-[100] mt-1 min-w-[200px] sm:min-w-[220px] overflow-hidden rounded-xl border border-border/70 bg-popover p-1 shadow-xl"
             >
               {SORT_OPTIONS.map((option) => {
                 const isActive = sort === option.value
@@ -150,20 +233,32 @@ export function CatalogGrid({ products, grouped = false, search = "" }: CatalogG
 
       {/* Grouped by category */}
       {groups ? (
-        <div className="space-y-10">
-          {groups.map(({ category, items }) => (
-            <div key={category}>
-              <div className="mb-4 flex items-center gap-3">
-                <h2 className="text-base font-black uppercase tracking-[0.14em] text-foreground">
-                  {category}
+        <div className="space-y-8 sm:space-y-10">
+          {groups.map((group) => (
+            <div key={group.category}>
+              <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                <h2 className={`font-semibold uppercase tracking-[0.14em] text-foreground ${
+                  /^[A-Z#]$/.test(group.category) ? 'text-xl sm:text-2xl' : 'text-sm sm:text-base'
+                }`}>
+                  {group.category}
                 </h2>
-                <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
-                  {items.length}
-                </span>
-                <div className="h-px flex-1 bg-border/60" />
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className="rounded-full bg-muted px-2 sm:px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                    {group.items.length}
+                  </span>
+                  {sort !== "default" && !/^[A-Z#]$/.test(group.category) && (
+                    <span className="rounded-full bg-primary/10 px-2 sm:px-2.5 py-0.5 text-xs font-medium text-primary">
+                      {SORT_OPTIONS.find(o => o.value === sort)?.label}
+                    </span>
+                  )}
+                </div>
+                <div className="hidden sm:block h-px flex-1 bg-border/60" />
               </div>
-              <div data-tour="catalog-grid" className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                {items.map((p) => <div key={p.id} data-tour="product-card"><ProductCard product={p} /></div>)}
+              <div data-tour="catalog-grid">
+                <ProductSlider 
+                  products={group.items} 
+                  category={group.category}
+                />
               </div>
             </div>
           ))}
@@ -175,5 +270,13 @@ export function CatalogGrid({ products, grouped = false, search = "" }: CatalogG
         </div>
       )}
     </div>
+  )
+}
+
+export function CatalogGrid(props: CatalogGridProps) {
+  return (
+    <Suspense fallback={<div className="animate-pulse">Cargando...</div>}>
+      <CatalogGridContent {...props} />
+    </Suspense>
   )
 }

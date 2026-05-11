@@ -60,7 +60,7 @@ export default async function BrandsPage({
 
   const [brandsCatalog, productsCatalog, categoryCatalog] = await Promise.all([
     getBrands(),
-    getProducts({ brandId: normalizedBrandId || undefined }),
+    getProducts({ brandId: normalizedBrandId || undefined, limit: 1000 }),
     getCategories(),
   ])
 

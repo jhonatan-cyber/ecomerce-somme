@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 }
 
 export default async function NewArrivalsPage() {
-  const [catalog, brandsCatalog] = await Promise.all([getProducts(), getBrands()])
+  const [catalog, brandsCatalog] = await Promise.all([getProducts({ limit: 1000 }), getBrands()])
   const products = catalog.ok ? catalog.products : []
   const brands = brandsCatalog.ok ? brandsCatalog.brands : []
 

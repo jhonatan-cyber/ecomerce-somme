@@ -58,6 +58,7 @@ export default async function CatalogPage({
       categoryId: normalizedCategoryId,
       subcategoryId: normalizedSubcategoryId,
       brandId: normalizedBrandId,
+      limit: 1000, // Obtener todos los productos
     }),
     getCategories(),
     getBrands(),
@@ -232,7 +233,6 @@ export default async function CatalogPage({
                 <div className="mt-4">
                   <CatalogGrid
                     products={products}
-                    search={normalizedSearch}
                     grouped={!normalizedCategoryId && !normalizedSubcategoryId && !normalizedSearch && !normalizedBrandId}
                   />
                 </div>

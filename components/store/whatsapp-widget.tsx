@@ -17,9 +17,23 @@ function buildWhatsAppUrl(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`
 }
 
+function useReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)")
+    setPrefersReducedMotion(mql.matches)
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
+    mql.addEventListener("change", handler)
+    return () => mql.removeEventListener("change", handler)
+  }, [])
+  return prefersReducedMotion
+}
+
 export function WhatsAppWidget() {
   const [open, setOpen] = useState(false)
   const [visible, setVisible] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
 
   // Delay mount so it doesn't flash on first render
   useEffect(() => {
@@ -33,7 +47,7 @@ export function WhatsAppWidget() {
     <div className="fixed bottom-5 right-5 z-[999999999999] flex flex-col items-end gap-3">
       {/* Chat panel */}
       {open && (
-        <div className="w-[300px] overflow-hidden rounded-[1.5rem] border border-border/70 bg-card shadow-[0_24px_80px_-20px_rgba(15,23,42,0.35)] animate-in fade-in slide-in-from-bottom-4 duration-200 sm:w-[320px]">
+        <div className={`w-[300px] overflow-hidden rounded-[1.5rem] border border-border/70 bg-card shadow-[0_24px_80px_-20px_rgba(15,23,42,0.35)] ${prefersReducedMotion ? "" : "animate-in fade-in slide-in-from-bottom-4 duration-200"} sm:w-[320px]`}>
           {/* Header */}
           <div className="flex items-center justify-between gap-3 bg-[#25D366] px-4 py-3.5">
             <div className="flex items-center gap-2.5">
@@ -95,7 +109,7 @@ export function WhatsAppWidget() {
         className="group relative flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-[0_8px_30px_rgba(37,211,102,0.45)] transition hover:scale-105 hover:shadow-[0_8px_40px_rgba(37,211,102,0.6)] active:scale-95"
       >
         {/* Pulse ring */}
-        {!open && (
+        {!open && !prefersReducedMotion && (
           <span className="absolute inset-0 animate-ping rounded-full bg-[#25D366] opacity-30" />
         )}
         {open ? (

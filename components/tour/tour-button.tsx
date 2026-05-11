@@ -4,7 +4,7 @@ import { HelpCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useTour } from "@/hooks/use-tour"
 import { cn } from "@/lib/utils"
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 
 interface TourButtonProps {
   page: "home" | "catalog" | "product" | "cart"
@@ -36,8 +36,10 @@ export function TourButton({
   showPulse = false,
 }: TourButtonProps) {
   const { startTour, hasSeenTour, isNavigating, currentPage } = useTour()
+  const prefersReducedMotion = useReducedMotion()
 
   const isActive = isNavigating || (currentPage === page)
+  const shouldAnimate = showPulse && !hasSeenTour && !prefersReducedMotion
 
   return (
     <Button
@@ -51,14 +53,14 @@ export function TourButton({
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
         <motion.div
-          variants={showPulse && !hasSeenTour ? pulseVariants : undefined}
-          animate={showPulse && !hasSeenTour ? "pulse" : undefined}
+          variants={shouldAnimate ? pulseVariants : undefined}
+          animate={shouldAnimate ? "pulse" : undefined}
         >
           <HelpCircle className="h-4 w-4" />
         </motion.div>
       )}
       {size !== "icon" && (isActive ? "Iniciando..." : label)}
-      {!hasSeenTour && !isActive && (
+      {!hasSeenTour && !isActive && !prefersReducedMotion && (
         <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-primary animate-ping" />
       )}
     </Button>

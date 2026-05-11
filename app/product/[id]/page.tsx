@@ -61,10 +61,10 @@ export default async function ProductDetailPage({
   
   const [categoryLookup, brandLookup] = await Promise.all([
     product.categoryId 
-      ? getProducts({ categoryId: product.categoryId }) 
+      ? getProducts({ categoryId: product.categoryId, limit: 1000 }) 
       : Promise.resolve({ ok: false, products: [] as import("@/lib/types").Product[], error: null, sourceUrl: "" }),
     product.brandId
-      ? getProducts({ brandId: product.brandId })
+      ? getProducts({ brandId: product.brandId, limit: 1000 })
       : Promise.resolve({ ok: false, products: [] as import("@/lib/types").Product[], error: null, sourceUrl: "" }),
   ])
 

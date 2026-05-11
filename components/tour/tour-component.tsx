@@ -1,11 +1,26 @@
 "use client"
 
-import { useEffect, useRef, useCallback, createElement } from "react"
+import { useEffect, useRef, useCallback, createElement, useState } from "react"
 import { driver, type DriveStep } from "driver.js"
 import "driver.js/dist/driver.css"
 import confetti from "canvas-confetti"
 import { useTour } from "@/hooks/use-tour"
 import { getStepsForPage } from "@/lib/tour-steps"
+
+function useReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)")
+    setPrefersReducedMotion(mql.matches)
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
+    mql.addEventListener("change", handler)
+    return () => mql.removeEventListener("change", handler)
+  }, [])
+
+  return prefersReducedMotion
+}
 
 function TourCard({
   step,
@@ -29,7 +44,7 @@ function TourCard({
 
   return createElement("div", {
     className:
-      "w-[320px] rounded-xl border bg-card text-card-foreground shadow-lg overflow-hidden",
+      "w-[300px] max-w-[calc(100vw-2rem)] rounded-xl border bg-card text-card-foreground shadow-lg overflow-hidden sm:w-[320px]",
     style: { fontFamily: "inherit" },
     children: [
       // Progress bar
@@ -44,10 +59,10 @@ function TourCard({
       // Header
       createElement("div", {
         key: "header",
-        className: "flex items-start justify-between gap-3 px-5 pt-5 pb-3",
+        className: "flex items-start justify-between gap-3 px-4 pt-4 pb-3 sm:px-5 sm:pt-5",
         children: [
           createElement("div", {
-            className: "flex flex-col gap-1",
+            className: "flex flex-col gap-1 min-w-0 flex-1",
             children: [
               createElement("span", {
                 key: "step-label",
@@ -56,7 +71,7 @@ function TourCard({
               }),
               createElement("h3", {
                 key: "title",
-                className: "text-base font-semibold leading-none tracking-tight",
+                className: "text-sm font-semibold leading-none tracking-tight sm:text-base",
                 children: title,
               }),
             ],
@@ -74,16 +89,16 @@ function TourCard({
       // Description
       createElement("div", {
         key: "content",
-        className: "px-5 pb-5",
+        className: "px-4 pb-4 sm:px-5 sm:pb-5",
         children: createElement("p", {
-          className: "text-sm leading-relaxed text-muted-foreground",
+          className: "text-xs leading-relaxed text-muted-foreground sm:text-sm",
           children: description,
         }),
       }),
       // Footer
       createElement("div", {
         key: "footer",
-        className: "flex items-center justify-between gap-2 border-t px-5 py-3",
+        className: "flex items-center justify-between gap-2 border-t px-4 py-3 sm:px-5",
         children: [
           createElement("button", {
             key: "prev",
@@ -112,8 +127,11 @@ function TourCard({
 export function TourComponent() {
   const { isOpen, currentPage, closeTour, markTourAsSeen } = useTour()
   const driverRef = useRef<ReturnType<typeof driver> | null>(null)
+  const prefersReducedMotion = useReducedMotion()
 
   const triggerConfetti = useCallback(() => {
+    if (prefersReducedMotion) return
+
     const colors = ["hsl(220, 90%, 56%)", "hsl(220, 90%, 70%)", "hsl(220, 100%, 85%)", "#ffffff", "hsl(160, 80%, 50%)"]
     confetti({
       particleCount: 150,
@@ -142,7 +160,7 @@ export function TourComponent() {
         origin: { x: 1, y: 0.7 },
       })
     }, 300)
-  }, [])
+  }, [prefersReducedMotion])
 
   useEffect(() => {
     if (!isOpen || !currentPage) return
@@ -154,12 +172,14 @@ export function TourComponent() {
       driverRef.current.destroy()
     }
 
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 640
+
     driverRef.current = driver({
       showProgress: false,
-      animate: true,
+      animate: !prefersReducedMotion,
       allowClose: true,
-      stagePadding: 10,
-      smoothScroll: true,
+      stagePadding: isMobile ? 6 : 10,
+      smoothScroll: !prefersReducedMotion,
       steps: steps.map((step) => ({
         ...step,
         popover: {
@@ -179,7 +199,9 @@ export function TourComponent() {
       onHighlighted: (el) => {
         if (el) {
           const element = el as HTMLElement
-          element.style.transition = "box-shadow 0.3s ease"
+          if (!prefersReducedMotion) {
+            element.style.transition = "box-shadow 0.3s ease"
+          }
           element.style.boxShadow = "0 0 0 2px hsl(var(--primary)), 0 0 16px hsl(var(--primary) / 0.2)"
           element.style.borderRadius = "var(--radius, 8px)"
         }
@@ -213,7 +235,7 @@ export function TourComponent() {
         driverRef.current = null
       }
     }
-  }, [isOpen, currentPage, closeTour, markTourAsSeen, triggerConfetti])
+  }, [isOpen, currentPage, closeTour, markTourAsSeen, triggerConfetti, prefersReducedMotion])
 
   return null
 }

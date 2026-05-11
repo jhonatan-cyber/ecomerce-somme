@@ -544,6 +544,7 @@ export async function getProducts(options: {
   subcategoryId?: string | null
   brandId?: string | null
   categories?: Category[] // Pass categories for related category logic
+  limit?: number // Optional limit for pagination
 } = {}): Promise<CatalogLoadResult> {
   const url = new URL(joinApiUrl("/products"))
   const normalizedSearch = toText(options.search)
@@ -563,6 +564,11 @@ export async function getProducts(options: {
 
   if (normalizedBrandId) {
     url.searchParams.set("brandId", normalizedBrandId)
+  }
+
+  // Add limit parameter if specified
+  if (options.limit) {
+    url.searchParams.set("limit", options.limit.toString())
   }
 
   const sourceUrl = url.toString()
@@ -707,7 +713,7 @@ export async function getProductById(productId: string): Promise<ProductDetailLo
       }
     }
 
-    const catalog = await getProducts()
+    const catalog = await getProducts({ limit: 1000 })
     const product = catalog.products.find(
       (item) =>
         item.id === trimmedId ||
@@ -735,7 +741,7 @@ export async function getProductById(productId: string): Promise<ProductDetailLo
       status: response.status,
     }
   } catch (error) {
-    const catalog = await getProducts()
+    const catalog = await getProducts({ limit: 1000 })
     const product = catalog.products.find(
       (item) =>
         item.id === trimmedId ||
