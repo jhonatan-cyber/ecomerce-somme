@@ -101,7 +101,7 @@ export function ProductGallery({ name, imageUrl, images = [] }: ProductGalleryPr
   }
 
   return (
-    <div className="flex flex-col gap-3 sm:gap-4">
+    <div data-tour="product-gallery" className="flex flex-col gap-3 sm:gap-4">
       {/* Main image */}
       <div
         className="relative w-full overflow-hidden rounded-xl bg-transparent sm:rounded-[1.75rem]"

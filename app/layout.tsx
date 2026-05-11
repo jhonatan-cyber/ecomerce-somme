@@ -7,6 +7,7 @@ import { Suspense } from "react"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { WhatsAppWidget } from "@/components/store/whatsapp-widget"
+import { TourProvider, TourComponent } from "@/components/tour"
 import "../styles/globals.css"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sommetechnology.com"
@@ -101,10 +102,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
-          <Toaster />
-          <WhatsAppWidget />
-          <Analytics />
+          <TourProvider>
+            <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+            <TourComponent />
+            <Toaster />
+            <WhatsAppWidget />
+            <Analytics />
+          </TourProvider>
         </ThemeProvider>
       </body>
     </html>

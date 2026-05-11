@@ -165,7 +165,7 @@ export function OnSaleSection({ products }: { products: Product[] }) {
   )
 
   return (
-    <section id="ofertas" className="container mx-auto px-4 pt-10">
+    <section data-tour="on-sale" id="ofertas" className="container mx-auto px-4 pt-10">
       {/* Header */}
       <div className="mb-6 flex items-end justify-between">
         <div>

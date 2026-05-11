@@ -258,7 +258,7 @@ function PromoLaneCard({ lane }: { lane: PromoLane }) {
   const Icon = lane.icon
 
   return (
-    <article className="relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.35)]">
+    <article className="relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.35)] dark:border-white/10 dark:bg-slate-900">
       <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${lane.accent}`} />
       <div className="flex items-center gap-3">
         <div className={`flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br ${lane.accent} text-white shadow-lg`}>
@@ -266,10 +266,10 @@ function PromoLaneCard({ lane }: { lane: PromoLane }) {
         </div>
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">{lane.label}</p>
-          <h3 className="text-lg font-black text-slate-900">{lane.title}</h3>
+          <h3 className="text-lg font-black text-slate-900 dark:text-white">{lane.title}</h3>
         </div>
       </div>
-      <p className="mt-4 text-sm leading-7 text-slate-600">{lane.description}</p>
+      <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400">{lane.description}</p>
     </article>
   )
 }
@@ -296,7 +296,7 @@ export default async function PromotionsPage() {
   const campaignQuoteHref = buildQuoteGeneratorHref(sortedProducts.slice(0, 4), "promociones-campana")
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf5_0%,#fff 16%,#fff 100%)] text-foreground">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf5_0%,#fff 16%,#fff 100%)] text-foreground dark:bg-[linear-gradient(180deg,#0f172a_0%,#020617_16%,#020617_100%)]">
       <StoreHeader />
 
       <main className="pb-16">
@@ -304,13 +304,13 @@ export default async function PromotionsPage() {
           {heroProduct ? (
             <PromoHero product={heroProduct} totalOnSale={sortedProducts.length} quoteHref={heroQuoteHref} />
           ) : (
-            <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-6 py-10 text-center shadow-[0_20px_80px_-50px_rgba(15,23,42,0.4)] sm:px-10">
+            <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-6 py-10 text-center shadow-[0_20px_80px_-50px_rgba(15,23,42,0.4)] dark:border-white/10 dark:bg-slate-900 sm:px-10">
               <div className="mx-auto max-w-2xl">
                 <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-orange-500">Promociones</p>
-                <h1 className="mt-3 text-4xl font-black tracking-[-0.04em] text-slate-950 sm:text-5xl">
+                <h1 className="mt-3 text-4xl font-black tracking-[-0.04em] text-slate-950 dark:text-white sm:text-5xl">
                   Estamos preparando la próxima ola de ofertas.
                 </h1>
-                <p className="mt-4 text-sm leading-7 text-slate-600 sm:text-base">
+                <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
                   Cuando activemos descuentos visibles en el catálogo, esta página se convertirá en el centro de campañas,
                   bundles y oportunidades para clientes finales y B2B.
                 </p>
@@ -339,30 +339,30 @@ export default async function PromotionsPage() {
         </section>
 
         <section className="container mx-auto px-4 pt-10">
-          <div className="grid gap-4 rounded-[2rem] border border-slate-200 bg-white px-5 py-5 shadow-[0_20px_80px_-55px_rgba(15,23,42,0.5)] sm:grid-cols-3 sm:px-7">
-            <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,#fff7ed_0%,#ffedd5_100%)] p-5">
-              <div className="flex items-center gap-2 text-orange-600">
+          <div className="grid gap-4 rounded-[2rem] border border-slate-200 bg-white px-5 py-5 shadow-[0_20px_80px_-55px_rgba(15,23,42,0.5)] dark:border-white/10 dark:bg-slate-900 sm:grid-cols-3 sm:px-7">
+            <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,#fff7ed_0%,#ffedd5_100%)] p-5 dark:bg-[linear-gradient(135deg,#1c1917_0%,#292524_100%)]">
+              <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
                 <Flame className="h-4 w-4" />
                 <p className="text-[11px] font-bold uppercase tracking-[0.24em]">Activas</p>
               </div>
-              <p className="mt-3 text-4xl font-black text-slate-950">{sortedProducts.length}</p>
-              <p className="mt-1 text-sm text-slate-600">productos con precio promocional visible</p>
+              <p className="mt-3 text-4xl font-black text-slate-950 dark:text-white">{sortedProducts.length}</p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">productos con precio promocional visible</p>
             </div>
-            <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,#eff6ff_0%,#e0f2fe_100%)] p-5">
-              <div className="flex items-center gap-2 text-sky-600">
+            <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,#eff6ff_0%,#e0f2fe_100%)] p-5 dark:bg-[linear-gradient(135deg,#0c1929_0%,#162032_100%)]">
+              <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400">
                 <TrendingUp className="h-4 w-4" />
                 <p className="text-[11px] font-bold uppercase tracking-[0.24em]">Promedio</p>
               </div>
-              <p className="mt-3 text-4xl font-black text-slate-950">{averageDiscount}%</p>
-              <p className="mt-1 text-sm text-slate-600">descuento medio de las ofertas activas</p>
+              <p className="mt-3 text-4xl font-black text-slate-950 dark:text-white">{averageDiscount}%</p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">descuento medio de las ofertas activas</p>
             </div>
-            <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,#ecfdf5_0%,#d1fae5_100%)] p-5">
-              <div className="flex items-center gap-2 text-emerald-600">
+            <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,#ecfdf5_0%,#d1fae5_100%)] p-5 dark:bg-[linear-gradient(135deg,#052e16_0%,#064e3b_100%)]">
+              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                 <ShieldCheck className="h-4 w-4" />
                 <p className="text-[11px] font-bold uppercase tracking-[0.24em]">Apoyo comercial</p>
               </div>
-              <p className="mt-3 text-lg font-black text-slate-950">Ventas B2B listas</p>
-              <p className="mt-1 text-sm text-slate-600">usa las ofertas como entrada y empuja la cotización de proyecto</p>
+              <p className="mt-3 text-lg font-black text-slate-950 dark:text-white">Ventas B2B listas</p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">usa las ofertas como entrada y empuja la cotización de proyecto</p>
             </div>
           </div>
         </section>
@@ -371,7 +371,7 @@ export default async function PromotionsPage() {
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-orange-500">Selección destacada</p>
-                <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-slate-950 dark:text-slate-50 sm:text-4xl">
+                <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-slate-950 dark:text-white sm:text-4xl">
                 Todo lo que hoy vale la pena mirar.
               </h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
@@ -405,14 +405,14 @@ export default async function PromotionsPage() {
               ))}
             </div>
           ) : heroProduct ? (
-            <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-white px-6 py-10 text-center text-sm font-medium text-slate-500">
+            <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-white px-6 py-10 text-center text-sm font-medium text-slate-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-400">
               La oferta principal está activa y pronto sumaremos más productos destacados aquí.
             </div>
           ) : null}
         </section>
 
         <section className="container mx-auto px-4 pt-10">
-          <div className="overflow-hidden rounded-[2rem] border border-slate-900 bg-[linear-gradient(135deg,#111827_0%,#0f172a_55%,#1d4ed8_160%)] px-6 py-8 text-white shadow-[0_30px_100px_-45px_rgba(15,23,42,0.95)] sm:px-8">
+          <div className="overflow-hidden rounded-[2rem] border border-slate-900 bg-[linear-gradient(135deg,#111827_0%,#0f172a_55%,#1d4ed8_160%)] px-6 py-8 text-white shadow-[0_30px_100px_-45px_rgba(15,23,42,0.95)] dark:border-white/10 sm:px-8">
             <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-cyan-200">Canal empresas</p>

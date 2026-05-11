@@ -30,7 +30,7 @@ export function WhatsAppWidget() {
   if (!WHATSAPP_NUMBER || !visible) return null
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-5 right-5 z-[999999999999] flex flex-col items-end gap-3">
       {/* Chat panel */}
       {open && (
         <div className="w-[300px] overflow-hidden rounded-[1.5rem] border border-border/70 bg-card shadow-[0_24px_80px_-20px_rgba(15,23,42,0.35)] animate-in fade-in slide-in-from-bottom-4 duration-200 sm:w-[320px]">

@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { Facebook, Instagram, Mail, MapPin, Phone, ShieldCheck, Truck, Youtube } from "lucide-react"
 
 // TikTok icon component (lucide-react doesn't have TikTok yet)
@@ -23,9 +24,14 @@ export function StoreFooter() {
           {/* Brand block */}
           <div>
             <div className="flex items-center gap-3">
-              <div className="rounded-xl bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_65%,#22d3ee_100%)] p-2.5 text-white shadow-lg shadow-cyan-500/20 sm:rounded-2xl sm:p-3">
-                <ShieldCheck className="h-5 w-5 sm:h-6 sm:w-6" />
-              </div>
+              <Image
+                src="/logo.webp"
+                alt="Somme Technology"
+                width={44}
+                height={44}
+                className="h-10 w-10 rounded-2xl object-contain"
+                unoptimized
+              />
               <div>
                 <p className="bg-gradient-to-r from-cyan-300 via-blue-400 to-primary bg-clip-text text-xl font-black text-transparent sm:text-2xl">
                   Somme Technology

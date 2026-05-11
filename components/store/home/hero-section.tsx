@@ -47,7 +47,7 @@ export function HeroSection({
     : `${heroCategoryProductCount} producto${heroCategoryProductCount === 1 ? "" : "s"} disponibles`
 
   return (
-    <section className="overflow-hidden">
+    <section data-tour="hero-product" className="overflow-hidden">
       <div className="flex flex-col gap-3 border-b border-border/60 p-4 sm:flex-row sm:items-end sm:justify-between sm:gap-4 sm:p-6">
         <div className="flex-1">
           <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted-foreground sm:text-[11px] sm:tracking-[0.28em]">

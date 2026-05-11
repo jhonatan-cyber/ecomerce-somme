@@ -57,10 +57,10 @@ export function PromotionProductCard({ product }: { product: Product }) {
   }
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-[0_18px_50px_-35px_rgba(15,23,42,0.45)] transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-[0_24px_60px_-30px_rgba(249,115,22,0.25)]">
+    <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-[0_18px_50px_-35px_rgba(15,23,42,0.45)] transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-[0_24px_60px_-30px_rgba(249,115,22,0.25)] dark:border-white/10 dark:bg-slate-900 dark:hover:border-orange-500/50">
       <Link
         href={`/product/${encodeURIComponent(product.id)}`}
-        className="relative block aspect-[4/3] overflow-hidden bg-[linear-gradient(135deg,#fff7ed_0%,#f8fafc_100%)]"
+        className="relative block aspect-[4/3] overflow-hidden bg-[linear-gradient(135deg,#fff7ed_0%,#f8fafc_100%)] dark:bg-[linear-gradient(135deg,#1a1a2e_0%,#0f172a_100%)]"
       >
         {image ? (
           <Image
@@ -74,7 +74,7 @@ export function PromotionProductCard({ product }: { product: Product }) {
         <div className="absolute left-3 top-3 rounded-xl bg-red-500 px-2.5 py-1.5 text-white shadow-lg shadow-red-500/30">
           <p className="text-xs font-black">-{product.discountPercent ?? 0}%</p>
         </div>
-        <div className="absolute right-3 top-3 rounded-full border border-slate-200 bg-white/95 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-700 backdrop-blur">
+        <div className="absolute right-3 top-3 rounded-full border border-slate-200 bg-white/95 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-700 backdrop-blur dark:border-white/10 dark:bg-slate-800/90 dark:text-slate-300">
           {product.category ?? "Oferta"}
         </div>
       </Link>
@@ -86,13 +86,13 @@ export function PromotionProductCard({ product }: { product: Product }) {
               {product.brand ?? "Selección Somme"}
             </p>
             <Link href={`/product/${encodeURIComponent(product.id)}`}>
-              <h3 className="mt-2 line-clamp-2 text-lg font-black leading-tight text-slate-900 transition-colors group-hover:text-orange-600">
+              <h3 className="mt-2 line-clamp-2 text-lg font-black leading-tight text-slate-900 transition-colors group-hover:text-orange-600 dark:text-white dark:group-hover:text-orange-400">
                 {product.name}
               </h3>
             </Link>
           </div>
           {product.brandLogo ? (
-            <div className="rounded-2xl border border-slate-200 bg-white px-2 py-1.5">
+            <div className="rounded-2xl border border-slate-200 bg-white px-2 py-1.5 dark:border-white/10 dark:bg-slate-800">
               <Image
                 src={product.brandLogo}
                 alt={product.brand ?? "Marca"}
@@ -106,11 +106,11 @@ export function PromotionProductCard({ product }: { product: Product }) {
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700 dark:bg-orange-500/10 dark:text-orange-300">
             <Tag className="h-3.5 w-3.5" />
             Ahorras ${formatPrice(savings || 0)}
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
             <Clock3 className="h-3.5 w-3.5" />
             {deadline}
           </span>
@@ -120,7 +120,7 @@ export function PromotionProductCard({ product }: { product: Product }) {
           {product.originalPrice ? (
             <p className="text-sm text-slate-400 line-through">${formatPrice(product.originalPrice)}</p>
           ) : null}
-          <p className="text-2xl font-black text-slate-900">${formatPrice(product.price)}</p>
+          <p className="text-2xl font-black text-slate-900 dark:text-white">${formatPrice(product.price)}</p>
         </div>
 
         <div className="mt-6 flex items-center gap-3">
@@ -130,7 +130,7 @@ export function PromotionProductCard({ product }: { product: Product }) {
             className={`inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-bold text-white transition ${
               justAdded
                 ? "bg-emerald-500 shadow-md shadow-emerald-500/25"
-                : "bg-slate-950 shadow-[0_16px_40px_-20px_rgba(15,23,42,0.8)] hover:bg-orange-500"
+                : "bg-slate-950 shadow-[0_16px_40px_-20px_rgba(15,23,42,0.8)] hover:bg-orange-500 dark:bg-white dark:text-slate-950 dark:hover:bg-orange-500 dark:hover:text-white"
             }`}
           >
             {justAdded ? (
@@ -148,7 +148,7 @@ export function PromotionProductCard({ product }: { product: Product }) {
 
           <Link
             href={`/product/${encodeURIComponent(product.id)}`}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-bold text-slate-800 transition hover:border-orange-300 hover:text-orange-600"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-bold text-slate-800 transition hover:border-orange-300 hover:text-orange-600 dark:border-white/10 dark:text-slate-200 dark:hover:border-orange-500 dark:hover:text-orange-400"
           >
             Ver detalle
             <ArrowRight className="h-4 w-4" />

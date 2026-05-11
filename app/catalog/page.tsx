@@ -1,99 +1,36 @@
-import type { Metadata } from "next"
-import { getBrands, getCategories, getProducts, getRelatedCategoryIds } from "@/lib/api"
-import { buildFallbackCategories } from "@/lib/utils"
+import Link from "next/link"
+import { getBrands, getCategories, getProducts } from "@/lib/api"
 import { ActiveFilters } from "@/components/store/home/active-filters"
 import { Breadcrumbs } from "@/components/store/home/breadcrumbs"
 import { CatalogStatusPage } from "@/components/store/home/catalog-status-page"
 import { CategorySidebar } from "@/components/store/home/category-sidebar"
-import { BrandSidebarFilter } from "@/components/store/home/brand-sidebar-filter"
 import { CatalogGrid } from "@/components/store/catalog-grid"
 import { StoreFooter } from "@/components/store/footer"
 import { StoreHeader } from "@/components/store/header"
-import type { Brand, Category } from "@/lib/types"
+import { AutoTour } from "@/components/tour"
+import type { Brand, Category, Product } from "@/lib/types"
 
-// ---------------------------------------------------------------------------
-// SEO metadata — dynamic per active filters
-// ---------------------------------------------------------------------------
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>
-}): Promise<Metadata> {
-  const resolved = searchParams ? await searchParams : {}
-  const rawCategory = resolved?.category
-  const rawSubcategory = resolved?.subcategory
-  const rawBrand = resolved?.brandId
-  const rawSearch = resolved?.search
-  const categoryId = Array.isArray(rawCategory) ? rawCategory[0] ?? "" : rawCategory ?? ""
-  const subcategoryId = Array.isArray(rawSubcategory) ? rawSubcategory[0] ?? "" : rawSubcategory ?? ""
-  const brandId = Array.isArray(rawBrand) ? rawBrand[0] ?? "" : rawBrand ?? ""
-  const search = Array.isArray(rawSearch) ? rawSearch[0] ?? "" : rawSearch ?? ""
-  const normalizedCategoryId = categoryId.trim()
-  const normalizedSubcategoryId = subcategoryId.trim()
-  const normalizedBrandId = brandId.trim()
-  const effectiveBrandId = normalizedBrandId
-  const effectiveCategoryId = effectiveBrandId ? "" : normalizedCategoryId
-  const effectiveSubcategoryId = effectiveBrandId ? "" : normalizedSubcategoryId
+function buildFallbackCategories(products: Product[]): Category[] {
+  const names = Array.from(
+    new Set(
+      products
+        .map((product) => product.category?.trim())
+        .filter((category): category is string => Boolean(category)),
+    ),
+  )
 
-  // Fetch only what we need for the title
-  const [categoryCatalog, brandsCatalog] = await Promise.all([
-    getCategories(),
-    getBrands(),
-  ])
-
-  const categories = categoryCatalog.ok ? categoryCatalog.categories : []
-  const brands = brandsCatalog.ok ? brandsCatalog.brands : []
-
-  const selectedCategory = effectiveCategoryId
-    ? categories.find((c: Category) => c.id === effectiveCategoryId) ?? null
-    : null
-  const selectedSubcategory =
-    effectiveSubcategoryId && selectedCategory?.children
-      ? selectedCategory.children.find((c: Category) => c.id === effectiveSubcategoryId) ?? null
-      : null
-  const selectedBrand = effectiveBrandId
-    ? brands.find((b: Brand) => b.id === effectiveBrandId) ?? null
-    : null
-
-  let title = "Catálogo"
-  let description = "Explorá nuestro catálogo completo de cámaras de seguridad, grabadores, kits y accesorios."
-
-  if (search) {
-    title = `Resultados para "${search}"`
-    description = `Productos encontrados para "${search}" en Somme Technology.`
-  } else if (selectedSubcategory) {
-    title = selectedSubcategory.name
-    description = `CatÃ¡logo de ${selectedSubcategory.name}. EncontrÃ¡ los mejores productos de videovigilancia en Somme Technology.`
-  } else if (selectedBrand) {
-    title = `${selectedBrand.name} — Productos`
-    description = `Todos los productos de ${selectedBrand.name} disponibles en Somme Technology.`
-  } else if (selectedCategory) {
-    title = selectedCategory.name
-    description = `Catálogo de ${selectedCategory.name}. Encontrá los mejores productos de videovigilancia en Somme Technology.`
+  if (names.length > 0) {
+    return names.map((name) => ({
+      id: name.toLowerCase().replace(/\s+/g, "-"),
+      name,
+      icon: null,
+      description: null,
+      active: true,
+      parentId: null,
+    }))
   }
 
-  const canonicalParams = new URLSearchParams()
-  if (effectiveCategoryId) canonicalParams.set("category", effectiveCategoryId)
-  if (effectiveSubcategoryId) canonicalParams.set("subcategory", effectiveSubcategoryId)
-  if (effectiveBrandId) canonicalParams.set("brandId", effectiveBrandId)
-  if (search) canonicalParams.set("search", search)
-  const canonical = `/catalog${canonicalParams.toString() ? `?${canonicalParams}` : ""}`
-
-  return {
-    title,
-    description,
-    alternates: { canonical },
-    openGraph: {
-      title: `${title} | Somme Technology`,
-      description,
-      url: canonical,
-      type: "website",
-    },
-    // Paginated/filtered views shouldn't be indexed to avoid duplicate content
-    robots: search
-      ? { index: false, follow: true }
-      : { index: true, follow: true },
-  }
+  return []
 }
 
 export default async function CatalogPage({
@@ -105,7 +42,7 @@ export default async function CatalogPage({
   const rawSearch = resolvedSearchParams?.search
   const rawCategory = resolvedSearchParams?.category
   const rawSubcategory = resolvedSearchParams?.subcategory
-  const rawBrand = resolvedSearchParams?.brandId
+  const rawBrand = resolvedSearchParams?.brand
   const search = Array.isArray(rawSearch) ? rawSearch[0] ?? "" : rawSearch ?? ""
   const categoryId = Array.isArray(rawCategory) ? rawCategory[0] ?? "" : rawCategory ?? ""
   const subcategoryId = Array.isArray(rawSubcategory) ? rawSubcategory[0] ?? "" : rawSubcategory ?? ""
@@ -114,31 +51,19 @@ export default async function CatalogPage({
   const normalizedCategoryId = categoryId.trim()
   const normalizedSubcategoryId = subcategoryId.trim()
   const normalizedBrandId = brandId.trim()
-  const effectiveBrandId = normalizedBrandId
-  const effectiveCategoryId = effectiveBrandId ? "" : normalizedCategoryId
-  const effectiveSubcategoryId = effectiveBrandId ? "" : normalizedSubcategoryId
 
-  const [categoryCatalog, brandsCatalog] = await Promise.all([
+  const [catalog, categoryCatalog, brandsCatalog] = await Promise.all([
+    getProducts({
+      search: normalizedSearch,
+      categoryId: normalizedCategoryId,
+      subcategoryId: normalizedSubcategoryId,
+      brandId: normalizedBrandId,
+    }),
     getCategories(),
     getBrands(),
   ])
 
-  const categories = categoryCatalog.ok ? categoryCatalog.categories : []
   const brands = brandsCatalog.ok ? brandsCatalog.brands : []
-
-  // Get related category IDs if a category is selected
-  let categoryIds = effectiveCategoryId ? [effectiveCategoryId] : []
-  if (effectiveCategoryId && !effectiveSubcategoryId) {
-    categoryIds = getRelatedCategoryIds(categories, effectiveCategoryId)
-  }
-
-  const catalog = await getProducts({
-    search: normalizedSearch,
-    categoryId: effectiveSubcategoryId || (categoryIds.length > 0 ? categoryIds.join(',') : effectiveCategoryId),
-    subcategoryId: effectiveSubcategoryId,
-    brandId: effectiveBrandId,
-    categories,
-  })
 
   if (!catalog.ok) {
     return (
@@ -153,32 +78,36 @@ export default async function CatalogPage({
 
   const products = catalog.products
   const rawCategories = categoryCatalog.ok ? categoryCatalog.categories : []
-  const finalCategories = rawCategories.length > 0 ? rawCategories : buildFallbackCategories(products)
+  // API now returns root categories with children already nested
+  const categories = rawCategories.length > 0 ? rawCategories : buildFallbackCategories(products)
 
-  const selectedCategory = effectiveCategoryId
-    ? finalCategories.find((c: Category) => c.id === effectiveCategoryId) ?? null
+  // Find selected category (root level)
+  const selectedCategory = normalizedCategoryId
+    ? categories.find((c) => c.id === normalizedCategoryId) ?? null
     : null
 
+  // Find selected subcategory within the selected category's children
   const selectedSubcategory =
-    effectiveSubcategoryId && selectedCategory?.children
-      ? selectedCategory.children.find((c: Category) => c.id === effectiveSubcategoryId) ?? null
+    normalizedSubcategoryId && selectedCategory?.children
+      ? selectedCategory.children.find((c) => c.id === normalizedSubcategoryId) ?? null
       : null
 
-  const selectedBrand = effectiveBrandId
-    ? brands.find((brand: Brand) => brand.id === effectiveBrandId) ?? null
+  const selectedBrand = normalizedBrandId
+    ? brands.find((brand) => brand.id === normalizedBrandId) ?? null
     : null
 
+  // Build active filter chips with individual remove hrefs
   function buildCatalogUrl(params: {
     search?: string
     category?: string
     subcategory?: string
-    brandId?: string
+    brand?: string
   }) {
     const qs = new URLSearchParams()
     if (params.search) qs.set("search", params.search)
     if (params.category) qs.set("category", params.category)
     if (params.subcategory) qs.set("subcategory", params.subcategory)
-    if (params.brandId) qs.set("brandId", params.brandId)
+    if (params.brand) qs.set("brand", params.brand)
     const str = qs.toString()
     return str ? `/catalog?${str}` : "/catalog"
   }
@@ -191,9 +120,9 @@ export default async function CatalogPage({
             label: "Búsqueda",
             value: normalizedSearch,
             removeHref: buildCatalogUrl({
-              category: effectiveCategoryId || undefined,
-              subcategory: effectiveSubcategoryId || undefined,
-              brandId: effectiveBrandId || undefined,
+              category: normalizedCategoryId || undefined,
+              subcategory: normalizedSubcategoryId || undefined,
+              brand: normalizedBrandId || undefined,
             }),
           },
         ]
@@ -206,8 +135,8 @@ export default async function CatalogPage({
             value: selectedSubcategory.name,
             removeHref: buildCatalogUrl({
               search: normalizedSearch || undefined,
-              category: effectiveCategoryId || undefined,
-              brandId: effectiveBrandId || undefined,
+              category: normalizedCategoryId || undefined,
+              brand: normalizedBrandId || undefined,
             }),
           },
         ]
@@ -219,7 +148,7 @@ export default async function CatalogPage({
             value: selectedCategory.name,
             removeHref: buildCatalogUrl({
               search: normalizedSearch || undefined,
-              brandId: effectiveBrandId || undefined,
+              brand: normalizedBrandId || undefined,
             }),
           },
         ]
@@ -232,14 +161,15 @@ export default async function CatalogPage({
             value: selectedBrand.name,
             removeHref: buildCatalogUrl({
               search: normalizedSearch || undefined,
-              category: effectiveCategoryId || undefined,
-              subcategory: effectiveSubcategoryId || undefined,
+              category: normalizedCategoryId || undefined,
+              subcategory: normalizedSubcategoryId || undefined,
             }),
           },
         ]
       : []),
   ]
 
+  // Build breadcrumbs
   const breadcrumbs = [
     { label: "Catálogo", href: "/catalog" },
     ...(selectedCategory
@@ -256,21 +186,19 @@ export default async function CatalogPage({
 
   return (
     <div className="store-surface min-h-screen bg-background text-foreground">
-      <StoreHeader currentSearch={normalizedSearch} categories={finalCategories} brands={brands} />
+      <AutoTour page="catalog" delay={1500} />
+      <StoreHeader currentSearch={normalizedSearch} categories={categories} brands={brands} />
 
       <main className="pb-14">
         <section className="container mx-auto px-4 pt-6">
-          <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start">
+          <div className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
             {/* Sidebar — hidden on mobile, visible on xl+ */}
-            <div className="hidden lg:flex lg:flex-col lg:gap-4 lg:self-start">
+            <div className="hidden xl:block">
               <CategorySidebar
-                categories={finalCategories}
+                categories={categories}
                 selectedCategoryId={selectedCategory?.id ?? null}
                 selectedSubcategoryId={selectedSubcategory?.id ?? null}
               />
-              {brands.length > 0 && !selectedCategory && !selectedSubcategory && (
-                <BrandSidebarFilter brands={brands} />
-              )}
             </div>
 
             <div>
@@ -305,8 +233,7 @@ export default async function CatalogPage({
                   <CatalogGrid
                     products={products}
                     search={normalizedSearch}
-                    grouped={!effectiveCategoryId && !effectiveSubcategoryId && !normalizedSearch && !effectiveBrandId}
-                    brands={brands}
+                    grouped={!normalizedCategoryId && !normalizedSubcategoryId && !normalizedSearch && !normalizedBrandId}
                   />
                 </div>
               ) : (

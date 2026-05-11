@@ -25,6 +25,7 @@ export function ProductDetailActions({ product }: { product: Product }) {
   return (
     <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
       <button
+        data-tour="add-to-cart"
         type="button"
         onClick={handleAddToCart}
         className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-white transition sm:w-auto sm:rounded-2xl sm:px-6 ${

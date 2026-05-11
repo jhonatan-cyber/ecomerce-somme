@@ -14,7 +14,7 @@ export function NewArrivalsSection({ products }: { products: Product[] }) {
   if (newProducts.length === 0) return null
 
   return (
-    <section className="container mx-auto px-4 pt-8">
+    <section data-tour="new-arrivals" className="container mx-auto px-4 pt-8">
       {/* Header */}
       <div className="mb-5 flex items-center justify-between border-b border-border/70 pb-4">
         <div className="flex items-center gap-3">

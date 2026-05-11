@@ -10,6 +10,8 @@ import { OnSaleSection } from "@/components/store/home/on-sale-section"
 import { StoreFooter } from "@/components/store/footer"
 import { StoreHeader } from "@/components/store/header"
 import type { Metadata } from "next"
+import { AutoTour } from "@/components/tour"
+import type { Brand, Category, Product } from "@/lib/types"
 
 export const metadata: Metadata = {
   title: "Inicio",
@@ -91,6 +93,7 @@ export default async function HomePage({
 
   return (
     <div className="store-surface min-h-screen bg-background text-foreground">
+      <AutoTour page="home" delay={2000} />
       <StoreHeader currentSearch={normalizedSearch} categories={categories} brands={brands} />
 
       {slides.length > 0 && <HeroBanner slides={slides} />}

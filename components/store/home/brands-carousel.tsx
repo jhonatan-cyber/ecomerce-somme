@@ -31,7 +31,7 @@ export function BrandsCarousel({ brands, products = [] }: BrandsCarouselProps) {
   const duplicatedBrands = [...brandsWithLogos, ...brandsWithLogos]
 
   return (
-    <section className="container mx-auto px-4 pt-8">
+    <section data-tour="brands-carousel" className="container mx-auto px-4 pt-8">
       <p className="mb-4 text-center text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
         Marcas disponibles
       </p>

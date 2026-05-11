@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useTransition, lazy, Suspense } from "react"
-import { useRouter } from "next/navigation"
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import {
@@ -13,10 +12,19 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Store,
   Truck,
   X,
 } from "lucide-react"
+import { CartButton } from "./cart-button"
+import { ThemeToggle } from "./theme-toggle"
+import { TourIconButton } from "@/components/tour"
 import { Input } from "@/components/ui/input"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,17 +36,14 @@ import {
   DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu"
 import {
+  defaultStoreNavigationCategories,
   getStoreCategoryHref,
   type StoreNavigationCategory,
 } from "@/lib/store-navigation"
 import type { Category } from "@/lib/types"
 
-// Dynamic imports para componentes no críticos
-const CartButton = lazy(() => import("./cart-button").then(mod => ({ default: mod.CartButton })))
-const ThemeToggle = lazy(() => import("./theme-toggle").then(mod => ({ default: mod.ThemeToggle })))
-
 const primaryLinks = [
-  { href: "/#ofertas", label: "Ofertas" },
+  { href: "/promotions", label: "Ofertas" },
   { href: "/catalog", label: "Tienda" },
   { href: "/brands", label: "Marcas" },
 ]
@@ -47,7 +52,7 @@ type MobilePanel = "categories" | "brands" | null
 
 export function StoreHeader({
   currentSearch = "",
-  categories = [],
+  categories = defaultStoreNavigationCategories,
   brands = [],
 }: {
   currentSearch?: string
@@ -57,20 +62,6 @@ export function StoreHeader({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>(null)
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
-  const router = useRouter()
-  const [, startTransition] = useTransition()
-
-  function handleSearch(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const form = e.currentTarget
-    const search = (form.elements.namedItem("search") as HTMLInputElement)?.value?.trim() ?? ""
-    const params = new URLSearchParams()
-    if (search) params.set("search", search)
-    startTransition(() => {
-      router.push(`/catalog${params.toString() ? `?${params}` : ""}`)
-    })
-    closeMobileMenu()
-  }
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false)
@@ -129,18 +120,16 @@ export function StoreHeader({
 
           {/* Logo + mobile actions */}
           <div className="flex items-center gap-3">
-            <Link href="/" className="group min-w-0 flex-1 transition hover:opacity-90" onClick={closeMobileMenu}>
+            <Link href="/" data-tour="header-logo" className="group min-w-0 flex-1 transition hover:opacity-90" onClick={closeMobileMenu}>
               <div className="flex items-center gap-3">
-                <div className="overflow-hidden rounded-[1rem] shadow-lg shadow-cyan-500/20 transition group-hover:scale-[1.03] lg:rounded-[1.1rem]">
-                  <Image
-                    src="/logo.webp"
-                    alt="Somme Technology"
-                    width={36}
-                    height={36}
-                    className="h-9 w-9 object-contain lg:h-10 lg:w-10"
-                    priority
-                  />
-                </div>
+                <Image
+                  src="/logo.webp"
+                  alt="Somme Technology"
+                  width={40}
+                  height={40}
+                  className="h-8 w-8 rounded-xl lg:h-10 lg:w-10 object-contain transition group-hover:scale-[1.03]"
+                  unoptimized
+                />
                 <div className="min-w-0">
                   <p className="truncate bg-gradient-to-r from-slate-950 via-blue-700 to-cyan-500 bg-clip-text text-base font-black text-transparent sm:text-xl">
                     Somme Technology
@@ -153,12 +142,8 @@ export function StoreHeader({
             </Link>
 
             <div className="flex items-center gap-2 lg:hidden">
-              <Suspense fallback={<div className="h-8 w-8 animate-pulse rounded bg-muted" />}>
-                <ThemeToggle />
-              </Suspense>
-              <Suspense fallback={<div className="h-8 w-8 animate-pulse rounded bg-muted" />}>
-                <CartButton />
-              </Suspense>
+              <ThemeToggle />
+              <CartButton />
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen((v) => !v)}
@@ -174,7 +159,7 @@ export function StoreHeader({
           {/* Mobile: search + category/brand buttons */}
           <div className="flex flex-col gap-1.5 lg:hidden">
             {/* Search */}
-            <form onSubmit={handleSearch}>
+            <form action="/catalog" onSubmit={closeMobileMenu}>
               <div className="flex overflow-hidden rounded-[1.15rem] border border-border bg-background/80 shadow-inner">
                 <div className="relative flex-1">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -307,7 +292,7 @@ export function StoreHeader({
                     {brands.map((brand) => (
                       <Link
                         key={brand.id}
-                        href={`/catalog?brandId=${brand.id}`}
+                        href={`/catalog?brand=${brand.id}`}
                         onClick={closeMobileMenu}
                         className="flex items-center gap-3 border-b border-border/50 px-4 py-2.5 text-sm font-semibold text-foreground transition last:border-0 hover:bg-muted/50 hover:text-primary"
                       >
@@ -333,49 +318,55 @@ export function StoreHeader({
           </div>
 
           {/* Desktop search */}
-          <div className="hidden lg:block">
-            <form onSubmit={handleSearch} className="flex overflow-hidden rounded-[1.15rem] border border-border bg-background/80 shadow-inner">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button type="button" className="flex items-center gap-2 border-r border-border px-3 text-xs font-semibold text-muted-foreground hover:bg-muted/50 transition-colors xl:px-4 outline-none focus:outline-none">
-                    <Sparkles className="h-3.5 w-3.5 text-primary" />
-                    Categorías
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56">
-                  {normalizedCategories.map((category) =>
-                    category.children && category.children.length > 0 ? (
-                      <DropdownMenuSub key={category.id}>
-                        <DropdownMenuSubTrigger>
-                          <span>{category.name}</span>
-                        </DropdownMenuSubTrigger>
-                        <DropdownMenuPortal>
-                          <DropdownMenuSubContent>
-                            <DropdownMenuItem asChild>
+          <div data-tour="search-bar" className="hidden lg:block">
+            <form action="/catalog" className="flex overflow-hidden rounded-[1.15rem] border border-border bg-background/80 shadow-inner">
+              <Tooltip delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button type="button" className="flex cursor-pointer items-center gap-2 border-r border-border px-3 text-xs font-semibold text-muted-foreground hover:bg-muted/50 transition-colors xl:px-4 outline-none focus:outline-none">
+                          Categorías
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-56">
+                        {defaultStoreNavigationCategories.map((category) =>
+                          category.subcategories && category.subcategories.length > 0 ? (
+                            <DropdownMenuSub key={category.id}>
+                              <DropdownMenuSubTrigger>
+                                <span>{category.name}</span>
+                              </DropdownMenuSubTrigger>
+                              <DropdownMenuPortal>
+                                <DropdownMenuSubContent>
+                                  <DropdownMenuItem asChild>
+                                    <Link href={getStoreCategoryHref(category.id)}>
+                                      <strong>Ver todo en {category.name}</strong>
+                                    </Link>
+                                  </DropdownMenuItem>
+                                  {category.subcategories.map((sub) => (
+                                    <DropdownMenuItem key={sub.id} asChild>
+                                      <Link href={getStoreCategoryHref(category.id, sub.id)}>
+                                        {sub.name}
+                                      </Link>
+                                    </DropdownMenuItem>
+                                  ))}
+                                </DropdownMenuSubContent>
+                              </DropdownMenuPortal>
+                            </DropdownMenuSub>
+                          ) : (
+                            <DropdownMenuItem key={category.id} asChild>
                               <Link href={getStoreCategoryHref(category.id)}>
-                                <strong>Ver todo en {category.name}</strong>
+                                {category.name}
                               </Link>
                             </DropdownMenuItem>
-                            {category.children.map((sub) => (
-                              <DropdownMenuItem key={sub.id} asChild>
-                                <Link href={getStoreCategoryHref(category.id, sub.id)}>
-                                  {sub.name}
-                                </Link>
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuSubContent>
-                        </DropdownMenuPortal>
-                      </DropdownMenuSub>
-                    ) : (
-                      <DropdownMenuItem key={category.id} asChild>
-                        <Link href={getStoreCategoryHref(category.id)}>
-                          {category.name}
-                        </Link>
-                      </DropdownMenuItem>
-                    )
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                          )
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Filtrar por categorías</TooltipContent>
+              </Tooltip>
               <div className="relative flex-1">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -385,35 +376,74 @@ export function StoreHeader({
                   placeholder="Buscar camaras, kits, grabadores o accesorios"
                 />
               </div>
-              <button
-                type="submit"
-                className="inline-flex items-center bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] px-5 text-sm font-semibold text-white transition hover:opacity-90"
-              >
-                Buscar
-              </button>
+              <Tooltip delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <button
+                    type="submit"
+                    className="inline-flex cursor-pointer items-center bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] px-5 text-sm font-semibold text-white transition hover:opacity-90"
+                  >
+                    Buscar
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Buscar productos</TooltipContent>
+              </Tooltip>
             </form>
           </div>
 
           {/* Desktop right actions */}
           <div className="hidden items-center justify-end gap-3 lg:flex">
-            <nav className="flex items-center gap-1">
-              {primaryLinks.map((link) => (
+            <Tooltip delayDuration={200}>
+              <TooltipTrigger asChild>
                 <Link
-                  key={link.href}
-                  href={link.href}
-                  className="rounded-[0.9rem] px-3 py-1.5 text-[13px] font-semibold text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+                  href="/promotions"
+                  className="inline-flex items-center gap-1.5 rounded-[1rem] border border-border/70 bg-card/80 px-3 py-2 text-xs font-semibold text-muted-foreground shadow-sm transition hover:border-primary/40 hover:text-primary"
                 >
-                  {link.label}
+                  <BadgePercent className="h-3.5 w-3.5" />
+                  Ofertas
                 </Link>
-              ))}
-            </nav>
-            <div className="h-5 w-px bg-border/70" />
-            <Suspense fallback={<div className="h-8 w-8 animate-pulse rounded bg-muted" />}>
-              <ThemeToggle />
-            </Suspense>
-            <Suspense fallback={<div className="h-8 w-8 animate-pulse rounded bg-muted" />}>
-              <CartButton />
-            </Suspense>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Ver ofertas y promociones</TooltipContent>
+            </Tooltip>
+
+            <Tooltip delayDuration={200}>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/brands"
+                  className="inline-flex items-center gap-1.5 rounded-[1rem] border border-border/70 bg-card/80 px-3 py-2 text-xs font-semibold text-muted-foreground shadow-sm transition hover:border-primary/40 hover:text-primary"
+                >
+                  <Store className="h-3.5 w-3.5" />
+                  Marcas
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Explorar marcas</TooltipContent>
+            </Tooltip>
+
+            <Tooltip delayDuration={200}>
+              <TooltipTrigger asChild>
+                <span>
+                  <TourIconButton page="home" className="text-muted-foreground hover:text-foreground" />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Tour interactivo</TooltipContent>
+            </Tooltip>
+
+            <Tooltip delayDuration={200}>
+              <TooltipTrigger asChild>
+                <span>
+                  <ThemeToggle />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Cambiar tema</TooltipContent>
+            </Tooltip>
+
+            <Tooltip delayDuration={200}>
+              <TooltipTrigger asChild>
+                <div data-tour="cart-button">
+                  <CartButton />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Ver carrito</TooltipContent>
+            </Tooltip>
           </div>
         </div>
 
