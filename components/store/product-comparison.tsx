@@ -104,7 +104,11 @@ export function ProductComparison({ products, onComparisonChange }: ProductCompa
       return Array.isArray(value) ? value.join(", ") : "N/A"
     }
     
-    return value || "N/A"
+    if (typeof value === "string" && value.trim().length > 0) return value
+    if (typeof value === "number") return String(value)
+    if (typeof value === "boolean") return value ? "Sí" : "No"
+    
+    return "N/A"
   }
 
   const getBestValue = (specKey: string) => {

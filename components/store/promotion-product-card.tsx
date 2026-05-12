@@ -60,6 +60,7 @@ export function PromotionProductCard({ product }: { product: Product }) {
     <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-[0_18px_50px_-35px_rgba(15,23,42,0.45)] transition duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-[0_24px_60px_-30px_rgba(249,115,22,0.25)] dark:border-white/10 dark:bg-slate-900 dark:hover:border-orange-500/50">
       <Link
         href={`/product/${encodeURIComponent(product.id)}`}
+        scroll
         className="relative block aspect-[4/3] overflow-hidden bg-[linear-gradient(135deg,#fff7ed_0%,#f8fafc_100%)] dark:bg-[linear-gradient(135deg,#1a1a2e_0%,#0f172a_100%)]"
       >
         {image ? (
@@ -85,7 +86,7 @@ export function PromotionProductCard({ product }: { product: Product }) {
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
               {product.brand ?? "Selección Somme"}
             </p>
-            <Link href={`/product/${encodeURIComponent(product.id)}`}>
+            <Link href={`/product/${encodeURIComponent(product.id)}`} scroll>
               <h3 className="mt-2 line-clamp-2 text-lg font-black leading-tight text-slate-900 transition-colors group-hover:text-orange-600 dark:text-white dark:group-hover:text-orange-400">
                 {product.name}
               </h3>
@@ -148,6 +149,7 @@ export function PromotionProductCard({ product }: { product: Product }) {
 
           <Link
             href={`/product/${encodeURIComponent(product.id)}`}
+            scroll
             className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-bold text-slate-800 transition hover:border-orange-300 hover:text-orange-600 dark:border-white/10 dark:text-slate-200 dark:hover:border-orange-500 dark:hover:text-orange-400"
           >
             Ver detalle

@@ -11,6 +11,7 @@ export function ProductThumb({ product }: { product: Product }) {
   return (
     <Link
       href={`/product/${encodeURIComponent(product.id)}`}
+      scroll
       className="group flex flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
     >
       {/* Image */}

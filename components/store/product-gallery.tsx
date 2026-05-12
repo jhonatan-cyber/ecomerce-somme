@@ -14,7 +14,10 @@ export function ProductGallery({ name, imageUrl, images = [] }: ProductGalleryPr
   const [failedImages, setFailedImages] = useState<string[]>([])
 
   const galleryImages = useMemo(() => {
-    const merged = [imageUrl, ...images].filter((v): v is string => Boolean(v))
+    const merged = [imageUrl, ...images]
+      .filter((v): v is string => Boolean(v))
+      .map((value) => value.trim())
+      .filter(Boolean)
     return Array.from(new Set(merged)).filter((img) => !failedImages.includes(img))
   }, [failedImages, imageUrl, images])
 
@@ -104,18 +107,23 @@ export function ProductGallery({ name, imageUrl, images = [] }: ProductGalleryPr
     <div data-tour="product-gallery" className="flex flex-col gap-3 sm:gap-4">
       {/* Main image */}
       <div
-        className="relative w-full overflow-hidden rounded-xl bg-transparent sm:rounded-[1.75rem]"
+        className="relative w-full overflow-hidden rounded-xl border border-border/60 bg-muted/20 sm:rounded-[1.75rem]"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         {activeImage ? (
-          <img
-            src={activeImage}
-            alt={name}
-            className="aspect-square w-full object-contain sm:aspect-[4/3]"
-            onError={() => markFailed(activeImage)}
-          />
+          <div className="relative aspect-square w-full sm:aspect-[4/3]">
+            <StoreImage
+              src={activeImage}
+              alt={name}
+              fill
+              className="rounded-xl object-contain sm:rounded-[1.75rem]"
+              fallbackText="Sin imagen"
+              fallbackClassName="bg-muted"
+              onImageError={() => markFailed(activeImage)}
+            />
+          </div>
         ) : (
           <div className="flex aspect-[4/3] items-center justify-center text-muted-foreground">
             <div className="text-center">
@@ -158,7 +166,7 @@ export function ProductGallery({ name, imageUrl, images = [] }: ProductGalleryPr
       {hasMultiple && (
         <div 
           ref={thumbnailsRef}
-          className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
+          className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',

@@ -76,6 +76,19 @@ export function ProductSlider({ products }: ProductSliderProps) {
     return () => container.removeEventListener("scroll", onScroll)
   }, [])
 
+  // Insert promo slides every N products
+  const PROMO_INTERVAL = 4
+  const allSlides: (Product[] | "promo")[] = []
+
+  let promoIndex = 0
+  for (let i = 0; i < slides.length; i++) {
+    allSlides.push(slides[i])
+    if ((i + 1) % 2 === 0 && i < slides.length - 1) {
+      allSlides.push("promo")
+      promoIndex++
+    }
+  }
+
   return (
     <div className="relative overflow-hidden w-full max-w-[100vw] min-w-0">
       <button
@@ -91,7 +104,7 @@ export function ProductSlider({ products }: ProductSliderProps) {
       <button
         type="button"
         onClick={slideRight}
-        disabled={currentSlide >= slides.length - 1}
+        disabled={currentSlide >= allSlides.length - 1}
         className="hidden lg:flex absolute right-0 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/90 p-2 shadow-md shadow-slate-900/10 transition disabled:opacity-50 disabled:cursor-not-allowed"
         aria-label="Siguiente"
       >
@@ -108,21 +121,32 @@ export function ProductSlider({ products }: ProductSliderProps) {
         }}
       >
         <div className="flex gap-1.5 snap-x snap-mandatory scroll-smooth min-w-0">
-          {slides.map((slide, index) => (
+          {allSlides.map((slide, index) => (
             <div
               key={index}
               ref={(el) => {
-              if (el) slideRefs.current[index] = el
-            }}
+                if (el) slideRefs.current[index] = el
+              }}
               className="flex-none snap-start w-full max-w-full min-w-0"
             >
-              <div className={`min-w-0 grid gap-1.5 ${itemsPerSlide === 3 ? "grid-cols-3" : "grid-cols-2"}`}>
-                {slide.map((product) => (
-                  <div key={product.id} className="min-w-0 w-full">
-                    <ProductCard product={product} />
+              {slide === "promo" ? (
+                <div className="h-full min-h-[180px] rounded-xl bg-gradient-to-r from-blue-600 to-blue-400 p-6 flex flex-col justify-center text-white text-center">
+                  <p className="text-xs font-bold uppercase tracking-widest opacity-80">Espacio publicitario</p>
+                  <p className="mt-2 text-xl font-black">¡Tu marca aquí!</p>
+                  <p className="mt-1 text-sm opacity-90">Llega a miles de clientes</p>
+                  <div className="mt-3 inline-block rounded-full bg-white/20 px-4 py-1.5 text-xs font-bold backdrop-blur-sm">
+                    Reservar espacio →
                   </div>
-                ))}
-              </div>
+                </div>
+              ) : (
+                <div className={`min-w-0 grid gap-1.5 ${itemsPerSlide === 3 ? "grid-cols-3" : "grid-cols-2"}`}>
+                  {slide.map((product) => (
+                    <div key={product.id} className="min-w-0 w-full">
+                      <ProductCard product={product} />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

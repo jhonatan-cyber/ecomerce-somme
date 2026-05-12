@@ -11,6 +11,7 @@ export function ProductListItem({ product }: { product: Product }) {
   return (
     <Link
       href={`/product/${encodeURIComponent(product.id)}`}
+      scroll
       className="group flex items-center gap-3 rounded-2xl border border-border/70 bg-card p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
     >
       <div className="relative h-16 w-16 overflow-hidden rounded-xl bg-muted">

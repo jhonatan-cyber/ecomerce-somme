@@ -14,6 +14,7 @@ import type {
   StoreOrderItem,
   QuoteRequest,
   QuoteRequestCreateResult,
+  ProductBranchStock,
 } from "./types"
 
 // Importar la función createOrder del archivo separado
@@ -95,6 +96,35 @@ function toTextArray(value: unknown): string[] | undefined {
 
   const values = value.map((item) => toText(item)).filter((item): item is string => item !== null)
   return values.length > 0 ? values : undefined
+}
+
+function normalizeBranchStocks(value: unknown): ProductBranchStock[] | undefined {
+  if (!Array.isArray(value)) return undefined
+
+  const rows = value
+    .map((item): ProductBranchStock | null => {
+      if (!isPlainObject(item)) return null
+      const branchId = toText(item.branchId ?? item.branch_id ?? item.id ?? item.code ?? item.branchCode)
+      const branchName = toText(item.branchName ?? item.branch_name ?? item.name ?? item.label ?? item.title)
+      const stock = toNumber(item.stock ?? item.availableStock ?? item.available_stock ?? item.qty ?? item.quantity)
+
+      if (!branchName || stock === null) return null
+
+      return {
+        branchId: branchId ?? branchName,
+        branchName,
+        branchType:
+          toText(item.branchType ?? item.branch_type ?? item.type) === "warehouse"
+            ? "warehouse"
+            : toText(item.branchType ?? item.branch_type ?? item.type) === "branch"
+              ? "branch"
+              : "unknown",
+        stock,
+      }
+    })
+    .filter((row): row is ProductBranchStock => row !== null)
+
+  return rows.length > 0 ? rows : undefined
 }
 
 function safeDecodeURIComponent(value: string) {
@@ -189,16 +219,35 @@ function normalizeProductRecord(rawProduct: unknown): Product | null {
 
   return {
     id,
+    code: toText(rawProduct.code ?? rawProduct.productCode ?? rawProduct.product_code),
+    sku: toText(rawProduct.sku ?? rawProduct.SKU ?? rawProduct.code ?? rawProduct.productCode ?? rawProduct.product_code),
     name,
+    model: toText(rawProduct.model ?? rawProduct.productModel ?? rawProduct.product_model),
     description: toText(rawProduct.description),
     price,
     originalPrice: toNumber(rawProduct.originalPrice ?? rawProduct.original_price) ?? null,
     discountPercent: toNumber(rawProduct.discountPercent ?? rawProduct.discount_percent) ?? null,
     onSale: toBoolean(rawProduct.onSale ?? rawProduct.on_sale) ?? false,
     saleEndDate: toText(rawProduct.saleEndDate ?? rawProduct.sale_end_date) ?? null,
+    nextArrivalDate:
+      toText(
+        rawProduct.nextArrivalDate ??
+        rawProduct.next_arrival_date ??
+        rawProduct.nextRestockDate ??
+        rawProduct.next_restock_date ??
+        rawProduct.eta ??
+        rawProduct.arrivalDate ??
+        rawProduct.arrival_date,
+      ) ?? null,
     image_url: toText(rawProduct.image_url ?? rawProduct.imageUrl ?? rawProduct.photo ?? rawProduct.image),
     images: toTextArray(rawProduct.images ?? rawProduct.photos),
     stock,
+    branchStocks:
+      normalizeBranchStocks(rawProduct.branchStocks) ??
+      normalizeBranchStocks(rawProduct.branch_stocks) ??
+      normalizeBranchStocks(rawProduct.stockByBranch) ??
+      normalizeBranchStocks(rawProduct.stock_by_branch) ??
+      normalizeBranchStocks(rawProduct.branches),
     minimumStock: toNumber(rawProduct.minimumStock ?? rawProduct.minimum_stock) ?? 0,
     category: getCategory(rawProduct.category) ?? toText(rawProduct.categoryName ?? rawProduct.category_name),
     categoryId: toText(rawProduct.categoryId ?? rawProduct.category_id) ?? null,

@@ -172,7 +172,7 @@ function PromoHero({
               size="lg"
               className="rounded-full bg-orange-500 px-7 text-sm font-bold text-white shadow-[0_18px_40px_-18px_rgba(249,115,22,0.8)] hover:bg-orange-400"
             >
-              <Link href={`/product/${encodeURIComponent(product.id)}`}>
+              <Link href={`/product/${encodeURIComponent(product.id)}`} scroll>
                 Ver oferta principal
                 <ArrowRight className="h-4 w-4" />
               </Link>

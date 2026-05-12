@@ -6,7 +6,6 @@ import { formatPrice } from "@/lib/utils"
 import { ProductCardActions } from "@/components/store/product-card-actions"
 import { ProductCardImage } from "@/components/store/product-card-image"
 import { getBrandNameById } from "@/lib/api"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface ProductCardProps {
   product: Product
@@ -40,6 +39,7 @@ export function ProductCard({
       {/* Image slider */}
       <Link
         href={`/product/${encodeURIComponent(product.id)}`}
+        scroll
         tabIndex={-1}
         aria-hidden="true"
         className="cursor-pointer"
@@ -82,7 +82,7 @@ export function ProductCard({
         </div>
 
         {/* Name */}
-        <Link href={`/product/${encodeURIComponent(product.id)}`}>
+        <Link href={`/product/${encodeURIComponent(product.id)}`} scroll>
           <h3 className="line-clamp-2 text-[10px] font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
             {product.name}
           </h3>
@@ -99,24 +99,23 @@ export function ProductCard({
           <p className={`text-sm font-black tracking-tight sm:text-base ${product.onSale ? "text-red-600 dark:text-red-400" : "text-foreground"}`}>
             ${formatPrice(product.price)}
           </p>
+          <p className={`mt-0.5 text-[10px] font-semibold ${inStock ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
+            Stock disponible: {inStock ? product.stock : 0}
+          </p>
         </div>
       </div>
 
       {/* Footer actions */}
       <div className="flex flex-nowrap items-center justify-between gap-2 border-t border-border/50 px-2 py-2">
-        <Tooltip delayDuration={150}>
-          <TooltipTrigger asChild>
-            <Link
-              href={`/product/${encodeURIComponent(product.id)}`}
-              className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-xs font-bold text-foreground transition-all hover:border-primary/60 hover:text-primary hover:shadow-md hover:shadow-primary/20 sm:gap-2"
-              title="Ver producto"
-            >
-              <Eye className="h-4 w-4 flex-shrink-0" />
-              <span className="hidden sm:inline">Ver</span>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="top">Ver producto</TooltipContent>
-        </Tooltip>
+        <Link
+          href={`/product/${encodeURIComponent(product.id)}`}
+          scroll
+          className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-xs font-bold text-foreground transition-all hover:border-primary/60 hover:text-primary hover:shadow-md hover:shadow-primary/20 sm:gap-2"
+          title="Ver producto"
+        >
+          <Eye className="h-4 w-4 flex-shrink-0" />
+          <span className="hidden sm:inline">Ver</span>
+        </Link>
         <ProductCardActions product={product} />
       </div>
     </article>

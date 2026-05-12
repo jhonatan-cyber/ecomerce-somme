@@ -44,6 +44,7 @@ function HeroCard({ product }: { product: Product }) {
   return (
     <Link
       href={`/product/${encodeURIComponent(product.id)}`}
+      scroll
       className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card shadow-lg transition hover:shadow-2xl sm:rounded-[2rem]"
     >
       <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[16/9] lg:aspect-[2/1]">

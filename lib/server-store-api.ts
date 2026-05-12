@@ -64,6 +64,14 @@ export function getRemoteStoreBranchesUrl() {
   return buildRemoteStoreUrl("/branches")
 }
 
+export function getRemoteStoreDepositsUrl() {
+  return buildRemoteStoreUrl("/deposits")
+}
+
+export function getRemoteStoreWarehousesUrl() {
+  return buildRemoteStoreUrl("/warehouses")
+}
+
 export function getRemoteStoreSlidesUrl() {
   return buildRemoteStoreUrl("/slides")
 }

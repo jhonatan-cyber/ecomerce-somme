@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft, Camera, PackageSearch, ShieldCheck, Truck, Wifi } from "lucide-react"
 import { ProductDetailActions } from "@/components/store/product-detail-actions"
+import { ProductBranchStockTable } from "@/components/store/product-branch-stock-table"
 import { ProductGallery } from "@/components/store/product-gallery"
 import { StoreHeader } from "@/components/store/header"
 import { StoreFooter } from "@/components/store/footer"
@@ -12,6 +13,17 @@ export const dynamic = "force-dynamic"
 
 function formatPrice(price: number) {
   return price.toLocaleString("es-CL")
+}
+
+function formatDateLabel(value: string | null | undefined) {
+  if (!value) return null
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleDateString("es-CL", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })
 }
 
 function ProductDetailFallback({ productId, message }: { productId: string; message: string }) {
@@ -169,6 +181,23 @@ export default async function ProductDetailPage({
                 </p>
               )}
 
+              <div className="mt-3 grid gap-2 text-xs sm:grid-cols-3">
+                <div className="rounded-lg border border-border/60 bg-muted/40 px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Modelo</p>
+                  <p className="mt-1 font-semibold text-foreground">{product.model ? product.model.toUpperCase() : "No disponible"}</p>
+                </div>
+                <div className="rounded-lg border border-border/60 bg-muted/40 px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Código / SKU</p>
+                  <p className="mt-1 font-semibold text-foreground">{product.sku || product.code || "No disponible"}</p>
+                </div>
+                <div className="rounded-lg border border-border/60 bg-muted/40 px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Próxima llegada</p>
+                  <p className="mt-1 font-semibold text-foreground">
+                    {formatDateLabel(product.nextArrivalDate) || "Sin fecha confirmada"}
+                  </p>
+                </div>
+              </div>
+
               {/* Price */}
               <div className="mt-4 rounded-xl bg-muted/60 px-4 py-3 sm:rounded-2xl">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -177,11 +206,14 @@ export default async function ProductDetailPage({
                 <p className="mt-1 text-2xl font-black text-primary sm:text-3xl">
                   ${formatPrice(product.price)}
                 </p>
+                <p className="mt-1 text-xs font-semibold text-foreground">
+                  Stock total: {product.stock > 0 ? `${product.stock} unidades` : "Agotado"}
+                </p>
               </div>
 
-              
               {/* Actions */}
               <ProductDetailActions product={product} />
+              <ProductBranchStockTable product={product} />
             </div>
 
             {/* Specs + support — side by side on sm, stacked on xs */}
@@ -277,6 +309,7 @@ export default async function ProductDetailPage({
                 <Link
                   key={suggestedProduct.id}
                   href={`/product/${encodeURIComponent(suggestedProduct.id)}`}
+                  scroll
                   className="group flex flex-col overflow-hidden rounded-xl border border-border/60 bg-background transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
                 >
                   {/* Image */}

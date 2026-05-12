@@ -35,8 +35,9 @@ export async function GET() {
     if (!root) return NextResponse.json({ data: [] })
 
     const candidates = [
-      `${root}/branches?type=branch`,
-      `${root}/branches`,
+      `${root}/deposits`,
+      `${root}/warehouses`,
+      `${root}/branches?type=warehouse`,
     ]
 
     for (const url of candidates) {
@@ -48,7 +49,7 @@ export async function GET() {
 
     return NextResponse.json({ data: [] })
   } catch (error) {
-    console.error("No se pudieron consultar las sucursales del catalogo.", error)
+    console.error("No se pudieron consultar los depositos del catalogo.", error)
     return NextResponse.json({ data: [] })
   }
 }

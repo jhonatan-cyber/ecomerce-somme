@@ -1,15 +1,27 @@
+export interface ProductBranchStock {
+  branchId: string
+  branchName: string
+  branchType?: "branch" | "warehouse" | "unknown"
+  stock: number
+}
+
 export interface Product {
   id: string
+  code?: string | null
+  sku?: string | null
   name: string
+  model?: string | null
   description: string | null
   price: number
   originalPrice?: number | null
   discountPercent?: number | null
   onSale?: boolean
   saleEndDate?: string | null
+  nextArrivalDate?: string | null
   image_url: string | null
   images?: string[]
   stock: number
+  branchStocks?: ProductBranchStock[]
   minimumStock?: number
   category: string | null
   categoryId?: string | null
