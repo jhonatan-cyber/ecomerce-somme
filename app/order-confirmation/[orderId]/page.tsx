@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 function formatCurrency(value: number | null | undefined) {
   if (typeof value !== "number" || Number.isNaN(value)) return "A coordinar"
-  return `$${value.toLocaleString()}`
+  return `BOB ${value.toLocaleString()}`
 }
 
 function formatDate(value: string | null | undefined) {

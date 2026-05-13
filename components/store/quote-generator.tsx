@@ -369,11 +369,11 @@ export function QuoteGenerator({
                         <div className="mt-2">
                           {hasPromotion ? (
                             <p className="text-xs font-semibold text-muted-foreground line-through">
-                              ${formatPrice(product.originalPrice!)}
+                              {formatPrice(product.originalPrice!)}
                             </p>
                           ) : null}
                           <p className={`text-base font-black ${hasPromotion ? "text-orange-600 dark:text-orange-400" : "text-foreground"}`}>
-                            ${formatPrice(product.price)}
+                            {formatPrice(product.price)}
                           </p>
                         </div>
                       </div>
@@ -502,11 +502,11 @@ export function QuoteGenerator({
                             <div className="mt-2">
                               {hasPromotion ? (
                                 <p className="text-xs font-semibold text-muted-foreground line-through">
-                                  ${formatPrice(item.product.originalPrice!)} c/u
+                                  {formatPrice(item.product.originalPrice!)} c/u
                                 </p>
                               ) : null}
                               <p className={`text-sm font-bold ${hasPromotion ? "text-orange-600 dark:text-orange-400" : "text-foreground"}`}>
-                                ${formatPrice(item.product.price)} c/u
+                                {formatPrice(item.product.price)} c/u
                               </p>
                             </div>
                           </div>
@@ -798,18 +798,18 @@ export function QuoteGenerator({
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-slate-600 dark:text-slate-300 font-medium">Subtotal</span>
-                  <span className="font-bold text-slate-900 dark:text-white">${formatPrice(calculateSubtotal())}</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{formatPrice(calculateSubtotal())}</span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-slate-600 dark:text-slate-300 font-medium">Descuento por volumen</span>
                   <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                    -${formatPrice(calculateSubtotal() * (calculateVolumeDiscount() / 100))}
+                    -{formatPrice(calculateSubtotal() * (calculateVolumeDiscount() / 100))}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-slate-600 dark:text-slate-300 font-medium">Instalacion</span>
                   <span className="font-bold text-slate-900 dark:text-white">
-                    ${formatPrice(installationRequired ? calculateInstallationCost() : 0)}
+                    {formatPrice(installationRequired ? calculateInstallationCost() : 0)}
                   </span>
                 </div>
                 <div className="border-t border-slate-200 pt-3 dark:border-slate-600">
@@ -818,7 +818,7 @@ export function QuoteGenerator({
                       Total referencial
                     </span>
                     <span className="text-2xl font-black text-orange-700 dark:text-orange-300">
-                      ${formatPrice(calculateTotal())}
+                      {formatPrice(calculateTotal())}
                     </span>
                   </div>
                 </div>

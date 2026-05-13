@@ -4,7 +4,7 @@ import { Camera } from "lucide-react"
 import type { Product } from "@/lib/types"
 
 function formatPrice(price: number) {
-  return price.toLocaleString("es-CL")
+  return `BOB ${price.toLocaleString("es-CL")}`
 }
 
 export function ProductThumb({ product }: { product: Product }) {
@@ -36,9 +36,16 @@ export function ProductThumb({ product }: { product: Product }) {
         <p className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-tight text-foreground">
           {product.name}
         </p>
-        <p className="mt-auto text-lg font-black text-primary">
-          ${formatPrice(product.price)}
-        </p>
+        <div className="mt-auto flex flex-wrap items-baseline gap-x-1.5">
+          {product.onSale && product.originalPrice && (
+            <span className="text-xs text-muted-foreground line-through">
+              {formatPrice(product.originalPrice)}
+            </span>
+          )}
+          <p className={`text-lg font-black ${product.onSale ? "text-red-600 dark:text-red-400" : "text-primary"}`}>
+            {formatPrice(product.price)}
+          </p>
+        </div>
       </div>
     </Link>
   )

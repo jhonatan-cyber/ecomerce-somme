@@ -205,8 +205,8 @@ export function CameraFilters({ filters, onFiltersChange }: CameraFiltersProps) 
                 className="w-full"
               />
               <div className="flex justify-between text-sm text-muted-foreground mt-2">
-                <span>${filters.priceRange[0].toLocaleString()}</span>
-                <span>${filters.priceRange[1].toLocaleString()}</span>
+                <span>BOB {filters.priceRange[0].toLocaleString()}</span>
+                <span>BOB {filters.priceRange[1].toLocaleString()}</span>
               </div>
             </div>
           </div>

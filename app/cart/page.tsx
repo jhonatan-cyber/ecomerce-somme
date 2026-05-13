@@ -68,7 +68,7 @@ export default function CartPage() {
                   <h2 className="line-clamp-2 text-sm font-bold leading-snug text-foreground">
                     {item.name}
                   </h2>
-                  <p className="text-xs text-muted-foreground">${item.price.toLocaleString()} c/u</p>
+                  <p className="text-xs text-muted-foreground">BOB {item.price.toLocaleString()} c/u</p>
 
                   <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
                     {/* Quantity */}
@@ -93,7 +93,7 @@ export default function CartPage() {
                     {/* Subtotal + remove */}
                     <div className="flex items-center gap-3">
                       <span className="text-base font-black text-foreground">
-                        ${(item.price * item.quantity).toLocaleString()}
+                        BOB {(item.price * item.quantity).toLocaleString()}
                       </span>
                       <button
                         type="button"
@@ -117,7 +117,7 @@ export default function CartPage() {
               <div className="mt-4 space-y-2.5 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-semibold">${getTotal().toLocaleString()}</span>
+                  <span className="font-semibold">BOB {getTotal().toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Envío</span>
@@ -125,7 +125,7 @@ export default function CartPage() {
                 </div>
                 <div className="flex items-center justify-between rounded-xl bg-muted/60 px-3 py-2.5">
                   <span className="font-semibold">Total</span>
-                  <span className="text-xl font-black">${getTotal().toLocaleString()}</span>
+                  <span className="text-xl font-black">BOB {getTotal().toLocaleString()}</span>
                 </div>
               </div>
               <div className="mt-4 space-y-2 rounded-xl bg-slate-950 p-4 text-xs text-slate-300">

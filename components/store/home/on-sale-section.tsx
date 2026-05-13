@@ -8,7 +8,7 @@ import { ProductCard } from "@/components/store/product-card"
 import type { Product } from "@/lib/types"
 
 function formatPrice(price: number) {
-  return price.toLocaleString("es-CL")
+  return `BOB ${price.toLocaleString("es-CL")}`
 }
 
 function formatExpiry(dateStr: string): { label: string; urgent: boolean } {
@@ -119,17 +119,17 @@ function HeroCard({ product }: { product: Product }) {
             <div className="flex items-baseline gap-1.5 sm:gap-2">
               {product.originalPrice && (
                 <span className="text-xs text-white/60 line-through sm:text-sm">
-                  ${formatPrice(product.originalPrice)}
+                  {formatPrice(product.originalPrice)}
                 </span>
               )}
               <span className="text-xl font-black text-white sm:text-2xl lg:text-3xl">
-                ${formatPrice(product.price)}
+                {formatPrice(product.price)}
               </span>
             </div>
 
             {product.originalPrice && (
               <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 backdrop-blur sm:px-3 sm:py-1 sm:text-xs">
-                Ahorras ${formatPrice(product.originalPrice - product.price)}
+                Ahorras {formatPrice(product.originalPrice - product.price)}
               </span>
             )}
 

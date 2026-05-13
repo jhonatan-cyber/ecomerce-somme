@@ -5,7 +5,7 @@ import { ProductCard } from "@/components/store/product-card"
 import type { Product } from "@/lib/types"
 
 function formatPrice(price: number) {
-  return price.toLocaleString("es-CL")
+  return `BOB ${price.toLocaleString("es-CL")}`
 }
 
 export function NewArrivalsSection({ products }: { products: Product[] }) {

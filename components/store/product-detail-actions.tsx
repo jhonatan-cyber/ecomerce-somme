@@ -23,12 +23,12 @@ export function ProductDetailActions({ product }: { product: Product }) {
   }
 
   return (
-    <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+    <div className="mt-5 flex gap-1.5 sm:gap-2">
       <button
         data-tour="add-to-cart"
         type="button"
         onClick={handleAddToCart}
-        className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-white transition sm:w-auto sm:rounded-2xl sm:px-6 ${
+        className={`inline-flex h-10 flex-1 items-center justify-center gap-1 rounded-lg px-2 text-xs font-bold text-white transition sm:h-12 sm:gap-2 sm:rounded-2xl sm:px-5 sm:text-sm ${
           justAdded
             ? "bg-emerald-500 shadow-md shadow-emerald-500/25"
             : "bg-gradient-to-r from-slate-900 to-blue-700 shadow-md shadow-primary/20 hover:opacity-90"
@@ -36,31 +36,31 @@ export function ProductDetailActions({ product }: { product: Product }) {
       >
         {justAdded ? (
           <>
-            <Check className="h-4 w-4" />
+            <Check className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
             Agregado
           </>
         ) : (
           <>
-            <ShoppingCart className="h-4 w-4" />
-            Agregar al carrito
+            <ShoppingCart className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
+            Agregar
           </>
         )}
       </button>
 
       <Link
         href="/cart"
-        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-border bg-background text-sm font-semibold text-foreground transition hover:bg-muted/60 sm:w-auto sm:rounded-2xl sm:px-6"
+        className="inline-flex h-10 flex-1 items-center justify-center gap-1 rounded-lg border border-border bg-background px-2 text-xs font-semibold text-foreground transition hover:bg-muted/60 sm:h-12 sm:gap-2 sm:rounded-2xl sm:px-5 sm:text-sm"
       >
-        <ShoppingCart className="h-4 w-4" />
-        Ir al carrito
+        <ShoppingCart className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
+        Carrito
       </Link>
 
       <Link
         href="/catalog"
-        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-border bg-background text-sm font-semibold text-muted-foreground transition hover:text-primary sm:w-auto sm:rounded-2xl sm:px-6"
+        className="inline-flex h-10 flex-1 items-center justify-center gap-1 rounded-lg border border-border bg-background px-2 text-xs font-semibold text-muted-foreground transition hover:text-primary sm:h-12 sm:gap-2 sm:rounded-2xl sm:px-5 sm:text-sm"
       >
-        Seguir explorando
-        <ArrowRight className="h-4 w-4" />
+        Explorar
+        <ArrowRight className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
       </Link>
     </div>
   )

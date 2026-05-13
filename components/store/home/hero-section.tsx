@@ -13,7 +13,7 @@ interface HeroSectionProps {
 }
 
 function formatPrice(price: number) {
-  return price.toLocaleString("es-CL")
+  return `BOB ${price.toLocaleString("es-CL")}`
 }
 
 // Deterministic shuffle using product id so it's stable per SSR render

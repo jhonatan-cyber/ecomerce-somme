@@ -1,9 +1,11 @@
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft, Camera, PackageSearch, ShieldCheck, Truck, Wifi } from "lucide-react"
+import { AlertTriangle, ArrowLeft, CalendarDays, Camera, CheckCircle2, PackageSearch, ShieldCheck, Tag, Truck, Wifi, XCircle } from "lucide-react"
 import { ProductDetailActions } from "@/components/store/product-detail-actions"
 import { ProductBranchStockTable } from "@/components/store/product-branch-stock-table"
+import { ProductDescriptionText } from "@/components/store/product-description-text"
 import { ProductGallery } from "@/components/store/product-gallery"
+import { SuggestedProductCard } from "@/components/store/suggested-product-card"
 import { StoreHeader } from "@/components/store/header"
 import { StoreFooter } from "@/components/store/footer"
 import { AutoTour } from "@/components/tour"
@@ -12,7 +14,7 @@ import { getProductById } from "@/lib/api"
 export const dynamic = "force-dynamic"
 
 function formatPrice(price: number) {
-  return price.toLocaleString("es-CL")
+  return `BOB ${price.toLocaleString("es-CL")}`
 }
 
 function formatDateLabel(value: string | null | undefined) {
@@ -145,28 +147,11 @@ export default async function ProductDetailPage({
 
             {/* Main info card */}
             <div className="rounded-[1.5rem] border border-border/70 bg-card p-4 shadow-sm sm:rounded-[2rem] sm:p-6">
-              {/* Category + brand */}
+              {/* Category + brand — solo categoría arriba */}
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
                   {product.category || "Producto"}
                 </span>
-                {product.brandLogo && (
-                  <div className="ml-auto flex h-6 items-center overflow-hidden rounded border border-border/60 bg-white px-1.5">
-                    <Image
-                      src={product.brandLogo}
-                      alt={product.brand || "Marca"}
-                      width={52}
-                      height={18}
-                      className="h-4 w-auto object-contain"
-                      unoptimized
-                    />
-                  </div>
-                )}
-                {!product.brandLogo && product.brand && (
-                  <span className="ml-auto text-xs font-semibold text-muted-foreground">
-                    {product.brand}
-                  </span>
-                )}
               </div>
 
               {/* Name */}
@@ -176,22 +161,49 @@ export default async function ProductDetailPage({
 
               {/* Description */}
               {product.description && (
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  {product.description}
-                </p>
+                <ProductDescriptionText text={product.description} />
               )}
+
+              {/* Brand logo — debajo de la descripción, más grande */}
+              {product.brandLogo ? (
+                <div className="mt-3 flex justify-end">
+                  <div className="inline-flex items-center overflow-hidden rounded-lg border border-border/60 bg-white px-3 py-2">
+                    <Image
+                      src={product.brandLogo}
+                      alt={product.brand || "Marca"}
+                      width={80}
+                      height={32}
+                      className="h-7 w-auto object-contain sm:h-8"
+                      unoptimized
+                    />
+                  </div>
+                </div>
+              ) : product.brand ? (
+                <p className="mt-2 text-right text-xs font-semibold text-muted-foreground">
+                  {product.brand}
+                </p>
+              ) : null}
 
               <div className="mt-3 grid gap-2 text-xs sm:grid-cols-3">
                 <div className="rounded-lg border border-border/60 bg-muted/40 px-3 py-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Modelo</p>
+                  <div className="flex items-center gap-1.5">
+                    <Camera className="h-3 w-3 shrink-0 text-primary/60" />
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Modelo</p>
+                  </div>
                   <p className="mt-1 font-semibold text-foreground">{product.model ? product.model.toUpperCase() : "No disponible"}</p>
                 </div>
                 <div className="rounded-lg border border-border/60 bg-muted/40 px-3 py-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Código / SKU</p>
+                  <div className="flex items-center gap-1.5">
+                    <Tag className="h-3 w-3 shrink-0 text-primary/60" />
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Código / SKU</p>
+                  </div>
                   <p className="mt-1 font-semibold text-foreground">{product.sku || product.code || "No disponible"}</p>
                 </div>
                 <div className="rounded-lg border border-border/60 bg-muted/40 px-3 py-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Próxima llegada</p>
+                  <div className="flex items-center gap-1.5">
+                    <CalendarDays className="h-3 w-3 shrink-0 text-primary/60" />
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Próxima llegada</p>
+                  </div>
                   <p className="mt-1 font-semibold text-foreground">
                     {formatDateLabel(product.nextArrivalDate) || "Sin fecha confirmada"}
                   </p>
@@ -199,16 +211,67 @@ export default async function ProductDetailPage({
               </div>
 
               {/* Price */}
-              <div className="mt-4 rounded-xl bg-muted/60 px-4 py-3 sm:rounded-2xl">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Precio
-                </p>
-                <p className="mt-1 text-2xl font-black text-primary sm:text-3xl">
-                  ${formatPrice(product.price)}
-                </p>
-                <p className="mt-1 text-xs font-semibold text-foreground">
-                  Stock total: {product.stock > 0 ? `${product.stock} unidades` : "Agotado"}
-                </p>
+              <div className="mt-4 rounded-xl border border-border/70 bg-background px-4 py-3 sm:rounded-2xl sm:p-5">
+                {product.onSale ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-500">
+                        Precio oferta
+                      </p>
+                      {product.discountPercent && (
+                        <span className="rounded-full bg-red-500 px-2 py-px text-[10px] font-black text-white">
+                          -{product.discountPercent}%
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-2 flex flex-col gap-0.5">
+                      {product.originalPrice && product.originalPrice > product.price && (
+                        <p className="text-sm font-semibold text-red-500 line-through">
+                          Antes {formatPrice(product.originalPrice)}
+                        </p>
+                      )}
+                      <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 sm:text-3xl">
+                        Ahora {formatPrice(product.price)}
+                      </p>
+                    </div>
+                    {product.saleEndDate && formatDateLabel(product.saleEndDate) && (
+                      <p className="mt-1.5 text-[10px] font-semibold text-muted-foreground">
+                        Oferta válida hasta {formatDateLabel(product.saleEndDate)}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                      Precio
+                    </p>
+                    <p className="mt-1 text-2xl font-black text-primary sm:text-3xl">
+                      {formatPrice(product.price)}
+                    </p>
+                  </>
+                )}
+
+                {/* Stock indicator */}
+                <div className="mt-2.5 flex items-center gap-2">
+                  {product.stock > 0 ? (
+                    product.stock >= 10 ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                        <CheckCircle2 className="h-3 w-3" />
+                        En stock · {product.stock} unidades
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                        <AlertTriangle className="h-3 w-3" />
+                        Pocas unidades · {product.stock} disponibles
+                      </span>
+                    )
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-red-600 dark:text-red-400">
+                      <XCircle className="h-3 w-3" />
+                      Agotado
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Actions */}
@@ -306,56 +369,7 @@ export default async function ProductDetailPage({
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-6">
               {suggestedProducts.map((suggestedProduct) => (
-                <Link
-                  key={suggestedProduct.id}
-                  href={`/product/${encodeURIComponent(suggestedProduct.id)}`}
-                  scroll
-                  className="group flex flex-col overflow-hidden rounded-xl border border-border/60 bg-background transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
-                >
-                  {/* Image */}
-                  <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                    {suggestedProduct.brandLogo && (
-                      <div className="absolute right-1.5 top-1.5 z-10 overflow-hidden rounded-md bg-white/95 px-1.5 py-1 shadow backdrop-blur sm:px-2 sm:py-1">
-                        <Image
-                          src={suggestedProduct.brandLogo}
-                          alt={suggestedProduct.brand || "Marca"}
-                          width={50}
-                          height={20}
-                          className="h-4 w-auto object-contain sm:h-4"
-                          unoptimized
-                        />
-                      </div>
-                    )}
-                    {suggestedProduct.onSale && suggestedProduct.discountPercent && (
-                      <div className="absolute left-1.5 top-1.5 z-10 rounded-md bg-red-500 px-1.5 py-0.5">
-                        <p className="text-[9px] font-black text-white sm:text-[10px]">-{suggestedProduct.discountPercent}%</p>
-                      </div>
-                    )}
-                    {suggestedProduct.image_url ? (
-                      <Image
-                        src={suggestedProduct.image_url}
-                        alt={suggestedProduct.name}
-                        fill
-                        className="object-cover transition duration-500 group-hover:scale-105"
-                        unoptimized
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center">
-                        <Camera className="h-6 w-6 text-muted-foreground/30" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex flex-1 flex-col gap-1 p-2.5">
-                    <p className="line-clamp-2 text-[11px] font-semibold text-foreground sm:text-xs">
-                      {suggestedProduct.name}
-                    </p>
-                    <p className={`mt-auto text-sm font-black ${suggestedProduct.onSale ? "text-red-600 dark:text-red-400" : "text-primary"}`}>
-                      ${formatPrice(suggestedProduct.price)}
-                    </p>
-                  </div>
-                </Link>
+                <SuggestedProductCard key={suggestedProduct.id} product={suggestedProduct} />
               ))}
             </div>
           </div>

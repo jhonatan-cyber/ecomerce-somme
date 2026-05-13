@@ -418,7 +418,7 @@ export default function CheckoutPage() {
                       <p className="text-muted-foreground">Cantidad: {item.quantity}</p>
                     </div>
                     <span className="font-bold">
-                      ${(item.price * item.quantity).toLocaleString()}
+                      BOB {(item.price * item.quantity).toLocaleString()}
                     </span>
                   </div>
                 ))}
@@ -426,7 +426,7 @@ export default function CheckoutPage() {
               <div className="rounded-2xl border bg-background px-4 py-4">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-semibold">${subtotal.toLocaleString()}</span>
+                  <span className="font-semibold">BOB {subtotal.toLocaleString()}</span>
                 </div>
                 <div className="mt-2 flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Entrega</span>
@@ -442,7 +442,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="mt-4 flex items-center justify-between border-t pt-4">
                   <span className="text-base font-semibold">Total</span>
-                  <span className="text-2xl font-black">${finalTotal.toLocaleString()}</span>
+                  <span className="text-2xl font-black">BOB {finalTotal.toLocaleString()}</span>
                 </div>
               </div>
             </CardContent>

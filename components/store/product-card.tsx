@@ -93,11 +93,11 @@ export function ProductCard({
           <p className="text-[9px] font-medium text-muted-foreground">Precio</p>
           {product.onSale && product.originalPrice && (
             <p className="text-[10px] text-muted-foreground line-through">
-              ${formatPrice(product.originalPrice)}
+              {formatPrice(product.originalPrice)}
             </p>
           )}
           <p className={`text-sm font-black tracking-tight sm:text-base ${product.onSale ? "text-red-600 dark:text-red-400" : "text-foreground"}`}>
-            ${formatPrice(product.price)}
+            {formatPrice(product.price)}
           </p>
           <p className={`mt-0.5 text-[10px] font-semibold ${inStock ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
             Stock disponible: {inStock ? product.stock : 0}

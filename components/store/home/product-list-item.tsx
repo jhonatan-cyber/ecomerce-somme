@@ -4,7 +4,7 @@ import { StoreImage } from "@/components/store/store-image"
 import type { Product } from "@/lib/types"
 
 function formatPrice(price: number) {
-  return `$${price.toLocaleString()}`
+  return `BOB ${price.toLocaleString()}`
 }
 
 export function ProductListItem({ product }: { product: Product }) {
@@ -19,7 +19,16 @@ export function ProductListItem({ product }: { product: Product }) {
       </div>
       <div className="min-w-0 flex-1">
         <p className="line-clamp-2 text-sm font-semibold text-foreground">{product.name}</p>
-        <p className="mt-1 text-sm font-black text-primary">{formatPrice(product.price)}</p>
+        <div className="mt-1 flex flex-wrap items-baseline gap-x-1.5">
+          {product.onSale && product.originalPrice && (
+            <span className="text-[10px] text-muted-foreground line-through">
+              {formatPrice(product.originalPrice)}
+            </span>
+          )}
+          <p className={`text-sm font-black ${product.onSale ? "text-red-600 dark:text-red-400" : "text-primary"}`}>
+            {formatPrice(product.price)}
+          </p>
+        </div>
       </div>
       <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
     </Link>

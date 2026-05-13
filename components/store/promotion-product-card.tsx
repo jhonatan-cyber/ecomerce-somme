@@ -109,7 +109,7 @@ export function PromotionProductCard({ product }: { product: Product }) {
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700 dark:bg-orange-500/10 dark:text-orange-300">
             <Tag className="h-3.5 w-3.5" />
-            Ahorras ${formatPrice(savings || 0)}
+            Ahorras {formatPrice(savings || 0)}
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
             <Clock3 className="h-3.5 w-3.5" />
@@ -119,9 +119,9 @@ export function PromotionProductCard({ product }: { product: Product }) {
 
         <div className="mt-6">
           {product.originalPrice ? (
-            <p className="text-sm text-slate-400 line-through">${formatPrice(product.originalPrice)}</p>
+            <p className="text-sm text-slate-400 line-through">{formatPrice(product.originalPrice)}</p>
           ) : null}
-          <p className="text-2xl font-black text-slate-900 dark:text-white">${formatPrice(product.price)}</p>
+          <p className="text-2xl font-black text-slate-900 dark:text-white">{formatPrice(product.price)}</p>
         </div>
 
         <div className="mt-6 flex items-center gap-3">

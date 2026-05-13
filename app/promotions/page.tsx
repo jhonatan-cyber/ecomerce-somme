@@ -158,7 +158,7 @@ function PromoHero({
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
               <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">Ahorro destacado</p>
-              <p className="mt-2 text-3xl font-black text-white">${formatPrice(savings || product.price)}</p>
+              <p className="mt-2 text-3xl font-black text-white">{formatPrice(savings || product.price)}</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
               <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-200">Ventana activa</p>
@@ -236,9 +236,9 @@ function PromoHero({
                 <div className="flex items-end justify-between gap-4">
                   <div>
                     {product.originalPrice ? (
-                      <p className="text-sm text-slate-400 line-through">${formatPrice(product.originalPrice)}</p>
+                      <p className="text-sm text-slate-400 line-through">{formatPrice(product.originalPrice)}</p>
                     ) : null}
-                    <p className="text-3xl font-black text-white">${formatPrice(product.price)}</p>
+                    <p className="text-3xl font-black text-white">{formatPrice(product.price)}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-300">Vigencia</p>

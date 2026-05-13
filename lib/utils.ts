@@ -7,11 +7,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Formats a number as a price string using Chilean locale (dots as thousands separator).
- * Example: 1500000 → "1.500.000"
+ * Formats a number as a price string with BOB currency prefix
+ * and Chilean locale (dots as thousands separator).
+ * Example: 1500000 → "BOB 1.500.000"
  */
 export function formatPrice(price: number): string {
-  return price.toLocaleString("es-CL")
+  return `BOB ${price.toLocaleString("es-CL")}`
 }
 
 /**
