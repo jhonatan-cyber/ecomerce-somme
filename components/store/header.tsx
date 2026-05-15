@@ -330,8 +330,8 @@ export function StoreHeader({
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start" className="w-56">
-                        {defaultStoreNavigationCategories.map((category) =>
-                          category.subcategories && category.subcategories.length > 0 ? (
+                        {normalizedCategories.map((category) =>
+                          category.children && category.children.length > 0 ? (
                             <DropdownMenuSub key={category.id}>
                               <DropdownMenuSubTrigger>
                                 <span>{category.name}</span>
@@ -343,10 +343,10 @@ export function StoreHeader({
                                       <strong>Ver todo en {category.name}</strong>
                                     </Link>
                                   </DropdownMenuItem>
-                                  {category.subcategories.map((sub) => (
-                                    <DropdownMenuItem key={sub.id} asChild>
-                                      <Link href={getStoreCategoryHref(category.id, sub.id)}>
-                                        {sub.name}
+                                  {category.children.map((child) => (
+                                    <DropdownMenuItem key={child.id} asChild>
+                                      <Link href={getStoreCategoryHref(category.id, child.id)}>
+                                        {child.name}
                                       </Link>
                                     </DropdownMenuItem>
                                   ))}
