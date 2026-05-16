@@ -34,7 +34,7 @@ export function AdCarousel({ ads }: AdCarouselProps) {
 
   return (
     <div
-      className="group relative h-full w-full overflow-hidden"
+      className="group relative h-full w-full overflow-hidden bg-slate-950"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

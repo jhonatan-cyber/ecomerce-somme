@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import useEmblaCarousel from "embla-carousel-react"
 import { ArrowRight, Camera, Clock, Flame } from "lucide-react"
 import { ProductCard } from "@/components/store/product-card"
 import type { Product } from "@/lib/types"
@@ -29,15 +30,33 @@ function formatExpiry(dateStr: string): { label: string; urgent: boolean } {
 function HeroCard({ product }: { product: Product }) {
   const images = [product.image_url, ...(product.images ?? [])]
     .filter((img): img is string => Boolean(img))
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
   const [activeIndex, setActiveIndex] = useState(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const hasMultiple = images.length > 1
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return
+    setActiveIndex(emblaApi.selectedScrollSnap())
+  }, [emblaApi])
 
   useEffect(() => {
-    if (images.length <= 1) return
-    const interval = setInterval(() => {
-      setActiveIndex((i) => (i + 1) % images.length)
-    }, 3000)
-    return () => clearInterval(interval)
-  }, [images.length])
+    if (!emblaApi) return
+    onSelect()
+    emblaApi.on("select", onSelect)
+    return () => { emblaApi.off("select", onSelect) }
+  }, [emblaApi, onSelect])
+
+  useEffect(() => {
+    if (!hasMultiple || !emblaApi) return
+    intervalRef.current = setInterval(() => {
+      emblaApi.scrollNext()
+    }, 4000)
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [hasMultiple, emblaApi])
 
   const expiry = product.saleEndDate ? formatExpiry(product.saleEndDate) : null
 
@@ -48,20 +67,28 @@ function HeroCard({ product }: { product: Product }) {
       className="group relative flex h-full w-full overflow-hidden rounded-2xl border border-border/60 bg-card shadow-lg transition hover:shadow-2xl sm:rounded-[2rem]"
     >
       <div className="relative h-full w-full overflow-hidden">
-        {/* Images with crossfade */}
+        {/* Images with Embla */}
         {images.length > 0 ? (
-          images.map((src, i) => (
-            <Image
-              key={`${product.id}-${i}`}
-              src={src}
-              alt={product.name}
-              fill
-              className={`object-cover transition-opacity duration-700 ${
-                i === activeIndex ? "opacity-100" : "opacity-0"
-              }`}
-              unoptimized
-            />
-          ))
+          <div ref={emblaRef} className="h-full w-full">
+            <div className="flex h-full touch-pan-y">
+              {images.map((src, i) => (
+                <div
+                  key={`${product.id}-${i}`}
+                  className="relative h-full w-full min-w-0 shrink-0 grow-0 basis-full"
+                >
+                  <Image
+                    src={src}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                    priority={i === 0}
+                    loading={i === 0 ? "eager" : "lazy"}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
             <Camera className="h-12 w-12 text-slate-600 sm:h-20 sm:w-20" />
@@ -94,11 +121,18 @@ function HeroCard({ product }: { product: Product }) {
         {images.length > 1 && (
           <div className="absolute bottom-3 left-3 flex gap-1 sm:bottom-5 sm:left-5">
             {images.slice(0, 5).map((_, i) => (
-              <div
+              <button
                 key={i}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  emblaApi?.scrollTo(i)
+                }}
                 className={`h-1.5 rounded-full transition-all ${
                   i === activeIndex ? "w-4 bg-white" : "w-1.5 bg-white/40"
                 }`}
+                aria-label={`Ver imagen ${i + 1} de ${images.length}`}
               />
             ))}
           </div>

@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import useEmblaCarousel from "embla-carousel-react"
 import { ArrowRight, Check, Clock3, ShoppingCart, Tag } from "lucide-react"
 
 import { useToast } from "@/hooks/use-toast"
@@ -33,8 +34,12 @@ function getSavings(product: Product) {
   return product.originalPrice - product.price
 }
 
-function getPrimaryImage(product: Product) {
-  return [product.image_url, ...(product.images ?? [])].find(Boolean) ?? null
+function getProductImages(product: Product) {
+  const values = [product.image_url, ...(product.images ?? [])]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => value.trim())
+    .filter(Boolean)
+  return Array.from(new Set(values))
 }
 
 export function PromotionProductCard({ product }: { product: Product }) {
@@ -42,11 +47,55 @@ export function PromotionProductCard({ product }: { product: Product }) {
   const { toast } = useToast()
   const [justAdded, setJustAdded] = useState(false)
 
-  const image = getPrimaryImage(product)
+  const images = getProductImages(product)
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false })
+  const [activeIndex, setActiveIndex] = useState(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const hasMultiple = images.length > 1
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return
+    setActiveIndex(emblaApi.selectedScrollSnap())
+  }, [emblaApi])
+
+  useEffect(() => {
+    if (!emblaApi) return
+    onSelect()
+    emblaApi.on("select", onSelect)
+    return () => { emblaApi.off("select", onSelect) }
+  }, [emblaApi, onSelect])
+
+  function startSlide() {
+    if (!hasMultiple || !emblaApi) return
+    stopSlide()
+    intervalRef.current = setInterval(() => {
+      emblaApi.scrollNext()
+    }, 3000)
+  }
+
+  function stopSlide() {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+    emblaApi?.scrollTo(0)
+  }
+
+  useEffect(() => () => stopSlide(), [])
   const savings = getSavings(product)
   const deadline = getSaleDeadlineLabel(product.saleEndDate)
+  const outOfStock = product.stock <= 0
 
   const handleAddToCart = () => {
+    if (outOfStock) {
+      toast({
+        title: "Producto agotado",
+        description: "Este producto no tiene stock disponible por ahora.",
+        variant: "destructive",
+      })
+      return
+    }
+
     addItem(product)
     setJustAdded(true)
     setTimeout(() => setJustAdded(false), 1800)
@@ -62,22 +111,61 @@ export function PromotionProductCard({ product }: { product: Product }) {
         href={`/product/${encodeURIComponent(product.id)}`}
         scroll
         className="relative block aspect-[4/3] overflow-hidden bg-[linear-gradient(135deg,#fff7ed_0%,#f8fafc_100%)] dark:bg-[linear-gradient(135deg,#1a1a2e_0%,#0f172a_100%)]"
+        onMouseEnter={startSlide}
+        onMouseLeave={stopSlide}
       >
-        {image ? (
-          <Image
-            src={image}
-            alt={product.name}
-            fill
-            className="object-cover transition duration-500 group-hover:scale-105"
-            unoptimized
-          />
+        {images.length > 0 ? (
+          <div ref={emblaRef} className="h-full w-full">
+            <div className="flex h-full touch-pan-y">
+              {images.map((src, i) => (
+                <div
+                  key={src}
+                  className="relative h-full w-full min-w-0 shrink-0 grow-0 basis-full"
+                >
+                  <Image
+                    src={src}
+                    alt={`${product.name} ${i + 1}`}
+                    fill
+                    className="object-cover transition duration-500 group-hover:scale-105"
+                    unoptimized
+                    priority={i === 0}
+                    loading={i === 0 ? "eager" : "lazy"}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         ) : null}
+        {hasMultiple && (
+          <div className="absolute bottom-2 right-2 flex gap-1 z-10">
+            {images.slice(0, 5).map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  emblaApi?.scrollTo(i)
+                }}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  i === activeIndex ? "w-3 bg-white" : "w-1.5 bg-white/50"
+                }`}
+                aria-label={`Ver imagen ${i + 1} de ${images.length}`}
+              />
+            ))}
+          </div>
+        )}
         <div className="absolute left-3 top-3 rounded-xl bg-red-500 px-2.5 py-1.5 text-white shadow-lg shadow-red-500/30">
           <p className="text-xs font-black">-{product.discountPercent ?? 0}%</p>
         </div>
         <div className="absolute right-3 top-3 rounded-full border border-slate-200 bg-white/95 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-700 backdrop-blur dark:border-white/10 dark:bg-slate-800/90 dark:text-slate-300">
           {product.category ?? "Oferta"}
         </div>
+        {outOfStock ? (
+          <div className="absolute left-3 bottom-3 rounded-lg bg-red-600 px-2.5 py-1 text-xs font-black uppercase tracking-wide text-white shadow-md">
+            Agotado
+          </div>
+        ) : null}
       </Link>
 
       <div className="flex flex-1 flex-col p-5">
@@ -128,8 +216,11 @@ export function PromotionProductCard({ product }: { product: Product }) {
           <button
             type="button"
             onClick={handleAddToCart}
+            disabled={outOfStock}
             className={`inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-bold text-white transition ${
-              justAdded
+              outOfStock
+                ? "cursor-not-allowed bg-slate-400/80 text-white/90"
+                : justAdded
                 ? "bg-emerald-500 shadow-md shadow-emerald-500/25"
                 : "bg-slate-950 shadow-[0_16px_40px_-20px_rgba(15,23,42,0.8)] hover:bg-orange-500 dark:bg-white dark:text-slate-950 dark:hover:bg-orange-500 dark:hover:text-white"
             }`}
@@ -142,7 +233,7 @@ export function PromotionProductCard({ product }: { product: Product }) {
             ) : (
               <>
                 <ShoppingCart className="h-4 w-4" />
-                Agregar al carrito
+                {outOfStock ? "Agotado" : "Agregar al carrito"}
               </>
             )}
           </button>

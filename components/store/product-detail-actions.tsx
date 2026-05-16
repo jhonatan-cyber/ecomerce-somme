@@ -11,8 +11,18 @@ export function ProductDetailActions({ product }: { product: Product }) {
   const addItem = useCartStore((state) => state.addItem)
   const { toast } = useToast()
   const [justAdded, setJustAdded] = useState(false)
+  const outOfStock = product.stock <= 0
 
   const handleAddToCart = () => {
+    if (outOfStock) {
+      toast({
+        title: "Producto agotado",
+        description: "Este producto no tiene stock disponible por ahora.",
+        variant: "destructive",
+      })
+      return
+    }
+
     addItem(product)
     setJustAdded(true)
     setTimeout(() => setJustAdded(false), 1800)
@@ -28,8 +38,11 @@ export function ProductDetailActions({ product }: { product: Product }) {
         data-tour="add-to-cart"
         type="button"
         onClick={handleAddToCart}
+        disabled={outOfStock}
         className={`inline-flex h-10 flex-1 items-center justify-center gap-1 rounded-lg px-2 text-xs font-bold text-white transition sm:h-12 sm:gap-2 sm:rounded-2xl sm:px-5 sm:text-sm ${
-          justAdded
+          outOfStock
+            ? "cursor-not-allowed bg-slate-400/80 text-white/90"
+            : justAdded
             ? "bg-emerald-500 shadow-md shadow-emerald-500/25"
             : "bg-gradient-to-r from-slate-900 to-blue-700 shadow-md shadow-primary/20 hover:opacity-90"
         }`}
@@ -42,7 +55,7 @@ export function ProductDetailActions({ product }: { product: Product }) {
         ) : (
           <>
             <ShoppingCart className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
-            Agregar
+            {outOfStock ? "Agotado" : "Agregar"}
           </>
         )}
       </button>
