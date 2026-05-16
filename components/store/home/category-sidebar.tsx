@@ -39,15 +39,17 @@ export function CategorySidebar({
   }
 
   return (
-    <aside
+    <div
       data-tour="categories-sidebar"
-      className="sticky top-[calc(4rem+1.5rem)] flex max-h-[calc(100vh-6rem-3rem)] flex-col overflow-hidden rounded-[2rem] border border-slate-900/80 bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] text-white shadow-[0_30px_90px_-50px_rgba(15,23,42,0.95)] dark:border-white/10"
+      className="sticky top-[8.5rem] z-20"
     >
+      <aside className="flex max-h-[calc(100vh-8.5rem)] flex-col rounded-[2rem] border border-slate-900/80 bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] text-white shadow-[0_30px_90px_-50px_rgba(15,23,42,0.95)] dark:border-white/10">
       <div className="shrink-0 rounded-t-[2rem] border-b border-white/10 bg-[linear-gradient(90deg,#facc15_0%,#fde68a_100%)] px-5 py-4 text-sm font-black uppercase tracking-[0.18em] text-slate-950">
         Shop Radar
       </div>
 
-      <nav className="flex-1 overflow-y-auto scrollbar-hide divide-y divide-white/10">
+      <div className="flex-1 overflow-hidden rounded-b-[2rem]">
+      <nav className="h-full overflow-y-auto scrollbar-hide divide-y divide-white/10">
         {rootCategories.map((category) => {
           const hasChildren = category.children && category.children.length > 0
           const isSelected = category.id === selectedCategoryId
@@ -125,6 +127,8 @@ export function CategorySidebar({
           )
         })}
       </nav>
-    </aside>
+      </div>
+      </aside>
+    </div>
   )
 }

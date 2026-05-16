@@ -1,4 +1,4 @@
-import { getBrands, getCategories, getOnSaleProducts, getProducts, getSlides } from "@/lib/api"
+import { getBrands, getCategories, getOnSaleProducts, getProducts, getSlides, getAds } from "@/lib/api"
 import { buildFallbackCategories } from "@/lib/utils"
 import { BrandsCarousel } from "@/components/store/home/brands-carousel"
 import { CatalogStatusPage } from "@/components/store/home/catalog-status-page"
@@ -7,6 +7,7 @@ import { HeroBanner } from "@/components/store/home/hero-banner"
 import { HeroSection } from "@/components/store/home/hero-section"
 import { NewArrivalsSection } from "@/components/store/home/new-arrivals-section"
 import { OnSaleSection } from "@/components/store/home/on-sale-section"
+import { PromoBanner } from "@/components/store/home/promo-banner"
 import { StoreFooter } from "@/components/store/footer"
 import { StoreHeader } from "@/components/store/header"
 import type { Metadata } from "next"
@@ -40,17 +41,19 @@ export default async function HomePage({
   const normalizedSearch = search.trim()
   const normalizedCategoryId = categoryId.trim()
 
-  const [catalog, categoryCatalog, brandsCatalog, onSaleCatalog, slidesCatalog] = await Promise.all([
+  const [catalog, categoryCatalog, brandsCatalog, onSaleCatalog, slidesCatalog, adsCatalog] = await Promise.all([
     getProducts({ search: normalizedSearch, categoryId: normalizedCategoryId, limit: 1000 }),
     getCategories(),
     getBrands(),
     getOnSaleProducts(),
     getSlides(),
+    getAds(),
   ])
 
   const brands = brandsCatalog.ok ? brandsCatalog.brands : []
   const onSaleProducts = onSaleCatalog.ok ? onSaleCatalog.products : []
   const slides = slidesCatalog.slides
+  const ads = adsCatalog.ok ? adsCatalog.ads : []
 
   if (!catalog.ok) {
     return (
@@ -98,6 +101,10 @@ export default async function HomePage({
 
       {slides.length > 0 && <HeroBanner slides={slides} />}
 
+      <OnSaleSection products={onSaleProducts} />
+
+      <PromoBanner ads={ads} />
+
       <main className="pb-14">
         <section className="container mx-auto px-4 pt-6">
           <div className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
@@ -119,8 +126,6 @@ export default async function HomePage({
         </section>
 
         <NewArrivalsSection products={products} />
-
-        <OnSaleSection products={onSaleProducts} />
 
         <BrandsCarousel brands={brands} products={products} />
       </main>

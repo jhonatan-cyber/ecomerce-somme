@@ -430,6 +430,18 @@ export async function getSlides(): Promise<{ ok: boolean; slides: { url: string;
   }
 }
 
+export async function getAds(): Promise<{ ok: boolean; ads: { url: string; alt: string }[] }> {
+  const sourceUrl = joinApiUrl("/ads")
+  try {
+    const response = await fetch(sourceUrl, { next: { revalidate: 60 }, headers: { Accept: "application/json" } })
+    if (!response.ok) return { ok: false, ads: [] }
+    const payload = await response.json() as { data?: { url: string; alt: string }[] }
+    return { ok: true, ads: payload.data ?? [] }
+  } catch {
+    return { ok: false, ads: [] }
+  }
+}
+
 export async function getOnSaleProducts(): Promise<CatalogLoadResult> {
   const sourceUrl = joinApiUrl("/products/on-sale")
 

@@ -45,9 +45,9 @@ function HeroCard({ product }: { product: Product }) {
     <Link
       href={`/product/${encodeURIComponent(product.id)}`}
       scroll
-      className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card shadow-lg transition hover:shadow-2xl sm:rounded-[2rem]"
+      className="group relative flex h-full w-full overflow-hidden rounded-2xl border border-border/60 bg-card shadow-lg transition hover:shadow-2xl sm:rounded-[2rem]"
     >
-      <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[16/9] lg:aspect-[2/1]">
+      <div className="relative h-full w-full overflow-hidden">
         {/* Images with crossfade */}
         {images.length > 0 ? (
           images.map((src, i) => (
@@ -191,17 +191,13 @@ export function OnSaleSection({ products }: { products: Product[] }) {
         </Link>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
-        <HeroCard product={hero} />
-
-        {/* Side grid */}
-        {rest.length > 0 && (
-          <div className="grid grid-cols-2 gap-6 gap-x-6 gap-y-6 sm:gap-y-8 sm:gap-x-8">
-            {rest.slice(0, 4).map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        )}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 auto-rows-auto">
+        <div className="col-span-2 sm:col-span-2">
+          <HeroCard product={hero} />
+        </div>
+        {rest.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
       </div>
 
       {/* Mobile CTA */}
