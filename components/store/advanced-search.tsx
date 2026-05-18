@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -25,6 +25,7 @@ import {
   Clock
 } from "lucide-react"
 import type { Product } from "@/lib/types"
+import { useDebounce } from "@/hooks/use-debounce"
 
 interface AdvancedSearchProps {
   onSearch: (query: string, filters: SearchFilters) => void
@@ -112,10 +113,17 @@ export function AdvancedSearch({ onSearch, categories = [], brands = [] }: Advan
     }
   }, [])
 
-  const handleSearch = () => {
+  const debouncedQuery = useDebounce(query, 300)
+
+  useEffect(() => {
+    if (debouncedQuery && debouncedQuery !== query) {
+      return
+    }
+  }, [debouncedQuery, query])
+
+  const handleSearch = useCallback(() => {
     onSearch(query, filters)
     
-    // Guardar búsqueda reciente
     if (query.trim()) {
       const newSavedSearches = [query, ...savedSearches.filter(s => s !== query)].slice(0, 5)
       setSavedSearches(newSavedSearches)
@@ -123,7 +131,13 @@ export function AdvancedSearch({ onSearch, categories = [], brands = [] }: Advan
         localStorage.setItem('savedSearches', JSON.stringify(newSavedSearches))
       }
     }
-  }
+  }, [query, filters, onSearch, savedSearches])
+
+  useEffect(() => {
+    if (debouncedQuery) {
+      handleSearch()
+    }
+  }, [debouncedQuery])
 
   const clearFilters = () => {
     setFilters({

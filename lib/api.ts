@@ -201,6 +201,14 @@ function getBrandName(value: unknown): string | null {
   return null
 }
 
+const PRIVATE_IP_RE = /^https?:\/\/192\.168\.\d{1,3}\.\d{1,3}(:\d+)?\//
+
+export function rewriteImageUrl(url: string | null | undefined): string | null {
+  const uploadsBase = process.env.NEXT_PUBLIC_UPLOADS_URL?.trim()
+  if (!url || !uploadsBase) return url ?? null
+  return url.replace(PRIVATE_IP_RE, `${uploadsBase.replace(/\/+$/, "")}/`)
+}
+
 function normalizeProductRecord(rawProduct: unknown): Product | null {
   if (!isPlainObject(rawProduct)) {
     return null
@@ -239,8 +247,8 @@ function normalizeProductRecord(rawProduct: unknown): Product | null {
         rawProduct.arrivalDate ??
         rawProduct.arrival_date,
       ) ?? null,
-    image_url: toText(rawProduct.image_url ?? rawProduct.imageUrl ?? rawProduct.photo ?? rawProduct.image),
-    images: toTextArray(rawProduct.images ?? rawProduct.photos),
+    image_url: rewriteImageUrl(toText(rawProduct.image_url ?? rawProduct.imageUrl ?? rawProduct.photo ?? rawProduct.image)),
+    images: (toTextArray(rawProduct.images ?? rawProduct.photos) ?? []).map((img) => rewriteImageUrl(img)).filter((x): x is string => Boolean(x)),
     stock,
     branchStocks:
       normalizeBranchStocks(rawProduct.branchStocks) ??
@@ -256,7 +264,7 @@ function normalizeProductRecord(rawProduct: unknown): Product | null {
       toText(rawProduct.brandName ?? rawProduct.brand_name) ??
       null,
     brandId,
-    brandLogo: toText(rawProduct.brandLogo ?? rawProduct.brand_image) ?? null,
+    brandLogo: rewriteImageUrl(toText(rawProduct.brandLogo ?? rawProduct.brand_image)) ?? null,
     resolution: toText(rawProduct.resolution) || undefined,
     night_vision: toBoolean(rawProduct.night_vision ?? rawProduct.nightVision),
     weather_resistance: toText(rawProduct.weather_resistance ?? rawProduct.weatherResistance) || undefined,
@@ -318,7 +326,7 @@ function normalizeBrand(rawBrand: unknown): Brand | null {
   return {
     id,
     name,
-    logo: toText(rawBrand.logo ?? rawBrand.image ?? rawBrand.photo),
+    logo: rewriteImageUrl(toText(rawBrand.logo ?? rawBrand.image ?? rawBrand.photo)),
     active: toBoolean(rawBrand.active ?? rawBrand.is_active ?? rawBrand.isActive ?? rawBrand.enabled) ?? true,
   }
 }
@@ -607,32 +615,23 @@ export async function getProducts(options: {
   categories?: Category[] // Pass categories for related category logic
   limit?: number // Optional limit for pagination
 } = {}): Promise<CatalogLoadResult> {
-  const url = new URL(joinApiUrl("/products"))
   const normalizedSearch = toText(options.search)
   const normalizedCategoryId = toText(options.categoryId)
   const normalizedSubcategoryId = toText(options.subcategoryId)
   const normalizedBrandId = toText(options.brandId)
 
-  if (normalizedSearch) {
-    url.searchParams.set("search", normalizedSearch)
-  }
-
+  const params = new URLSearchParams()
+  if (normalizedSearch) params.set("search", normalizedSearch)
   if (normalizedSubcategoryId) {
-    url.searchParams.set("subcategoryId", normalizedSubcategoryId)
+    params.set("subcategoryId", normalizedSubcategoryId)
   } else if (normalizedCategoryId) {
-    url.searchParams.set("categoryId", normalizedCategoryId)
+    params.set("categoryId", normalizedCategoryId)
   }
+  if (normalizedBrandId) params.set("brandId", normalizedBrandId)
+  if (options.limit) params.set("limit", options.limit.toString())
 
-  if (normalizedBrandId) {
-    url.searchParams.set("brandId", normalizedBrandId)
-  }
-
-  // Add limit parameter if specified
-  if (options.limit) {
-    url.searchParams.set("limit", options.limit.toString())
-  }
-
-  const sourceUrl = url.toString()
+  const qs = params.toString()
+  const sourceUrl = qs ? `${joinApiUrl("/products")}?${qs}` : joinApiUrl("/products")
 
   try {
     const response = await fetch(sourceUrl, {

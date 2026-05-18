@@ -6,12 +6,49 @@ import { ProductBranchStockTable } from "@/components/store/product-branch-stock
 import { ProductDescriptionText } from "@/components/store/product-description-text"
 import { ProductGallery } from "@/components/store/product-gallery"
 import { SuggestedProductCard } from "@/components/store/suggested-product-card"
+import { RecentlyViewed } from "@/components/store/recently-viewed"
 import { StoreHeader } from "@/components/store/header"
 import { StoreFooter } from "@/components/store/footer"
 import { AutoTour } from "@/components/tour"
 import { getProductById } from "@/lib/api"
+import type { Metadata } from "next"
 
 export const dynamic = "force-dynamic"
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuwesomme.cloud"
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const lookup = await getProductById(id)
+  const product = lookup.ok ? lookup.product : null
+  if (!product) {
+    return { title: "Producto no encontrado" }
+  }
+  const title = `${product.name} | Somme Technology`
+  const description = product.description
+    ? product.description.slice(0, 160)
+    : `${product.name} - ${product.category ?? "Cámaras de seguridad"}. BOB ${product.price.toLocaleString("es-CL")}`
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `/product/${encodeURIComponent(id)}`,
+      type: "website",
+      images: product.image_url
+        ? [{ url: new URL(product.image_url, SITE_URL).toString(), width: 1200, height: 630 }]
+        : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: product.image_url ? [new URL(product.image_url, SITE_URL).toString()] : [],
+    },
+    alternates: { canonical: `/product/${encodeURIComponent(id)}` },
+  }
+}
 
 function formatPrice(price: number) {
   return `BOB ${price.toLocaleString("es-CL")}`
@@ -55,7 +92,7 @@ function ProductDetailFallback({ productId, message }: { productId: string; mess
 export default async function ProductDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }> | { id: string }
+  params: Promise<{ id: string }>
 }) {
   const resolvedParams = await params
   const lookup = await getProductById(resolvedParams.id)
@@ -107,8 +144,36 @@ export default async function ProductDetailPage({
     product.weather_resistance ||
     product.field_of_view
 
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description?.slice(0, 200) ?? undefined,
+    image: product.image_url ?? undefined,
+    sku: product.code ?? undefined,
+    mpn: product.code ?? undefined,
+    brand: product.brand
+      ? { "@type": "Brand", name: product.brand }
+      : undefined,
+    offers: {
+      "@type": "Offer",
+      url: `${SITE_URL}/product/${encodeURIComponent(product.id)}`,
+      priceCurrency: "BOB",
+      price: product.price,
+      priceValidUntil: product.saleEndDate ?? undefined,
+      availability: product.stock > 0
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/NewCondition",
+    },
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <AutoTour page="product" delay={1500} />
       <StoreHeader />
 
@@ -374,6 +439,10 @@ export default async function ProductDetailPage({
             </div>
           </div>
         )}
+        {/* Recently Viewed */}
+        <div className="mt-6 sm:mt-16">
+          <RecentlyViewed />
+        </div>
       </main>
 
       <StoreFooter />

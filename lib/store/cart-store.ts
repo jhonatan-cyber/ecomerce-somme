@@ -4,13 +4,15 @@ import type { CartItem, Product } from "@/lib/types"
 
 interface CartStore {
   items: CartItem[]
-  addItem: (product: Product) => void
+  addItem: (product: Product) => boolean
   removeItem: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
   getTotal: () => number
   getItemCount: () => number
+  syncItemPrice: (productId: string, newPrice: number) => boolean
 }
+
 
 export const useCartStore = create<CartStore>()(
   persist(
@@ -19,6 +21,11 @@ export const useCartStore = create<CartStore>()(
       addItem: (product) => {
         const items = get().items
         const existingItem = items.find((item) => item.id === product.id)
+        const currentQty = existingItem?.quantity ?? 0
+
+        if (currentQty + 1 > product.stock) {
+          return false
+        }
 
         if (existingItem) {
           set({
@@ -27,6 +34,7 @@ export const useCartStore = create<CartStore>()(
         } else {
           set({ items: [...items, { ...product, quantity: 1 }] })
         }
+        return true
       },
       removeItem: (productId) => {
         set({ items: get().items.filter((item) => item.id !== productId) })
@@ -41,6 +49,17 @@ export const useCartStore = create<CartStore>()(
         })
       },
       clearCart: () => set({ items: [] }),
+      syncItemPrice: (productId, newPrice) => {
+        const items = get().items
+        const existingItem = items.find((item) => item.id === productId)
+        if (!existingItem || existingItem.price === newPrice) return false
+        set({
+          items: items.map((item) =>
+            item.id === productId ? { ...item, price: newPrice } : item,
+          ),
+        })
+        return true
+      },
       getTotal: () => {
         return get().items.reduce((total, item) => total + item.price * item.quantity, 0)
       },

@@ -1,4 +1,5 @@
 import Link from "next/link"
+import type { Metadata } from "next"
 import { getBrands, getCategories, getProducts } from "@/lib/api"
 import { ActiveFilters } from "@/components/store/home/active-filters"
 import { Breadcrumbs } from "@/components/store/home/breadcrumbs"
@@ -9,6 +10,57 @@ import { StoreFooter } from "@/components/store/footer"
 import { StoreHeader } from "@/components/store/header"
 import { AutoTour } from "@/components/tour"
 import type { Brand, Category, Product } from "@/lib/types"
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuwesomme.cloud"
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
+}): Promise<Metadata> {
+  const resolved = searchParams ? await searchParams : {}
+  const rawSearch = resolved?.search
+  const rawCategory = resolved?.category
+  const rawBrand = resolved?.brand
+  const search = Array.isArray(rawSearch) ? rawSearch[0] ?? "" : rawSearch ?? ""
+  const categoryId = Array.isArray(rawCategory) ? rawCategory[0] ?? "" : rawCategory ?? ""
+  const brandId = Array.isArray(rawBrand) ? rawBrand[0] ?? "" : rawBrand ?? ""
+
+  let title = "Todos los productos"
+  let description = "Explorá nuestro catálogo completo de cámaras IP, grabadores NVR, kits de seguridad y accesorios."
+
+  if (search) {
+    title = `Resultados para "${search}"`
+    description = `Buscaste "${search}" — encontrá cámaras, grabadores y accesorios de seguridad.`
+  } else if (categoryId) {
+    const catalog = await getCategories()
+    const categories = catalog.ok ? catalog.categories : []
+    const category = categories.find((c) => c.id === categoryId)
+    title = category?.name ?? "Categoría"
+    description = `Productos de ${title} — cámaras, grabadores y accesorios de videovigilancia.`
+  } else if (brandId) {
+    const catalog = await getBrands()
+    const brands = catalog.ok ? catalog.brands : []
+    const brand = brands.find((b) => b.id === brandId)
+    title = brand?.name ?? "Marca"
+    description = `Todos los productos de ${title} disponibles en Somme Technology.`
+  }
+
+  const canonical = brandId
+    ? `/brands?brandId=${encodeURIComponent(brandId)}`
+    : categoryId
+    ? `/catalog?category=${encodeURIComponent(categoryId)}`
+    : "/catalog"
+
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: { title: `${title} | Somme Technology`, description, url: canonical, type: "website" },
+    twitter: { card: "summary_large_image", title: `${title} | Somme Technology`, description },
+    robots: search ? { index: false, follow: true } : undefined,
+  }
+}
 
 function buildFallbackCategories(products: Product[]): Category[] {
   const names = Array.from(
@@ -36,7 +88,7 @@ function buildFallbackCategories(products: Product[]): Category[] {
 export default async function CatalogPage({
   searchParams,
 }: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : {}
   const rawSearch = resolvedSearchParams?.search

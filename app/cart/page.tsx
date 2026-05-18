@@ -1,16 +1,45 @@
 "use client"
 
+import { useEffect, useCallback } from "react"
 import Link from "next/link"
-import { Minus, Plus, ShieldCheck, ShoppingBag, Trash2, Truck } from "lucide-react"
+import { Minus, Plus, RefreshCw, ShieldCheck, ShoppingBag, Trash2, Truck } from "lucide-react"
 import { StoreFooter } from "@/components/store/footer"
 import { StoreHeader } from "@/components/store/header"
 import { StoreImage } from "@/components/store/store-image"
 import { Button } from "@/components/ui/button"
 import { AutoTour } from "@/components/tour"
 import { useCartStore } from "@/lib/store/cart-store"
+import { getProductById } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, getTotal } = useCartStore()
+  const { items, updateQuantity, removeItem, getTotal, syncItemPrice } = useCartStore()
+  const { toast } = useToast()
+
+  const syncPrices = useCallback(async () => {
+    for (const item of items) {
+      try {
+        const result = await getProductById(item.id)
+        if (result.ok && result.product) {
+          const changed = syncItemPrice(item.id, result.product.price)
+          if (changed) {
+            toast({
+              title: "Precio actualizado",
+              description: `"${item.name}" cambió de BOB ${item.price.toLocaleString()} a BOB ${result.product.price.toLocaleString()}.`,
+            })
+          }
+        }
+      } catch {
+        // ignore API errors silently
+      }
+    }
+  }, [items, syncItemPrice, toast])
+
+  useEffect(() => {
+    if (items.length > 0) {
+      syncPrices()
+    }
+  }, [])
 
   if (items.length === 0) {
     return (

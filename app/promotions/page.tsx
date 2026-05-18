@@ -28,6 +28,14 @@ export const metadata: Metadata = {
   title: "Ofertas y Promociones | Somme Technology",
   description:
     "Descubre descuentos activos, oportunidades por volumen y equipos destacados en promoción para proyectos de seguridad electrónica.",
+  alternates: { canonical: "/promotions" },
+  openGraph: {
+    title: "Ofertas y Promociones | Somme Technology",
+    description: "Descuentos activos, oportunidades por volumen y equipos destacados en promoción.",
+    url: "/promotions",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image", title: "Ofertas y Promociones | Somme Technology", description: "Descuentos activos, oportunidades por volumen y equipos destacados en promoción." },
 }
 
 type PromoLane = {

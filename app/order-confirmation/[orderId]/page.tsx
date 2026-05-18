@@ -34,7 +34,7 @@ function formatDate(value: string | null | undefined) {
 export default async function OrderConfirmationPage({
   params,
 }: {
-  params: Promise<{ orderId: string }> | { orderId: string }
+  params: Promise<{ orderId: string }>
 }) {
   const resolvedParams = await params
   const lookup = await getOrderById(resolvedParams.orderId)
@@ -144,7 +144,7 @@ export default async function OrderConfirmationPage({
             )}
 
             {/* CTAs */}
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
               <Button asChild className="h-11 flex-1 rounded-xl sm:rounded-2xl">
                 <Link href="/catalog">Seguir comprando</Link>
               </Button>

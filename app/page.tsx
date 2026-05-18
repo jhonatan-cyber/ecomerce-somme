@@ -8,6 +8,7 @@ import { HeroSection } from "@/components/store/home/hero-section"
 import { NewArrivalsSection } from "@/components/store/home/new-arrivals-section"
 import { OnSaleSection } from "@/components/store/home/on-sale-section"
 import { PromoBanner } from "@/components/store/home/promo-banner"
+import { RecentlyViewed } from "@/components/store/recently-viewed"
 import { StoreFooter } from "@/components/store/footer"
 import { StoreHeader } from "@/components/store/header"
 import type { Metadata } from "next"
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : {}
   const rawSearch = resolvedSearchParams?.search
@@ -128,6 +129,10 @@ export default async function HomePage({
         <NewArrivalsSection products={products} />
 
         <BrandsCarousel brands={brands} products={products} />
+
+        <section className="container mx-auto px-4 pt-6">
+          <RecentlyViewed />
+        </section>
       </main>
 
       <StoreFooter />

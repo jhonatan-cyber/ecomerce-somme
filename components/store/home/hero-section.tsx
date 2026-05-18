@@ -54,9 +54,9 @@ export function HeroSection({
           <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted-foreground sm:text-[11px] sm:tracking-[0.28em]">
             Explorar
           </p>
-          <h2 className="mt-1 text-xl font-black text-foreground sm:mt-1.5 sm:text-2xl lg:text-3xl">
+          <h1 className="mt-1 text-xl font-black text-foreground sm:mt-1.5 sm:text-2xl lg:text-3xl">
             {title}
-          </h2>
+          </h1>
         </div>
         <Link
           href={selectedCategory ? `/catalog?category=${encodeURIComponent(selectedCategory.id)}` : "/catalog"}

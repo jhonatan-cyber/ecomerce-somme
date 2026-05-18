@@ -9,7 +9,6 @@ import {
   ChevronRight,
   Headphones,
   Menu,
-  Search,
   ShieldCheck,
   Sparkles,
   Store,
@@ -17,6 +16,7 @@ import {
   X,
 } from "lucide-react"
 import { CartButton } from "./cart-button"
+import { SearchPopover } from "./search-popover"
 import { ThemeToggle } from "./theme-toggle"
 import { TourIconButton } from "@/components/tour"
 import { Input } from "@/components/ui/input"
@@ -26,18 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-  DropdownMenuPortal,
-} from "@/components/ui/dropdown-menu"
-import {
   defaultStoreNavigationCategories,
-  getStoreCategoryHref,
   type StoreNavigationCategory,
 } from "@/lib/store-navigation"
 import type { Category } from "@/lib/types"
@@ -46,6 +35,7 @@ const primaryLinks = [
   { href: "/promotions", label: "Ofertas" },
   { href: "/catalog", label: "Tienda" },
   { href: "/brands", label: "Marcas" },
+  { href: "/tracking", label: "Tracking" },
 ]
 
 type MobilePanel = "categories" | "brands" | null
@@ -158,26 +148,9 @@ export function StoreHeader({
 
           {/* Mobile: search + category/brand buttons */}
           <div className="flex flex-col gap-1.5 lg:hidden">
-            {/* Search */}
-            <form action="/catalog" onSubmit={closeMobileMenu}>
-              <div className="flex overflow-hidden rounded-[1.15rem] border border-border bg-background/80 shadow-inner">
-                <div className="relative flex-1">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    name="search"
-                    defaultValue={currentSearch}
-                    className="h-9 border-0 bg-transparent pl-10 pr-3 text-sm shadow-none focus-visible:ring-0"
-                    placeholder="Buscar productos..."
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="inline-flex items-center bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] px-4 text-white transition hover:opacity-90"
-                >
-                  <Search className="h-4 w-4" />
-                </button>
-              </div>
-            </form>
+            <div className="overflow-hidden rounded-[1.15rem] border border-border bg-background/80 shadow-inner">
+              <SearchPopover variant="compact" />
+            </div>
 
             {/* Category / Brand toggle buttons */}
             <div className="grid grid-cols-2 gap-2">
@@ -319,75 +292,7 @@ export function StoreHeader({
 
           {/* Desktop search */}
           <div data-tour="search-bar" className="hidden lg:block">
-            <form action="/catalog" className="flex overflow-hidden rounded-[1.15rem] border border-border bg-background/80 shadow-inner">
-              <Tooltip delayDuration={200}>
-                <TooltipTrigger asChild>
-                  <span className="inline-flex">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button type="button" className="flex cursor-pointer items-center gap-2 border-r border-border px-3 text-xs font-semibold text-muted-foreground hover:bg-muted/50 transition-colors xl:px-4 outline-none focus:outline-none">
-                          Categorías
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="w-56">
-                        {normalizedCategories.map((category) =>
-                          category.children && category.children.length > 0 ? (
-                            <DropdownMenuSub key={category.id}>
-                              <DropdownMenuSubTrigger>
-                                <span>{category.name}</span>
-                              </DropdownMenuSubTrigger>
-                              <DropdownMenuPortal>
-                                <DropdownMenuSubContent>
-                                  <DropdownMenuItem asChild>
-                                    <Link href={getStoreCategoryHref(category.id)}>
-                                      <strong>Ver todo en {category.name}</strong>
-                                    </Link>
-                                  </DropdownMenuItem>
-                                  {category.children.map((child) => (
-                                    <DropdownMenuItem key={child.id} asChild>
-                                      <Link href={getStoreCategoryHref(category.id, child.id)}>
-                                        {child.name}
-                                      </Link>
-                                    </DropdownMenuItem>
-                                  ))}
-                                </DropdownMenuSubContent>
-                              </DropdownMenuPortal>
-                            </DropdownMenuSub>
-                          ) : (
-                            <DropdownMenuItem key={category.id} asChild>
-                              <Link href={getStoreCategoryHref(category.id)}>
-                                {category.name}
-                              </Link>
-                            </DropdownMenuItem>
-                          )
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">Filtrar por categorías</TooltipContent>
-              </Tooltip>
-              <div className="relative flex-1">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  name="search"
-                  defaultValue={currentSearch}
-                  className="h-11 border-0 bg-transparent pl-10 pr-4 text-sm shadow-none focus-visible:ring-0"
-                  placeholder="Buscar camaras, kits, grabadores o accesorios"
-                />
-              </div>
-              <Tooltip delayDuration={200}>
-                <TooltipTrigger asChild>
-                  <button
-                    type="submit"
-                    className="inline-flex cursor-pointer items-center bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] px-5 text-sm font-semibold text-white transition hover:opacity-90"
-                  >
-                    Buscar
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">Buscar productos</TooltipContent>
-              </Tooltip>
-            </form>
+            <SearchPopover />
           </div>
 
           {/* Desktop right actions */}

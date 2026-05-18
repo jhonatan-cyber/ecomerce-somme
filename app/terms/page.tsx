@@ -1,10 +1,13 @@
 import Link from "next/link"
+import type { Metadata } from "next"
 import { StoreHeader } from "@/components/store/header"
 import { StoreFooter } from "@/components/store/footer"
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Términos y Condiciones | Somme Technology",
   description: "Términos y condiciones de uso del sitio y servicio de Somme Technology.",
+  alternates: { canonical: "/terms" },
+  openGraph: { title: "Términos y Condiciones | Somme Technology", description: "Términos y condiciones de uso del sitio y servicio de Somme Technology.", url: "/terms", type: "website" },
 }
 
 export default function TermsPage() {

@@ -1,10 +1,13 @@
 import Link from "next/link"
+import type { Metadata } from "next"
 import { StoreHeader } from "@/components/store/header"
 import { StoreFooter } from "@/components/store/footer"
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Política de Privacidad | Somme Technology",
   description: "Cómo recopilamos, usamos y protegemos tu información personal en Somme Technology.",
+  alternates: { canonical: "/privacy" },
+  openGraph: { title: "Política de Privacidad | Somme Technology", description: "Cómo recopilamos, usamos y protegemos tu información personal en Somme Technology.", url: "/privacy", type: "website" },
 }
 
 export default function PrivacyPage() {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import Image, { type ImageProps } from "next/image"
 import { Camera } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -24,9 +24,21 @@ export function StoreImage({
   showFallbackIcon = true,
   onImageError,
   className,
+  priority = false,
   ...props
 }: StoreImageProps) {
   const [hasError, setHasError] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  const handleLoad = useCallback(() => {
+    setIsLoading(false)
+  }, [])
+
+  const handleError = useCallback(() => {
+    setHasError(true)
+    setIsLoading(false)
+    onImageError?.()
+  }, [onImageError])
 
   if (!src || hasError) {
     return (
@@ -45,15 +57,27 @@ export function StoreImage({
   }
 
   return (
-    <Image
-      {...props}
-      src={src}
-      alt={alt}
-      className={className}
-      onError={() => {
-        setHasError(true)
-        onImageError?.()
-      }}
-    />
+    <div className="relative h-full w-full overflow-hidden">
+      {isLoading && (
+        <div className="absolute inset-0 z-10 bg-muted">
+          <div
+            className="absolute inset-0 animate-[shimmer_1.5s_ease-in-out_infinite]"
+            style={{
+              background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%)",
+            }}
+          />
+        </div>
+      )}
+      <Image
+        {...props}
+        src={src}
+        alt={alt}
+        priority={priority}
+        className={cn(className, isLoading && "opacity-0")}
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        onLoad={handleLoad}
+        onError={handleError}
+      />
+    </div>
   )
 }

@@ -201,9 +201,7 @@ export function PromoBanner({ ads = [] }: PromoBannerProps) {
 
                 <div className="mt-5 inline-flex items-center rounded-full border border-emerald-300/20 bg-black/20 px-3 py-1.5">
                   <a
-                    href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? ""}?text=${encodeURIComponent("Hola, quiero publicitar en su página")}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href="mailto:ventas@sommetechnology.com?subject=Publicidad"
                     className="inline-flex items-center gap-2 rounded-full bg-orange-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-orange-500/30 transition hover:-translate-y-0.5 hover:bg-orange-400 hover:shadow-orange-500/40"
                   >
                     Contactanos

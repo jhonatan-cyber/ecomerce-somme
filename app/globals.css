@@ -202,6 +202,12 @@
   }
 }
 
+/* Shimmer loading effect */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 /* ========================================
    TOUR ANIMATIONS - Driver.js
    Custom shadcn-style card rendering

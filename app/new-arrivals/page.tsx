@@ -13,6 +13,14 @@ export const metadata: Metadata = {
   title: "Novedades | Somme Technology",
   description:
     "Explora los productos recien ingresados al sistema y descubre las ultimas incorporaciones del catalogo de Somme Technology.",
+  alternates: { canonical: "/new-arrivals" },
+  openGraph: {
+    title: "Novedades | Somme Technology",
+    description: "Productos recién ingresados al catálogo de Somme Technology.",
+    url: "/new-arrivals",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image", title: "Novedades | Somme Technology", description: "Productos recién ingresados al catálogo de Somme Technology." },
 }
 
 export default async function NewArrivalsPage() {

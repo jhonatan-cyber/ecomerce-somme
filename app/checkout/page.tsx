@@ -189,16 +189,12 @@ export default function CheckoutPage() {
       }
 
       clearCart()
-      
-      // Determinar si el pedido se guardó localmente
-      const isLocalOrder = result.message?.includes('guardado localmente')
-      
+
       toast({
         title: "Pedido pendiente registrado",
-        description: `Tu pedido #${result.orderId.slice(0, 8)} quedó pendiente. ${isLocalOrder ? "Lo guardamos temporalmente" : "Lo registramos correctamente"} y te contactaremos por WhatsApp.`,
-        variant: isLocalOrder ? "default" : "default",
+        description: `Tu pedido #${result.orderId.slice(0, 8)} quedó registrado. Te contactaremos por WhatsApp.`,
       })
-      
+
       router.push(`/order-confirmation/${result.orderId}`)
     } catch (error) {
       toast({

@@ -1,17 +1,28 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { ArrowRight, Check, ShoppingCart } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useCartStore } from "@/lib/store/cart-store"
+import { useRecentlyViewedStore } from "@/lib/store/recently-viewed"
 import type { Product } from "@/lib/types"
 
 export function ProductDetailActions({ product }: { product: Product }) {
   const addItem = useCartStore((state) => state.addItem)
+  const addRecentlyViewed = useRecentlyViewedStore((state) => state.addItem)
   const { toast } = useToast()
   const [justAdded, setJustAdded] = useState(false)
   const outOfStock = product.stock <= 0
+
+  useEffect(() => {
+    addRecentlyViewed({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image_url: product.image_url,
+    })
+  }, [product.id, product.name, product.price, product.image_url, addRecentlyViewed])
 
   const handleAddToCart = () => {
     if (outOfStock) {
@@ -23,7 +34,16 @@ export function ProductDetailActions({ product }: { product: Product }) {
       return
     }
 
-    addItem(product)
+    const added = addItem(product)
+    if (!added) {
+      toast({
+        title: "Stock máximo alcanzado",
+        description: `Ya agregaste todo el stock disponible de ${product.name}.`,
+        variant: "destructive",
+      })
+      return
+    }
+
     setJustAdded(true)
     setTimeout(() => setJustAdded(false), 1800)
     toast({

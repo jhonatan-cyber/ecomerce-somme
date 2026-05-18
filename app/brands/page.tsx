@@ -11,7 +11,7 @@ import type { Brand, Category } from "@/lib/types"
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }): Promise<Metadata> {
   const resolved = searchParams ? await searchParams : {}
   const rawBrand = resolved?.brandId
@@ -43,7 +43,7 @@ export async function generateMetadata({
       description: `Productos de ${brand.name} en Somme Technology.`,
       url: `/brands?brandId=${brandId}`,
       type: "website",
-      ...(brand.logo ? { images: [{ url: brand.logo, alt: brand.name }] } : {}),
+      ...(brand.logo ? { images: [{ url: new URL(brand.logo, process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuwesomme.cloud").toString(), alt: brand.name }] } : {}),
     },
   }
 }
@@ -51,7 +51,7 @@ export async function generateMetadata({
 export default async function BrandsPage({
   searchParams,
 }: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : {}
   const rawBrand = resolvedSearchParams?.brandId

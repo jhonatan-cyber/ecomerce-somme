@@ -11,6 +11,14 @@ export const metadata: Metadata = {
   title: "Cotizacion por Volumen | Somme Technology",
   description:
     "Solicita una cotizacion por volumen con productos seleccionados, cantidades y contexto comercial listo para ventas.",
+  alternates: { canonical: "/quote-generator" },
+  openGraph: {
+    title: "Cotizacion por Volumen | Somme Technology",
+    description: "Solicitá una cotización por volumen con productos seleccionados y cantidades.",
+    url: "/quote-generator",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image", title: "Cotizacion por Volumen | Somme Technology", description: "Solicitá una cotización por volumen con productos seleccionados y cantidades." },
 }
 
 function normalizeSelectedProductIds(value: string | string[] | undefined) {
@@ -30,7 +38,7 @@ function normalizeSource(value: string | string[] | undefined) {
 export default async function QuoteGeneratorRoute({
   searchParams,
 }: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : {}
   const selectedProductIds = normalizeSelectedProductIds(resolvedSearchParams?.products)

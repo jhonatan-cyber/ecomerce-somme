@@ -1,10 +1,13 @@
 import Link from "next/link"
+import type { Metadata } from "next"
 import { StoreHeader } from "@/components/store/header"
 import { StoreFooter } from "@/components/store/footer"
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Política de Cookies | Somme Technology",
   description: "Información sobre el uso de cookies en Somme Technology.",
+  alternates: { canonical: "/cookies" },
+  openGraph: { title: "Política de Cookies | Somme Technology", description: "Información sobre el uso de cookies en Somme Technology.", url: "/cookies", type: "website" },
 }
 
 export default function CookiesPage() {

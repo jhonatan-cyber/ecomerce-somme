@@ -23,7 +23,16 @@ export function ProductCardActions({ product }: { product: Product }) {
       return
     }
 
-    addItem(product)
+    const added = addItem(product)
+    if (!added) {
+      toast({
+        title: "Stock máximo alcanzado",
+        description: `Ya agregaste todo el stock disponible de ${product.name}.`,
+        variant: "destructive",
+      })
+      return
+    }
+
     setJustAdded(true)
     setTimeout(() => setJustAdded(false), 1500)
     toast({
