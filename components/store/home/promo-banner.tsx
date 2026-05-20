@@ -102,7 +102,7 @@ export function PromoBanner({ ads = [] }: PromoBannerProps) {
 
   return (
     <section className="container mx-auto px-4 pt-10">
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-10">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-10 items-start">
         {/* Left: Technician discount */}
         <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950 shadow-xl lg:col-span-4">
           {/* Subtle accent glow */}

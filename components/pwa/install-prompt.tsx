@@ -4,11 +4,16 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Download, X } from "lucide-react"
 
+const DISMISSED_KEY = "pwa-install-dismissed"
+
 export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
   const [showPrompt, setShowPrompt] = useState(false)
 
   useEffect(() => {
+    // Si ya fue descartado antes, no mostrar nunca más
+    if (localStorage.getItem(DISMISSED_KEY)) return
+
     const handler = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e)
@@ -20,6 +25,11 @@ export function InstallPrompt() {
     return () => window.removeEventListener("beforeinstallprompt", handler)
   }, [])
 
+  const dismiss = () => {
+    localStorage.setItem(DISMISSED_KEY, "true")
+    setShowPrompt(false)
+  }
+
   const handleInstall = async () => {
     if (!deferredPrompt) return
 
@@ -30,6 +40,8 @@ export function InstallPrompt() {
       console.log("PWA instalada")
     }
 
+    // Si instaló o no, no volvemos a mostrar
+    localStorage.setItem(DISMISSED_KEY, "true")
     setDeferredPrompt(null)
     setShowPrompt(false)
   }
@@ -49,7 +61,7 @@ export function InstallPrompt() {
               <p className="text-xs text-muted-foreground">Accedé rápido desde tu pantalla de inicio</p>
             </div>
           </div>
-          <button onClick={() => setShowPrompt(false)} className="shrink-0">
+          <button onClick={dismiss} className="shrink-0" aria-label="Ahora no">
             <X className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
