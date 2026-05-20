@@ -65,9 +65,14 @@ export function InstallPrompt() {
             <X className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
-        <Button onClick={handleInstall} size="sm" className="mt-3 w-full rounded-xl">
-          Instalar aplicación
-        </Button>
+        <div className="mt-3 flex gap-2">
+          <Button onClick={dismiss} variant="outline" size="sm" className="flex-1 rounded-xl">
+            Ahora no
+          </Button>
+          <Button onClick={handleInstall} size="sm" className="flex-1 rounded-xl">
+            Instalar
+          </Button>
+        </div>
       </div>
     </div>
   )
