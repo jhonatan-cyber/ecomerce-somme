@@ -1,20 +1,39 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Download, X } from "lucide-react"
 
 const DISMISSED_KEY = "pwa-install-dismissed"
 
+function isDismissed(): boolean {
+  try {
+    return !!localStorage.getItem(DISMISSED_KEY)
+  } catch {
+    return false
+  }
+}
+
+function markDismissed(): void {
+  try {
+    localStorage.setItem(DISMISSED_KEY, "true")
+  } catch {
+    // Modo incógnito / localStorage no disponible
+  }
+}
+
 export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
   const [showPrompt, setShowPrompt] = useState(false)
+  const dismissedRef = useRef(isDismissed())
 
   useEffect(() => {
-    // Si ya fue descartado antes, no mostrar nunca más
-    if (localStorage.getItem(DISMISSED_KEY)) return
+    // Si ya fue descartado antes, no escuchar el evento
+    if (dismissedRef.current) return
 
     const handler = (e: Event) => {
+      // Doble guardia: si ya se descartó entre medio, ignorar
+      if (dismissedRef.current || isDismissed()) return
       e.preventDefault()
       setDeferredPrompt(e)
       setShowPrompt(true)
@@ -26,7 +45,8 @@ export function InstallPrompt() {
   }, [])
 
   const dismiss = () => {
-    localStorage.setItem(DISMISSED_KEY, "true")
+    dismissedRef.current = true
+    markDismissed()
     setShowPrompt(false)
   }
 
@@ -40,8 +60,8 @@ export function InstallPrompt() {
       console.log("PWA instalada")
     }
 
-    // Si instaló o no, no volvemos a mostrar
-    localStorage.setItem(DISMISSED_KEY, "true")
+    dismissedRef.current = true
+    markDismissed()
     setDeferredPrompt(null)
     setShowPrompt(false)
   }
