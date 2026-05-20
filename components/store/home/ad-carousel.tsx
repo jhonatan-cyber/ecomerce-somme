@@ -33,22 +33,27 @@ export function AdCarousel({ ads }: AdCarouselProps) {
   if (ads.length === 0) return null
 
   return (
-    <div
-      className="group relative h-full w-full overflow-hidden bg-slate-950"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div className="group relative w-full overflow-hidden rounded-[2rem] bg-slate-950">
+      {/* Slides: current slide is in-flow (establece el alto), others are absolute (apiladas para el fade) */}
       {ads.map((ad, i) => (
-        <Image
+        <div
           key={`${ad.url}-${i}`}
-          src={ad.url}
-          alt={ad.alt}
-          fill
-          className={`object-cover transition-opacity duration-700 ${
-            i === current ? "opacity-100" : "opacity-0"
+          className={`transition-opacity duration-700 ${
+            i === current
+              ? "relative opacity-100"
+              : "absolute inset-0 opacity-0 pointer-events-none"
           }`}
-          unoptimized
-        />
+        >
+          <Image
+            src={ad.url}
+            alt={ad.alt}
+            width={2560}
+            height={0}
+            style={{ width: "100%", height: "auto" }}
+            unoptimized
+            priority={i === current}
+          />
+        </div>
       ))}
 
       {/* Navigation arrows */}

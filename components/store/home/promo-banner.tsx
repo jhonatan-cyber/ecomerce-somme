@@ -157,7 +157,7 @@ export function PromoBanner({ ads = [] }: PromoBannerProps) {
 
         {/* Right: Fallback advertising card */}
         {liveAds.length > 0 ? (
-          <div className="h-full overflow-hidden rounded-[2rem] shadow-xl lg:col-span-6">
+          <div className="shadow-xl lg:col-span-6">
             <AdCarousel ads={liveAds} />
           </div>
         ) : (
