@@ -31,7 +31,7 @@ export function NewArrivalsSection({ products }: { products: Product[] }) {
         </div>
         <Link
           href="/new-arrivals"
-          className="hidden items-center gap-2 rounded-full border border-cyan-200 bg-[linear-gradient(135deg,#ecfeff_0%,#f0f9ff_100%)] px-4 py-2 text-sm font-bold text-cyan-800 shadow-[0_12px_30px_-24px_rgba(6,182,212,0.8)] transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-[0_18px_34px_-22px_rgba(6,182,212,0.9)] sm:inline-flex"
+          className="hidden items-center gap-2 rounded-full bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] px-4 py-2 text-sm font-bold text-white shadow-[0_12px_30px_-24px_rgba(15,23,42,0.8)] transition hover:-translate-y-0.5 hover:opacity-90 sm:inline-flex"
         >
           Ver todas las novedades
           <ArrowRight className="h-4 w-4" />
@@ -47,7 +47,7 @@ export function NewArrivalsSection({ products }: { products: Product[] }) {
 
       <Link
         href="/new-arrivals"
-        className="mt-4 flex items-center justify-center gap-2 rounded-full border border-cyan-200 bg-[linear-gradient(135deg,#ecfeff_0%,#f0f9ff_100%)] px-4 py-3 text-sm font-bold text-cyan-800 shadow-[0_12px_30px_-24px_rgba(6,182,212,0.8)] transition hover:border-cyan-300 hover:shadow-[0_18px_34px_-22px_rgba(6,182,212,0.9)] sm:hidden"
+        className="mt-4 flex items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] px-4 py-3 text-sm font-bold text-white shadow-[0_12px_30px_-24px_rgba(15,23,42,0.8)] transition hover:opacity-90 sm:hidden"
       >
         Ver todas las novedades
         <ArrowRight className="h-4 w-4" />

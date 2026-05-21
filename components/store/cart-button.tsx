@@ -67,7 +67,7 @@ export function CartButton() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-xs font-semibold">{item.name}</p>
                     <p className="text-[11px] text-muted-foreground">
-                      {item.quantity} x BOB {item.price.toLocaleString()}
+                      {item.quantity} x BOB {item.price.toLocaleString("es-BO")}
                     </p>
                   </div>
                   <button
@@ -90,9 +90,13 @@ export function CartButton() {
             <div className="border-t border-border/60 px-3 py-3">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-sm font-semibold">Total</span>
-                <span className="text-base font-black">BOB {total.toLocaleString()}</span>
+                <span className="text-base font-black">BOB {total.toLocaleString("es-BO")}</span>
               </div>
-              <Button asChild className="h-9 w-full rounded-xl text-xs font-bold" onClick={() => setIsOpen(false)}>
+              <Button
+                asChild
+                className="h-9 w-full rounded-xl bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] text-xs font-bold text-white hover:opacity-90"
+                onClick={() => setIsOpen(false)}
+              >
                 <Link href="/checkout">Ir al checkout</Link>
               </Button>
               <Link

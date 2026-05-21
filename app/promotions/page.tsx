@@ -11,7 +11,6 @@ import {
   Tag,
   TrendingUp,
   Users,
-  Zap,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -104,27 +103,12 @@ function getPrimaryImage(product: Product) {
   return [product.image_url, ...(product.images ?? [])].find(Boolean) ?? null
 }
 
-function buildQuoteGeneratorHref(products: Product[], source: string) {
-  const searchParams = new URLSearchParams()
-  const selectedIds = products.map((product) => product.id).filter(Boolean)
-
-  if (selectedIds.length > 0) {
-    searchParams.set("products", selectedIds.join(","))
-  }
-
-  searchParams.set("source", source)
-
-  return `/quote-generator?${searchParams.toString()}`
-}
-
 function PromoHero({
   product,
   totalOnSale,
-  quoteHref,
 }: {
   product: Product
   totalOnSale: number
-  quoteHref: string
 }) {
   const image = getPrimaryImage(product)
   const savings = getSavings(product)
@@ -183,17 +167,6 @@ function PromoHero({
               <Link href={`/product/${encodeURIComponent(product.id)}`} scroll>
                 Ver oferta principal
                 <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="rounded-full border-white/20 bg-white/5 px-7 text-sm font-bold text-white hover:bg-white/10 hover:text-white"
-            >
-              <Link href={quoteHref}>
-                Solicitar propuesta B2B
-                <Users className="h-4 w-4" />
               </Link>
             </Button>
           </div>
@@ -299,10 +272,6 @@ export default async function PromotionsPage() {
           sortedProducts.length,
       )
     : 0
-  const heroQuoteHref = buildQuoteGeneratorHref(heroProduct ? [heroProduct] : [], "promociones-hero")
-  const featuredQuoteHref = buildQuoteGeneratorHref(gridProducts.slice(0, 4), "promociones-seleccion")
-  const campaignQuoteHref = buildQuoteGeneratorHref(sortedProducts.slice(0, 4), "promociones-campana")
-
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf5_0%,#fff 16%,#fff 100%)] text-foreground dark:bg-[linear-gradient(180deg,#0f172a_0%,#020617_16%,#020617_100%)]">
       <StoreHeader />
@@ -310,7 +279,7 @@ export default async function PromotionsPage() {
       <main className="pb-16">
         <section className="container mx-auto px-4 pt-6 sm:pt-8">
           {heroProduct ? (
-            <PromoHero product={heroProduct} totalOnSale={sortedProducts.length} quoteHref={heroQuoteHref} />
+            <PromoHero product={heroProduct} totalOnSale={sortedProducts.length} />
           ) : (
             <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white px-6 py-10 text-center shadow-[0_20px_80px_-50px_rgba(15,23,42,0.4)] dark:border-white/10 dark:bg-slate-900 sm:px-10">
               <div className="mx-auto max-w-2xl">
@@ -328,9 +297,6 @@ export default async function PromotionsPage() {
                       Explorar catálogo
                       <ArrowRight className="h-4 w-4" />
                     </Link>
-                  </Button>
-                  <Button asChild size="lg" variant="outline" className="rounded-full px-7">
-                    <Link href="/quote-generator">Solicitar cotización</Link>
                   </Button>
                 </div>
               </div>
@@ -394,15 +360,6 @@ export default async function PromotionsPage() {
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button
-                asChild
-                className="rounded-full bg-slate-950 text-white shadow-[0_16px_36px_-20px_rgba(15,23,42,0.85)] hover:bg-orange-500 dark:bg-orange-500 dark:text-slate-950 dark:hover:bg-orange-400"
-              >
-                <Link href={featuredQuoteHref}>
-                  Solicitar precio por volumen
-                  <Zap className="h-4 w-4" />
-                </Link>
-              </Button>
             </div>
           </div>
 
@@ -433,12 +390,6 @@ export default async function PromotionsPage() {
                 </p>
               </div>
               <div className="grid gap-3">
-                <Button asChild size="lg" className="rounded-full bg-orange-500 text-white hover:bg-orange-400">
-                  <Link href={campaignQuoteHref}>
-                    Solicitar cotización personalizada
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
                 <Button
                   asChild
                   size="lg"

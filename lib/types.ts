@@ -108,6 +108,7 @@ export interface StoreOrderItem {
 export interface StoreOrder {
   id: string
   orderId: string
+  code?: string | null
   customer: StoreOrderCustomer | null
   items: StoreOrderItem[]
   total: number | null
@@ -130,10 +131,17 @@ export interface CartItem extends Product {
 
 export interface Customer {
   name: string
-  email: string
+  email?: string
   phone: string | null
   address: string
   company?: string | null
+}
+
+export interface OrderVoucherImage {
+  fileName: string
+  mimeType: string
+  size: number
+  dataBase64: string
 }
 
 export interface OrderRequest {
@@ -150,10 +158,12 @@ export interface OrderRequest {
   notes?: string
   deliveryMethod?: string
   paymentMethod?: string
+  voucherImage?: OrderVoucherImage | null
 }
 
 export interface OrderResponse {
   orderId: string
+  orderCode?: string
   success: boolean
   message?: string
 }

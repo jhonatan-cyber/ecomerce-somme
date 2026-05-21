@@ -64,7 +64,7 @@ export function ProductDetailActions({ product }: { product: Product }) {
             ? "cursor-not-allowed bg-slate-400/80 text-white/90"
             : justAdded
             ? "bg-emerald-500 shadow-md shadow-emerald-500/25"
-            : "bg-gradient-to-r from-slate-900 to-blue-700 shadow-md shadow-primary/20 hover:opacity-90"
+            : "bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] shadow-md shadow-primary/20 hover:opacity-90"
         }`}
       >
         {justAdded ? (

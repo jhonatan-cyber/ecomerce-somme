@@ -12,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
  * Example: 1500000 → "BOB 1.500.000"
  */
 export function formatPrice(price: number): string {
-  return `BOB ${price.toLocaleString("es-CL")}`
+  return `BOB ${price.toLocaleString("es-BO")}`
 }
 
 /**

@@ -1,0 +1,37 @@
+﻿d:/DEV/somme.com/somme-ecomerce/components\store\footer.tsx:36:                <p className="bg-gradient-to-r from-cyan-300 via-blue-400 to-primary bg-clip-text text-xl font-black text-transparent sm:text-2xl">
+d:/DEV/somme.com/somme-ecomerce/components\store\footer.tsx:49:                <Truck className="h-3.5 w-3.5 text-cyan-300" /> Despacho ágil
+d:/DEV/somme.com/somme-ecomerce/components\store\footer.tsx:52:                <ShieldCheck className="h-3.5 w-3.5 text-cyan-300" /> Compra segura
+d:/DEV/somme.com/somme-ecomerce/components\store\footer.tsx:62:                <Phone className="h-4 w-4 shrink-0 text-cyan-300" />
+d:/DEV/somme.com/somme-ecomerce/components\store\footer.tsx:66:                <Mail className="h-4 w-4 shrink-0 text-cyan-300" />
+d:/DEV/somme.com/somme-ecomerce/components\store\footer.tsx:70:                <MapPin className="h-4 w-4 shrink-0 text-cyan-300" />
+d:/DEV/somme.com/somme-ecomerce/components\store\footer.tsx:113:                className="font-semibold text-slate-400 transition hover:text-cyan-400 hover:underline"
+d:/DEV/somme.com/somme-ecomerce/components\store\header.tsx:83:      <div className="border-b border-cyan-400/10 bg-slate-950 text-slate-200">
+d:/DEV/somme.com/somme-ecomerce/components\store\header.tsx:87:              <Truck className="h-3 w-3 text-cyan-300" />
+d:/DEV/somme.com/somme-ecomerce/components\store\header.tsx:91:              <ShieldCheck className="h-3 w-3 text-cyan-300" />
+d:/DEV/somme.com/somme-ecomerce/components\store\header.tsx:97:              <Headphones className="h-3 w-3 text-cyan-300" />
+d:/DEV/somme.com/somme-ecomerce/components\store\header.tsx:101:              <BadgePercent className="h-3 w-3 text-cyan-300" />
+d:/DEV/somme.com/somme-ecomerce/components\store\header.tsx:124:                  <p className="truncate bg-gradient-to-r from-slate-950 via-blue-700 to-cyan-500 bg-clip-text text-base font-black text-transparent sm:text-xl">
+d:/DEV/somme.com/somme-ecomerce/components\store\product-card-image.tsx:123:          <span className="rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-white shadow-md shadow-cyan-500/25">
+d:/DEV/somme.com/somme-ecomerce/components\store\home\brand-sidebar-filter.tsx:34:          className="flex w-full items-center justify-between px-5 py-3 text-sm font-medium text-cyan-300 transition hover:bg-white/5"
+d:/DEV/somme.com/somme-ecomerce/components\store\home\catalog-section.tsx:33:          <div className="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-cyan-200/60 bg-cyan-50/80 px-4 py-3 text-sm dark:border-cyan-500/20 dark:bg-cyan-500/10">
+d:/DEV/somme.com/somme-ecomerce/components\store\home\category-sidebar.tsx:102:                            <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-cyan-400 align-middle" />
+d:/DEV/somme.com/somme-ecomerce/components\store\home\new-arrivals-section.tsx:22:          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-md shadow-cyan-500/25">
+d:/DEV/somme.com/somme-ecomerce/components\store\quote-generator-page.tsx:93:              <div className="flex items-center gap-2 text-accent dark:text-cyan-200">
+d:/DEV/somme.com/somme-ecomerce/components\store\quote-generator-page.tsx:121:        <article className="relative overflow-hidden rounded-[1.6rem] border border-border bg-card p-4 pr-18 shadow-[0_20px_70px_-56px_rgba(15,23,42,0.4)] dark:border-cyan-100 dark:bg-[linear-gradient(135deg,#ecfeff_0%,#ffffff_70%)]">
+d:/DEV/somme.com/somme-ecomerce/components\store\quote-generator-page.tsx:122:          <MessageCircle className="pointer-events-none absolute right-3 top-3 h-16 w-16 text-cyan-600 dark:text-cyan-100" />
+d:/DEV/somme.com/somme-ecomerce/components\store\product-slider.tsx:133:                <div className="h-full min-h-[180px] rounded-xl bg-gradient-to-r from-blue-600 to-blue-400 p-6 flex flex-col justify-center text-white text-center">
+d:/DEV/somme.com/somme-ecomerce/components\store\quote-generator.tsx:777:                  <div className="h-2 w-2 rounded-full bg-cyan-500 dark:bg-cyan-400"></div>
+d:/DEV/somme.com/somme-ecomerce/components\store\quote-generator.tsx:779:                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-300">
+d:/DEV/somme.com/somme-ecomerce/components\store\quote-generator.tsx:782:                    <p className="text-xl font-black text-cyan-900 dark:text-white">{totalQuantity}</p>
+d:/DEV/somme.com/somme-ecomerce/app\new-arrivals\page.tsx:40:                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-cyan-700 dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-300">
+d:/DEV/somme.com/somme-ecomerce/app\new-arrivals\page.tsx:70:              <div className="rounded-[1.5rem] border border-cyan-100 bg-white/90 p-5 dark:border-cyan-500/20 dark:bg-slate-800/90">
+d:/DEV/somme.com/somme-ecomerce/app\new-arrivals\page.tsx:71:                <div className="flex items-center gap-2 text-cyan-700 dark:text-cyan-300">
+d:/DEV/somme.com/somme-ecomerce/app\new-arrivals\page.tsx:85:              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-cyan-600 dark:text-cyan-400">Listado actualizado</p>
+d:/DEV/somme.com/somme-ecomerce/app\order-confirmation\[orderId]\page.tsx:56:            <CheckCircle2 className="h-12 w-12 text-cyan-300 sm:h-16 sm:w-16" />
+d:/DEV/somme.com/somme-ecomerce/app\cart\page.tsx:161:                <p className="flex items-center gap-2"><Truck className="h-3.5 w-3.5 text-cyan-300" /> EnvÃ­o coordinado</p>
+d:/DEV/somme.com/somme-ecomerce/app\cart\page.tsx:162:                <p className="flex items-center gap-2"><ShieldCheck className="h-3.5 w-3.5 text-cyan-300" /> Compra segura</p>
+d:/DEV/somme.com/somme-ecomerce/app\checkout\page.tsx:532:                    <ShieldCheck className="h-4 w-4 text-cyan-300" /> Tus datos se usan solo para
+d:/DEV/somme.com/somme-ecomerce/app\checkout\page.tsx:536:                    <Truck className="h-4 w-4 text-cyan-300" /> Te contactamos para coordinar envio
+d:/DEV/somme.com/somme-ecomerce/app\promotions\page.tsx:121:      <div className="pointer-events-none absolute bottom-[-12%] left-[-4%] h-48 w-48 rounded-full bg-cyan-400/10 blur-3xl" />
+d:/DEV/somme.com/somme-ecomerce/app\promotions\page.tsx:152:              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-200">Ahorro destacado</p>
+d:/DEV/somme.com/somme-ecomerce/app\promotions\page.tsx:383:                <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-cyan-200">Canal empresas</p>

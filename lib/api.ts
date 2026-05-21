@@ -401,6 +401,7 @@ function normalizeStoreOrder(rawOrder: unknown): StoreOrder | null {
   return {
     id,
     orderId,
+    code: toText(rawOrder.code ?? rawOrder.orderCode ?? rawOrder.order_code),
     customer,
     items,
     total,

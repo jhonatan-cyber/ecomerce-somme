@@ -31,7 +31,7 @@ export function BrandSidebarFilter({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex w-full items-center justify-between px-5 py-3 text-sm font-medium text-cyan-300 transition hover:bg-white/5"
+          className="flex w-full items-center justify-between bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
         >
           <span className="flex items-center gap-2">
             <Shield className="h-4 w-4" />

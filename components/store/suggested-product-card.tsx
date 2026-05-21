@@ -197,7 +197,7 @@ export function SuggestedProductCard({ product }: { product: Product }) {
               ? "cursor-not-allowed bg-slate-400/80 text-white/90"
               : added
               ? "bg-emerald-500 shadow-sm shadow-emerald-500/25"
-              : "bg-gradient-to-r from-slate-800 to-blue-700 hover:from-slate-700 hover:to-blue-600 active:scale-[0.97]"
+              : "bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] hover:opacity-90 active:scale-[0.97]"
           }`}
         >
           {added ? (

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 function formatCurrency(value: number | null | undefined) {
   if (typeof value !== "number" || Number.isNaN(value)) return "A coordinar"
-  return `BOB ${value.toLocaleString()}`
+  return `BOB ${value.toLocaleString("es-BO")}`
 }
 
 function formatDate(value: string | null | undefined) {
@@ -39,8 +39,12 @@ export default async function OrderConfirmationPage({
   const resolvedParams = await params
   const lookup = await getOrderById(resolvedParams.orderId)
   const order = lookup.ok ? lookup.order : null
-  const displayOrderId = order?.orderId || order?.id || resolvedParams.orderId
-  const shortId = displayOrderId.slice(0, 8).toUpperCase()
+  const displayCode =
+    order?.code?.trim() ||
+    order?.orderId?.slice(0, 8) ||
+    order?.id?.slice(0, 8) ||
+    resolvedParams.orderId.slice(0, 8)
+  const shortId = displayCode.toUpperCase()
 
   return (
     <div className="min-h-screen bg-background">

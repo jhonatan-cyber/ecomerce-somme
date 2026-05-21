@@ -52,14 +52,14 @@ export default async function NewArrivalsPage() {
                 <div className="mt-6 flex flex-wrap gap-3">
                   <Link
                     href="/catalog"
-                    className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-900 transition hover:border-cyan-300 hover:text-cyan-700 hover:shadow-md dark:border-white/10 dark:bg-slate-800 dark:text-white dark:hover:border-cyan-500 dark:hover:text-cyan-300"
+                    className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] px-5 py-3 text-sm font-bold text-white transition hover:opacity-90"
                   >
                     Explorar catalogo completo
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link
                     href="/promotions"
-                    className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-bold text-white shadow-[0_18px_40px_-24px_rgba(15,23,42,0.8)] transition hover:bg-cyan-600 dark:bg-cyan-600 dark:hover:bg-cyan-500"
+                    className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] px-5 py-3 text-sm font-bold text-white shadow-[0_18px_40px_-24px_rgba(15,23,42,0.8)] transition hover:opacity-90"
                   >
                     Ver ofertas activas
                     <Zap className="h-4 w-4" />

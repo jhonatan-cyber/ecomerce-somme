@@ -128,6 +128,7 @@ export class LocalOrderManager {
           tax: order.tax,
           deliveryMethod: order.deliveryMethod,
           paymentMethod: order.paymentMethod,
+          voucherImage: order.voucherImage ?? null,
           notes: order.notes
             ? `${order.notes} (Sincronizado desde almacenamiento local)`
             : 'Sincronizado desde almacenamiento local'

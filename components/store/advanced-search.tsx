@@ -206,7 +206,7 @@ export function AdvancedSearch({ onSearch, categories = [], brands = [] }: Advan
               )}
             </div>
             
-            <Button onClick={handleSearch} className="bg-camera-accent hover:bg-camera-accent/90">
+            <Button onClick={handleSearch} className="bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] text-white hover:opacity-90">
               <Search className="mr-2 h-4 w-4" />
               Buscar
             </Button>
@@ -540,7 +540,7 @@ export function AdvancedSearch({ onSearch, categories = [], brands = [] }: Advan
 
             {/* Apply Filters Button */}
             <div className="flex justify-end pt-4 border-t">
-              <Button onClick={handleSearch} className="bg-camera-accent hover:bg-camera-accent/90">
+              <Button onClick={handleSearch} className="bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] text-white hover:opacity-90">
                 Aplicar filtros y buscar
               </Button>
             </div>

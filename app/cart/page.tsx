@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useCallback } from "react"
 import Link from "next/link"
@@ -25,7 +25,7 @@ export default function CartPage() {
           if (changed) {
             toast({
               title: "Precio actualizado",
-              description: `"${item.name}" cambió de BOB ${item.price.toLocaleString()} a BOB ${result.product.price.toLocaleString()}.`,
+              description: `"${item.name}" cambió de BOB ${item.price.toLocaleString("es-BO")} a BOB ${result.product.price.toLocaleString("es-BO")}.`,
             })
           }
         }
@@ -50,7 +50,7 @@ export default function CartPage() {
             <ShoppingBag className="mx-auto h-14 w-14 text-muted-foreground sm:h-20 sm:w-20" />
             <h1 className="mt-5 text-2xl font-black tracking-tight sm:text-3xl">Tu carrito está vacío</h1>
             <p className="mt-3 text-sm text-muted-foreground">Todavía no agregaste productos. Volvé al catálogo y explorá.</p>
-            <Button asChild className="mt-6 w-full rounded-xl sm:w-auto sm:rounded-2xl sm:px-6">
+            <Button asChild className="mt-6 w-full rounded-xl bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] text-white hover:opacity-90 sm:w-auto sm:rounded-2xl sm:px-6">
               <Link href="/catalog">Explorar productos</Link>
             </Button>
           </div>
@@ -97,7 +97,7 @@ export default function CartPage() {
                   <h2 className="line-clamp-2 text-sm font-bold leading-snug text-foreground">
                     {item.name}
                   </h2>
-                  <p className="text-xs text-muted-foreground">BOB {item.price.toLocaleString()} c/u</p>
+                  <p className="text-xs text-muted-foreground">BOB {item.price.toLocaleString("es-BO")} c/u</p>
 
                   <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
                     {/* Quantity */}
@@ -122,7 +122,7 @@ export default function CartPage() {
                     {/* Subtotal + remove */}
                     <div className="flex items-center gap-3">
                       <span className="text-base font-black text-foreground">
-                        BOB {(item.price * item.quantity).toLocaleString()}
+                        BOB {(item.price * item.quantity).toLocaleString("es-BO")}
                       </span>
                       <button
                         type="button"
@@ -146,7 +146,7 @@ export default function CartPage() {
               <div className="mt-4 space-y-2.5 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-semibold">BOB {getTotal().toLocaleString()}</span>
+                  <span className="font-semibold">BOB {getTotal().toLocaleString("es-BO")}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Envío</span>
@@ -154,14 +154,14 @@ export default function CartPage() {
                 </div>
                 <div className="flex items-center justify-between rounded-xl bg-muted/60 px-3 py-2.5">
                   <span className="font-semibold">Total</span>
-                  <span className="text-xl font-black">BOB {getTotal().toLocaleString()}</span>
+                  <span className="text-xl font-black">BOB {getTotal().toLocaleString("es-BO")}</span>
                 </div>
               </div>
               <div className="mt-4 space-y-2 rounded-xl bg-slate-950 p-4 text-xs text-slate-300">
                 <p className="flex items-center gap-2"><Truck className="h-3.5 w-3.5 text-cyan-300" /> Envío coordinado</p>
                 <p className="flex items-center gap-2"><ShieldCheck className="h-3.5 w-3.5 text-cyan-300" /> Compra segura</p>
               </div>
-              <Button data-tour="checkout-button" asChild className="mt-4 h-11 w-full rounded-xl sm:h-12 sm:rounded-2xl">
+              <Button data-tour="checkout-button" asChild className="mt-4 h-11 w-full rounded-xl bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] text-white hover:opacity-90 sm:h-12 sm:rounded-2xl">
                 <Link href="/checkout">Ir al checkout →</Link>
               </Button>
               <Link
@@ -178,3 +178,4 @@ export default function CartPage() {
     </div>
   )
 }
+

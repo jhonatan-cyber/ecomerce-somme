@@ -396,7 +396,7 @@ export function ProductReviews({
         <Button 
           size="lg" 
           onClick={() => setShowReviewForm(true)}
-          className="bg-camera-accent hover:bg-camera-accent/90"
+          className="bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] text-white hover:opacity-90"
         >
           <MessageSquare className="mr-2 h-4 w-4" />
           Escribir una Reseña

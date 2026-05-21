@@ -38,6 +38,10 @@ export async function createOrder(orderData: OrderRequest): Promise<OrderRespons
 
     if (response.ok) {
       const orderId = result?.id || result?.orderId || result?.order_id
+      const orderCode =
+        typeof result?.orderCode === "string" && result.orderCode.trim().length > 0
+          ? result.orderCode.trim().toUpperCase()
+          : undefined
 
       if (!orderId) {
         return {
@@ -49,6 +53,7 @@ export async function createOrder(orderData: OrderRequest): Promise<OrderRespons
 
       return {
         orderId,
+        orderCode,
         success: true,
         message: "Pedido creado exitosamente",
       }
