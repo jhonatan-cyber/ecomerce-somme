@@ -48,8 +48,8 @@ export function CategorySidebar({
         Shop Radar
       </div>
 
-      <div className="flex-1 overflow-hidden rounded-b-[2rem]">
-      <nav className="h-full overflow-y-auto scrollbar-hide divide-y divide-white/10">
+      <div className="min-h-0 flex-1 overflow-y-auto rounded-b-[2rem] scrollbar-hide [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <nav className="min-h-0 divide-y divide-white/10">
         {rootCategories.map((category) => {
           const hasChildren = category.children && category.children.length > 0
           const isSelected = category.id === selectedCategoryId
