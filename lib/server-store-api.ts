@@ -79,3 +79,7 @@ export function getRemoteStoreSlidesUrl() {
 export function getRemoteStoreAdsUrl() {
   return buildRemoteStoreUrl("/ads")
 }
+
+export function getRemoteStoreSettingsUrl() {
+  return buildRemoteStoreUrl("/settings")
+}

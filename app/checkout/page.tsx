@@ -117,6 +117,7 @@ export default function CheckoutPage() {
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
   const [pickupNotice, setPickupNotice] = useState<PickupConfirmationNotice | null>(null)
   const [deliveryNotice, setDeliveryNotice] = useState<DeliveryConfirmationNotice | null>(null)
+  const [checkoutQrImageUrl, setCheckoutQrImageUrl] = useState<string | null>(null)
 
   const {
     register,
@@ -189,6 +190,29 @@ export default function CheckoutPage() {
       isMounted = false
     }
   }, [deliveryMethod, setValue, toast])
+
+  useEffect(() => {
+    let isMounted = true
+
+    void fetch("/api/store/settings", { cache: "no-store" })
+      .then(async (response) => {
+        const payload = await response.json().catch(() => null)
+        if (!response.ok) return null
+        const configuredUrl = payload?.data?.checkoutQrImageUrl
+        return typeof configuredUrl === "string" && configuredUrl.trim() ? configuredUrl.trim() : null
+      })
+      .then((configuredUrl) => {
+        if (!isMounted || !configuredUrl) return
+        setCheckoutQrImageUrl(configuredUrl)
+      })
+      .catch(() => {
+        // Keep null when there is no configured QR.
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   useEffect(() => {
     if (!qrModalOpen) {
@@ -619,15 +643,23 @@ export default function CheckoutPage() {
               </DialogDescription>
             </DialogHeader>
 
-            {!qrReadDetected ? (
+            {!qrReadDetected && checkoutQrImageUrl ? (
               <Image
-                src="/img/qr.png"
+                src={checkoutQrImageUrl}
                 alt="QR de pago"
                 width={720}
                 height={1102}
                 className="mx-auto mt-4 h-auto w-full max-w-[340px]"
                 priority
+                unoptimized
               />
+            ) : !qrReadDetected ? (
+              <div className="mt-4 rounded-2xl border bg-muted/30 p-4 text-center">
+                <p className="text-base font-semibold">Próximamente</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  El pago con QR estará disponible en breve.
+                </p>
+              </div>
             ) : null}
 
             {qrReadDetected ? (
@@ -704,14 +736,25 @@ export default function CheckoutPage() {
                     Continuar sin pagar
                   </Button>
                 ) : null}
-                <Button
-                  type="button"
-                  disabled={isCreatingOrder}
-                  className="w-full bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] text-white hover:opacity-90 sm:w-auto"
-                  onClick={() => setQrReadDetected(true)}
-                >
-                  Ya pagué
-                </Button>
+                {checkoutQrImageUrl ? (
+                  <Button
+                    type="button"
+                    disabled={isCreatingOrder}
+                    className="w-full bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] text-white hover:opacity-90 sm:w-auto"
+                    onClick={() => setQrReadDetected(true)}
+                  >
+                    Ya pagué
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full rounded-full sm:w-auto"
+                    onClick={() => setQrModalOpen(false)}
+                  >
+                    Entendido
+                  </Button>
+                )}
               </>
             ) : (
               <Button
