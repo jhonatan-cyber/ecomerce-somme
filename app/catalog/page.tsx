@@ -9,7 +9,7 @@ import { CatalogGrid } from "@/components/store/catalog-grid"
 import { StoreFooter } from "@/components/store/footer"
 import { StoreHeader } from "@/components/store/header"
 import { AutoTour } from "@/components/tour"
-import type { Brand, Category, Product } from "@/lib/types"
+import type { Category, Product } from "@/lib/types"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuwesomme.cloud"
 
@@ -27,17 +27,17 @@ export async function generateMetadata({
   const brandId = Array.isArray(rawBrand) ? rawBrand[0] ?? "" : rawBrand ?? ""
 
   let title = "Todos los productos"
-  let description = "Explorá nuestro catálogo completo de cámaras IP, grabadores NVR, kits de seguridad y accesorios."
+  let description = "Explora nuestro catalogo completo de camaras IP, grabadores NVR, kits de seguridad y accesorios."
 
   if (search) {
     title = `Resultados para "${search}"`
-    description = `Buscaste "${search}" — encontrá cámaras, grabadores y accesorios de seguridad.`
+    description = `Buscaste "${search}" - encontra camaras, grabadores y accesorios de seguridad.`
   } else if (categoryId) {
     const catalog = await getCategories()
     const categories = catalog.ok ? catalog.categories : []
     const category = categories.find((c) => c.id === categoryId)
-    title = category?.name ?? "Categoría"
-    description = `Productos de ${title} — cámaras, grabadores y accesorios de videovigilancia.`
+    title = category?.name ?? "Categoria"
+    description = `Productos de ${title} - camaras, grabadores y accesorios de videovigilancia.`
   } else if (brandId) {
     const catalog = await getBrands()
     const brands = catalog.ok ? catalog.brands : []
@@ -49,8 +49,8 @@ export async function generateMetadata({
   const canonical = brandId
     ? `/brands?brandId=${encodeURIComponent(brandId)}`
     : categoryId
-    ? `/catalog?category=${encodeURIComponent(categoryId)}`
-    : "/catalog"
+      ? `/catalog?category=${encodeURIComponent(categoryId)}`
+      : "/catalog"
 
   return {
     title,
@@ -94,29 +94,44 @@ export default async function CatalogPage({
   const rawSearch = resolvedSearchParams?.search
   const rawCategory = resolvedSearchParams?.category
   const rawSubcategory = resolvedSearchParams?.subcategory
+  const rawSubcategories = resolvedSearchParams?.subcategories
   const rawBrand = resolvedSearchParams?.brand
+
   const search = Array.isArray(rawSearch) ? rawSearch[0] ?? "" : rawSearch ?? ""
   const categoryId = Array.isArray(rawCategory) ? rawCategory[0] ?? "" : rawCategory ?? ""
   const subcategoryId = Array.isArray(rawSubcategory) ? rawSubcategory[0] ?? "" : rawSubcategory ?? ""
+  const subcategoriesParam = Array.isArray(rawSubcategories) ? rawSubcategories[0] ?? "" : rawSubcategories ?? ""
   const brandId = Array.isArray(rawBrand) ? rawBrand[0] ?? "" : rawBrand ?? ""
+
   const normalizedSearch = search.trim()
   const normalizedCategoryId = categoryId.trim()
   const normalizedSubcategoryId = subcategoryId.trim()
+  const normalizedSubcategoriesParam = subcategoriesParam.trim()
   const normalizedBrandId = brandId.trim()
 
-  const [catalog, categoryCatalog, brandsCatalog] = await Promise.all([
-    getProducts({
-      search: normalizedSearch,
-      categoryId: normalizedCategoryId,
-      subcategoryId: normalizedSubcategoryId,
-      brandId: normalizedBrandId,
-      limit: 1000, // Obtener todos los productos
-    }),
-    getCategories(),
-    getBrands(),
-  ])
+  const selectedSubcategoryIds = Array.from(
+    new Set(
+      (normalizedSubcategoriesParam
+        ? normalizedSubcategoriesParam.split(",")
+        : normalizedSubcategoryId
+          ? [normalizedSubcategoryId]
+          : [])
+        .map((item) => item.trim())
+        .filter(Boolean),
+    ),
+  )
 
+  const [categoryCatalog, brandsCatalog] = await Promise.all([getCategories(), getBrands()])
   const brands = brandsCatalog.ok ? brandsCatalog.brands : []
+
+  const rawCategories = categoryCatalog.ok ? categoryCatalog.categories : []
+  const catalog = await getProducts({
+    search: normalizedSearch,
+    categoryId: normalizedCategoryId,
+    subcategoryId: selectedSubcategoryIds.length === 1 ? selectedSubcategoryIds[0] : "",
+    brandId: normalizedCategoryId ? "" : normalizedBrandId,
+    limit: 1000,
+  })
 
   if (!catalog.ok) {
     return (
@@ -129,37 +144,39 @@ export default async function CatalogPage({
     )
   }
 
-  const products = catalog.products
-  const rawCategories = categoryCatalog.ok ? categoryCatalog.categories : []
-  // API now returns root categories with children already nested
+  const products = selectedSubcategoryIds.length > 1
+    ? catalog.products.filter((product) => {
+      const productSubcategoryId = (product.subcategoryId ?? product.categoryId)?.trim()
+      return Boolean(productSubcategoryId && selectedSubcategoryIds.includes(productSubcategoryId))
+    })
+    : catalog.products
+
   const categories = rawCategories.length > 0 ? rawCategories : buildFallbackCategories(products)
 
-  // Find selected category (root level)
   const selectedCategory = normalizedCategoryId
     ? categories.find((c) => c.id === normalizedCategoryId) ?? null
     : null
 
-  // Find selected subcategory within the selected category's children
-  const selectedSubcategory =
-    normalizedSubcategoryId && selectedCategory?.children
-      ? selectedCategory.children.find((c) => c.id === normalizedSubcategoryId) ?? null
-      : null
+  const selectedSubcategories =
+    selectedCategory?.children?.filter((c) => selectedSubcategoryIds.includes(c.id)) ?? []
+  const selectedSubcategory = selectedSubcategories.length === 1 ? selectedSubcategories[0] : null
 
   const selectedBrand = normalizedBrandId
     ? brands.find((brand) => brand.id === normalizedBrandId) ?? null
     : null
 
-  // Build active filter chips with individual remove hrefs
   function buildCatalogUrl(params: {
     search?: string
     category?: string
-    subcategory?: string
+    subcategories?: string[]
     brand?: string
   }) {
     const qs = new URLSearchParams()
     if (params.search) qs.set("search", params.search)
     if (params.category) qs.set("category", params.category)
-    if (params.subcategory) qs.set("subcategory", params.subcategory)
+    if (params.subcategories && params.subcategories.length > 0) {
+      qs.set("subcategories", params.subcategories.join(","))
+    }
     if (params.brand) qs.set("brand", params.brand)
     const str = qs.toString()
     return str ? `/catalog?${str}` : "/catalog"
@@ -168,36 +185,35 @@ export default async function CatalogPage({
   const activeFilters = [
     ...(normalizedSearch
       ? [
-          {
-            key: "search",
-            label: "Búsqueda",
-            value: normalizedSearch,
-            removeHref: buildCatalogUrl({
-              category: normalizedCategoryId || undefined,
-              subcategory: normalizedSubcategoryId || undefined,
-              brand: normalizedBrandId || undefined,
-            }),
-          },
-        ]
+        {
+          key: "search",
+          label: "Busqueda",
+          value: normalizedSearch,
+          removeHref: buildCatalogUrl({
+            category: normalizedCategoryId || undefined,
+            subcategories: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
+            brand: normalizedBrandId || undefined,
+          }),
+        },
+      ]
       : []),
-    ...(selectedSubcategory
-      ? [
-          {
-            key: "subcategory",
-            label: selectedCategory?.name ?? "Categoría",
-            value: selectedSubcategory.name,
-            removeHref: buildCatalogUrl({
-              search: normalizedSearch || undefined,
-              category: normalizedCategoryId || undefined,
-              brand: normalizedBrandId || undefined,
-            }),
-          },
-        ]
+    ...(selectedSubcategories.length > 0
+      ? selectedSubcategories.map((subcategory) => ({
+        key: `subcategory-${subcategory.id}`,
+        label: selectedCategory?.name ?? "Categoria",
+        value: subcategory.name,
+        removeHref: buildCatalogUrl({
+          search: normalizedSearch || undefined,
+          category: normalizedCategoryId || undefined,
+          subcategories: selectedSubcategoryIds.filter((id) => id !== subcategory.id),
+          brand: normalizedBrandId || undefined,
+        }),
+      }))
       : selectedCategory
-      ? [
+        ? [
           {
             key: "category",
-            label: "Categoría",
+            label: "Categoria",
             value: selectedCategory.name,
             removeHref: buildCatalogUrl({
               search: normalizedSearch || undefined,
@@ -205,36 +221,35 @@ export default async function CatalogPage({
             }),
           },
         ]
-      : []),
+        : []),
     ...(selectedBrand
       ? [
-          {
-            key: "brand",
-            label: "Marca",
-            value: selectedBrand.name,
-            removeHref: buildCatalogUrl({
-              search: normalizedSearch || undefined,
-              category: normalizedCategoryId || undefined,
-              subcategory: normalizedSubcategoryId || undefined,
-            }),
-          },
-        ]
+        {
+          key: "brand",
+          label: "Marca",
+          value: selectedBrand.name,
+          removeHref: buildCatalogUrl({
+            search: normalizedSearch || undefined,
+            category: normalizedCategoryId || undefined,
+            subcategories: selectedSubcategoryIds.length > 0 ? selectedSubcategoryIds : undefined,
+          }),
+        },
+      ]
       : []),
   ]
 
-  // Build breadcrumbs
   const breadcrumbs = [
-    { label: "Catálogo", href: "/catalog" },
+    { label: "Catalogo", href: "/catalog" },
     ...(selectedCategory
       ? [
-          {
-            label: selectedCategory.name,
-            href: `/catalog?category=${encodeURIComponent(selectedCategory.id)}`,
-          },
-        ]
+        {
+          label: selectedCategory.name,
+          href: `/catalog?category=${encodeURIComponent(selectedCategory.id)}`,
+        },
+      ]
       : []),
     ...(selectedSubcategory ? [{ label: selectedSubcategory.name }] : []),
-    ...(selectedBrand && !selectedSubcategory ? [{ label: "Marca: " + selectedBrand.name }] : []),
+    ...(selectedBrand && !selectedSubcategories.length ? [{ label: "Marca: " + selectedBrand.name }] : []),
   ]
 
   return (
@@ -245,7 +260,6 @@ export default async function CatalogPage({
       <main className="pb-14">
         <section className="container mx-auto px-4 pt-6">
           <div className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
-            {/* Sidebar — hidden on mobile, visible on xl+ */}
             <div className="hidden xl:block">
               <CategorySidebar
                 categories={categories}
@@ -255,37 +269,72 @@ export default async function CatalogPage({
             </div>
 
             <div>
-              {/* Breadcrumbs */}
               {breadcrumbs.length > 1 && (
                 <div className="mb-3">
                   <Breadcrumbs items={breadcrumbs} />
                 </div>
               )}
 
-              {/* Header */}
               <div className="mb-4 border-b border-border/60 pb-4">
                 <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-muted-foreground">
-                  Catálogo
+                  Catalogo
                 </p>
                 <h1 className="mt-1 text-xl font-black text-foreground sm:text-3xl">
                   {selectedSubcategory
                     ? selectedSubcategory.name
                     : selectedBrand
-                    ? selectedBrand.name
-                    : selectedCategory
-                    ? selectedCategory.name
-                    : "Todos los productos"}
+                      ? selectedBrand.name
+                      : selectedCategory
+                        ? selectedCategory.name
+                        : "Todos los productos"}
                 </h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Mostrando <span className="font-semibold text-foreground">{products.length}</span>{" "}
+                  producto{products.length === 1 ? "" : "s"}
+                </p>
               </div>
 
-              {/* Active filter chips */}
+              {selectedCategory && (selectedCategory.children?.length ?? 0) > 0 && (
+                <div className="mb-4">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Filtrar por subcategorias
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedCategory.children!.map((subcategory) => {
+                      const isActive = selectedSubcategoryIds.includes(subcategory.id)
+                      const nextSelected = isActive
+                        ? selectedSubcategoryIds.filter((id) => id !== subcategory.id)
+                        : [...selectedSubcategoryIds, subcategory.id]
+                      return (
+                        <Link
+                          key={subcategory.id}
+                          href={buildCatalogUrl({
+                            search: normalizedSearch || undefined,
+                            category: normalizedCategoryId || undefined,
+                            subcategories: nextSelected,
+                            brand: normalizedBrandId || undefined,
+                          })}
+                          className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                            isActive
+                              ? "border-primary/50 bg-primary/10 text-primary"
+                              : "border-border/70 bg-background text-muted-foreground hover:border-primary/30 hover:text-primary"
+                          }`}
+                        >
+                          {subcategory.name}
+                        </Link>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
               <ActiveFilters filters={activeFilters} clearAllHref="/catalog" />
 
               {products.length > 0 ? (
                 <div className="mt-4">
                   <CatalogGrid
                     products={products}
-                    grouped={!normalizedCategoryId && !normalizedSubcategoryId && !normalizedSearch && !normalizedBrandId}
+                    grouped={!normalizedCategoryId && selectedSubcategoryIds.length === 0 && !normalizedSearch && !normalizedBrandId}
                   />
                 </div>
               ) : (

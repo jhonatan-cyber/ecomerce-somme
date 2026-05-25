@@ -1,5 +1,3 @@
-"use client"
-
 import Link from "next/link"
 import { ChevronRight, Home } from "lucide-react"
 
@@ -12,6 +10,8 @@ interface BreadcrumbsProps {
   items: BreadcrumbItem[]
 }
 
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuwesomme.cloud").replace(/\/$/, "")
+
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
   if (items.length === 0) return null
 
@@ -19,12 +19,12 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Inicio", item: `${typeof window !== "undefined" ? window.location.origin : ""}/` },
+      { "@type": "ListItem", position: 1, name: "Inicio", item: `${SITE_URL}/` },
       ...items.map((item, index) => ({
         "@type": "ListItem" as const,
         position: index + 2,
         name: item.label,
-        ...(item.href ? { item: `${typeof window !== "undefined" ? window.location.origin : ""}${item.href}` } : {}),
+        ...(item.href ? { item: `${SITE_URL}${item.href}` } : {}),
       })),
     ],
   }

@@ -1,5 +1,6 @@
 import Image from "next/image"
 import { Facebook, Instagram, Mail, MapPin, Phone, ShieldCheck, Truck, Youtube } from "lucide-react"
+import { getStoreSettings } from "@/lib/api"
 
 // TikTok icon component (lucide-react doesn't have TikTok yet)
 function TikTokIcon({ className }: { className?: string }) {
@@ -15,7 +16,15 @@ function TikTokIcon({ className }: { className?: string }) {
   )
 }
 
-export function StoreFooter() {
+export async function StoreFooter() {
+  const storeSettings = await getStoreSettings()
+  const socialLinks = {
+    facebook: storeSettings.ok ? (storeSettings.settings?.facebookUrl ?? null) : null,
+    instagram: storeSettings.ok ? (storeSettings.settings?.instagramUrl ?? null) : null,
+    tiktok: storeSettings.ok ? (storeSettings.settings?.tiktokUrl ?? null) : null,
+    youtube: storeSettings.ok ? (storeSettings.settings?.youtubeUrl ?? null) : null,
+  }
+
   return (
     <footer className="mt-12 border-t border-slate-900/80 bg-[linear-gradient(180deg,#020617_0%,#0f172a_100%)] text-slate-200 sm:mt-20">
       <div className="container mx-auto px-4 py-8 sm:py-12">
@@ -74,18 +83,32 @@ export function StoreFooter() {
 
             <div className="mt-5 flex items-center gap-3">
               {[
-                { Icon: Facebook, label: "Facebook", hoverColor: "hover:bg-[#1877F2] hover:border-[#1877F2]" },
-                { Icon: Instagram, label: "Instagram", hoverColor: "hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#E1306C] hover:to-[#F77737] hover:border-transparent" },
-                { Icon: TikTokIcon, label: "TikTok", hoverColor: "hover:bg-black hover:border-black" },
-                { Icon: Youtube, label: "YouTube", hoverColor: "hover:bg-[#FF0000] hover:border-[#FF0000]" },
-              ].map(({ Icon, label, hoverColor }, index) => (
-                <span
-                  key={index}
-                  className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/60 text-slate-300 transition hover:text-white sm:h-10 sm:w-10 sm:rounded-2xl ${hoverColor}`}
-                  title={label}
-                >
-                  <Icon className="h-4 w-4" />
-                </span>
+                { Icon: Facebook, label: "Facebook", hoverColor: "hover:bg-[#1877F2] hover:border-[#1877F2]", href: socialLinks.facebook },
+                { Icon: Instagram, label: "Instagram", hoverColor: "hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#E1306C] hover:to-[#F77737] hover:border-transparent", href: socialLinks.instagram },
+                { Icon: TikTokIcon, label: "TikTok", hoverColor: "hover:bg-black hover:border-black", href: socialLinks.tiktok },
+                { Icon: Youtube, label: "YouTube", hoverColor: "hover:bg-[#FF0000] hover:border-[#FF0000]", href: socialLinks.youtube },
+              ].map(({ Icon, label, hoverColor, href }, index) => (
+                href ? (
+                  <a
+                    key={index}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/60 text-slate-300 transition hover:text-white sm:h-10 sm:w-10 sm:rounded-2xl ${hoverColor}`}
+                    title={label}
+                    aria-label={label}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                ) : (
+                  <span
+                    key={index}
+                    className="inline-flex h-9 w-9 cursor-not-allowed items-center justify-center rounded-xl border border-slate-800 bg-slate-900/40 text-slate-500 sm:h-10 sm:w-10 sm:rounded-2xl"
+                    title={`${label} no configurado`}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </span>
+                )
               ))}
             </div>
           </div>

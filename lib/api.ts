@@ -9,6 +9,7 @@ import type {
   OrderResponse,
   ProductDetailLoadResult,
   Product,
+  StoreSettingsLoadResult,
   StoreOrder,
   StoreOrderCustomer,
   StoreOrderItem,
@@ -259,6 +260,7 @@ function normalizeProductRecord(rawProduct: unknown): Product | null {
     minimumStock: toNumber(rawProduct.minimumStock ?? rawProduct.minimum_stock) ?? 0,
     category: getCategory(rawProduct.category) ?? toText(rawProduct.categoryName ?? rawProduct.category_name),
     categoryId: toText(rawProduct.categoryId ?? rawProduct.category_id) ?? null,
+    subcategoryId: toText(rawProduct.subcategoryId ?? rawProduct.subcategory_id) ?? null,
     brand:
       getBrandName(rawProduct.brand) ??
       toText(rawProduct.brandName ?? rawProduct.brand_name) ??
@@ -886,6 +888,53 @@ export async function getCategories(): Promise<CategoryLoadResult> {
     return {
       ok: false,
       categories: [],
+      error: toErrorMessage(error),
+      sourceUrl,
+    }
+  }
+}
+
+export async function getStoreSettings(): Promise<StoreSettingsLoadResult> {
+  const sourceUrl = joinApiUrl("/settings")
+  try {
+    const response = await fetch(sourceUrl, {
+      next: { revalidate: 120 },
+      headers: { Accept: "application/json" },
+    })
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        settings: null,
+        error: `No se pudo cargar la configuracion (${response.status}).`,
+        sourceUrl,
+        status: response.status,
+      }
+    }
+
+    const payload = await response.json().catch(() => null) as Record<string, unknown> | null
+    const data = payload && typeof payload === "object" && payload.data && typeof payload.data === "object"
+      ? (payload.data as Record<string, unknown>)
+      : (payload as Record<string, unknown> | null)
+
+    return {
+      ok: true,
+      settings: data
+        ? {
+            checkoutQrImageUrl: toText(data.checkoutQrImageUrl) ?? null,
+            facebookUrl: toText(data.facebookUrl) ?? null,
+            instagramUrl: toText(data.instagramUrl) ?? null,
+            tiktokUrl: toText(data.tiktokUrl) ?? null,
+            youtubeUrl: toText(data.youtubeUrl) ?? null,
+          }
+        : null,
+      error: null,
+      sourceUrl,
+    }
+  } catch (error) {
+    return {
+      ok: false,
+      settings: null,
       error: toErrorMessage(error),
       sourceUrl,
     }

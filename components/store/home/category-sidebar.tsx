@@ -2,8 +2,9 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ChevronDown, ChevronRight } from "lucide-react"
+import { ChevronDown, ChevronRight, X } from "lucide-react"
 import type { Category } from "@/lib/types"
+import { Input } from "@/components/ui/input"
 
 function getCategoryHref(categoryId: string, subcategoryId?: string) {
   if (subcategoryId) {
@@ -22,19 +23,27 @@ export function CategorySidebar({
   selectedSubcategoryId?: string | null
 }) {
   const rootCategories = categories.filter((c) => !c.parentId)
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(
-    selectedCategoryId ? new Set([selectedCategoryId]) : new Set(),
+  const [searchTerm, setSearchTerm] = useState("")
+  const [expandedIds, setExpandedIds] = useState<string[]>(
+    selectedCategoryId ? [selectedCategoryId] : [],
   )
+
+  const normalizedSearch = searchTerm.trim().toLowerCase()
+  const filteredCategories = normalizedSearch
+    ? rootCategories.filter((category) => {
+        const categoryMatches = category.name.toLowerCase().includes(normalizedSearch)
+        const subcategoryMatches =
+          category.children?.some((sub) => sub.name.toLowerCase().includes(normalizedSearch)) ?? false
+        return categoryMatches || subcategoryMatches
+      })
+    : rootCategories
 
   const toggleCategory = (id: string) => {
     setExpandedIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
+      if (prev.includes(id)) {
+        return prev.filter((item) => item !== id)
       }
-      return next
+      return [...prev, id]
     })
   }
 
@@ -49,11 +58,37 @@ export function CategorySidebar({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto rounded-b-[2rem] scrollbar-hide [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="sticky top-0 z-10 border-b border-white/10 bg-slate-900/95 px-4 py-3 backdrop-blur">
+        <div className="relative">
+          <Input
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Buscar categoria..."
+            className="h-9 border-white/15 bg-white/10 pr-9 text-sm text-white placeholder:text-slate-300 focus-visible:ring-cyan-400"
+            aria-label="Buscar categoria"
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => setSearchTerm("")}
+              className="absolute right-2 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-slate-300 transition hover:bg-white/10 hover:text-white"
+              aria-label="Limpiar busqueda de categorias"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+      </div>
       <nav className="min-h-0 divide-y divide-white/10">
-        {rootCategories.map((category) => {
+        {filteredCategories.map((category) => {
           const hasChildren = category.children && category.children.length > 0
           const isSelected = category.id === selectedCategoryId
-          const isExpanded = expandedIds.has(category.id)
+          const hasSubcategoryMatch =
+            normalizedSearch.length > 0 &&
+            (category.children?.some((sub) => sub.name.toLowerCase().includes(normalizedSearch)) ?? false)
+          const isExpanded = normalizedSearch
+            ? hasSubcategoryMatch || expandedIds.includes(category.id)
+            : expandedIds.includes(category.id)
 
           if (hasChildren) {
             return (
@@ -86,7 +121,12 @@ export function CategorySidebar({
                     >
                       Ver todo
                     </Link>
-                    {category.children!.map((sub) => {
+                    {category.children!
+                      .filter((sub) => {
+                        if (!normalizedSearch) return true
+                        return sub.name.toLowerCase().includes(normalizedSearch)
+                      })
+                      .map((sub) => {
                       const isSubSelected = sub.id === selectedSubcategoryId
                       return (
                         <Link
@@ -104,7 +144,7 @@ export function CategorySidebar({
                           {sub.name}
                         </Link>
                       )
-                    })}
+                      })}
                   </div>
                 )}
               </div>
@@ -127,6 +167,11 @@ export function CategorySidebar({
           )
         })}
       </nav>
+      {filteredCategories.length === 0 && (
+        <p className="px-5 py-4 text-xs text-slate-300">
+          No hay categorias que coincidan con la busqueda.
+        </p>
+      )}
       </div>
       </aside>
     </div>

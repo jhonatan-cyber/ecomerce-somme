@@ -7,6 +7,7 @@ import {
   BadgePercent,
   ChevronDown,
   ChevronRight,
+  LayoutGrid,
   Headphones,
   Menu,
   ShieldCheck,
@@ -34,6 +35,7 @@ import type { Category } from "@/lib/types"
 const primaryLinks = [
   { href: "/promotions", label: "Ofertas" },
   { href: "/catalog", label: "Tienda" },
+  { href: "/categories", label: "Categorias" },
   { href: "/brands", label: "Marcas" },
   { href: "/tracking", label: "Tracking" },
 ]
@@ -52,6 +54,8 @@ export function StoreHeader({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>(null)
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
+  const [mobileCategorySearch, setMobileCategorySearch] = useState("")
+  const [mobileBrandSearch, setMobileBrandSearch] = useState("")
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false)
@@ -75,6 +79,21 @@ export function StoreHeader({
           ? (c as StoreNavigationCategory).subcategories
           : undefined,
   }))
+  const normalizedCategorySearch = mobileCategorySearch.trim().toLowerCase()
+  const normalizedBrandSearch = mobileBrandSearch.trim().toLowerCase()
+  const filteredMobileCategories = normalizedCategorySearch
+    ? normalizedCategories.filter((category) => {
+        const categoryMatches = category.name.toLowerCase().includes(normalizedCategorySearch)
+        const childMatches =
+          category.children?.some((child) =>
+            child.name.toLowerCase().includes(normalizedCategorySearch),
+          ) ?? false
+        return categoryMatches || childMatches
+      })
+    : normalizedCategories
+  const filteredMobileBrands = normalizedBrandSearch
+    ? brands.filter((brand) => brand.name.toLowerCase().includes(normalizedBrandSearch))
+    : brands
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/50 bg-background/80 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/70">
@@ -187,11 +206,38 @@ export function StoreHeader({
             {/* Categories panel */}
             {mobilePanel === "categories" && (
               <div className="max-h-[60vh] overflow-y-auto overscroll-contain rounded-[1.25rem] border border-border/70 bg-card shadow-md">
-                {normalizedCategories
+                <div className="sticky top-0 z-10 border-b border-border/60 bg-card/95 p-3 backdrop-blur">
+                  <div className="relative">
+                    <Input
+                      value={mobileCategorySearch}
+                      onChange={(event) => setMobileCategorySearch(event.target.value)}
+                      placeholder="Buscar categoria..."
+                      className="h-9 rounded-xl border-border/70 bg-background pr-9 text-sm"
+                      aria-label="Buscar categoria"
+                    />
+                    {mobileCategorySearch && (
+                      <button
+                        type="button"
+                        onClick={() => setMobileCategorySearch("")}
+                        className="absolute right-2 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                        aria-label="Limpiar busqueda de categorias"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+                {filteredMobileCategories
                   .filter((c) => !("parentId" in c) || !(c as any).parentId)
                   .map((category) => {
                     const hasChildren = category.children && category.children.length > 0
                     const isExpanded = expandedCategory === category.id
+                    const visibleChildren =
+                      hasChildren && normalizedCategorySearch
+                        ? category.children!.filter((sub) =>
+                            sub.name.toLowerCase().includes(normalizedCategorySearch),
+                          )
+                        : category.children ?? []
 
                     return (
                       <div key={category.id} className="border-b border-border/50 last:border-0">
@@ -219,7 +265,7 @@ export function StoreHeader({
                                 >
                                   Ver todo en {category.name}
                                 </Link>
-                                {category.children!.map((sub) => (
+                                {visibleChildren.map((sub) => (
                                   <Link
                                     key={sub.id}
                                     href={`/catalog?category=${encodeURIComponent(category.id)}&subcategory=${encodeURIComponent(sub.id)}`}
@@ -245,14 +291,40 @@ export function StoreHeader({
                       </div>
                     )
                   })}
+                {filteredMobileCategories.filter((c) => !("parentId" in c) || !(c as any).parentId).length === 0 && (
+                  <p className="px-4 py-3 text-sm text-muted-foreground">Sin categorias para esa busqueda.</p>
+                )}
               </div>
             )}
 
             {/* Brands panel */}
             {mobilePanel === "brands" && (
               <div className="max-h-[60vh] overflow-y-auto overscroll-contain rounded-[1.25rem] border border-border/70 bg-card shadow-md">
+                <div className="sticky top-0 z-10 border-b border-border/60 bg-card/95 p-3 backdrop-blur">
+                  <div className="relative">
+                    <Input
+                      value={mobileBrandSearch}
+                      onChange={(event) => setMobileBrandSearch(event.target.value)}
+                      placeholder="Buscar marca..."
+                      className="h-9 rounded-xl border-border/70 bg-background pr-9 text-sm"
+                      aria-label="Buscar marca"
+                    />
+                    {mobileBrandSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setMobileBrandSearch("")}
+                        className="absolute right-2 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                        aria-label="Limpiar busqueda de marcas"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
                 {brands.length === 0 ? (
                   <p className="px-4 py-3 text-sm text-muted-foreground">Sin marcas disponibles.</p>
+                ) : filteredMobileBrands.length === 0 ? (
+                  <p className="px-4 py-3 text-sm text-muted-foreground">Sin marcas para esa busqueda.</p>
                 ) : (
                   <>
                     <Link
@@ -262,7 +334,7 @@ export function StoreHeader({
                     >
                       Todas las marcas
                     </Link>
-                    {brands.map((brand) => (
+                    {filteredMobileBrands.map((brand) => (
                       <Link
                         key={brand.id}
                         href={`/catalog?brand=${brand.id}`}
@@ -308,6 +380,19 @@ export function StoreHeader({
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="bottom">Ver ofertas y promociones</TooltipContent>
+            </Tooltip>
+
+            <Tooltip delayDuration={200}>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/categories"
+                  className="inline-flex items-center gap-1.5 rounded-[1rem] border border-border/70 bg-card/80 px-3 py-2 text-xs font-semibold text-muted-foreground shadow-sm transition hover:border-primary/40 hover:text-primary"
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                  Categorias
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Ver todas las categorias</TooltipContent>
             </Tooltip>
 
             <Tooltip delayDuration={200}>

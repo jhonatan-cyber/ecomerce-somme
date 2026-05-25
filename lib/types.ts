@@ -25,6 +25,7 @@ export interface Product {
   minimumStock?: number
   category: string | null
   categoryId?: string | null
+  subcategoryId?: string | null
   brand?: string | null
   brandId?: string | null
   brandLogo?: string | null
@@ -86,6 +87,22 @@ export interface CategoryLoadResult {
 export interface BrandLoadResult {
   ok: boolean
   brands: Brand[]
+  error: string | null
+  sourceUrl: string
+  status?: number
+}
+
+export interface StoreSettings {
+  checkoutQrImageUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  tiktokUrl?: string | null
+  youtubeUrl?: string | null
+}
+
+export interface StoreSettingsLoadResult {
+  ok: boolean
+  settings: StoreSettings | null
   error: string | null
   sourceUrl: string
   status?: number
