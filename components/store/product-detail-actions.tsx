@@ -21,8 +21,10 @@ export function ProductDetailActions({ product }: { product: Product }) {
       name: product.name,
       price: product.price,
       image_url: product.image_url,
+      stock: product.stock,
+      category: product.category,
     })
-  }, [product.id, product.name, product.price, product.image_url, addRecentlyViewed])
+  }, [product.id, product.name, product.price, product.image_url, product.stock, product.category, addRecentlyViewed])
 
   const handleAddToCart = () => {
     if (outOfStock) {
@@ -53,18 +55,18 @@ export function ProductDetailActions({ product }: { product: Product }) {
   }
 
   return (
-    <div className="mt-5 flex gap-1.5 sm:gap-2">
+    <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
       <button
         data-tour="add-to-cart"
         type="button"
         onClick={handleAddToCart}
         disabled={outOfStock}
-        className={`inline-flex h-10 flex-1 items-center justify-center gap-1 rounded-lg px-2 text-xs font-bold text-white transition sm:h-12 sm:gap-2 sm:rounded-2xl sm:px-5 sm:text-sm ${
+        className={`col-span-2 inline-flex h-11 min-w-0 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-bold text-white transition sm:col-span-1 sm:h-12 sm:gap-2 sm:rounded-2xl sm:px-5 sm:text-sm ${
           outOfStock
             ? "cursor-not-allowed bg-slate-400/80 text-white/90"
             : justAdded
-            ? "bg-emerald-500 shadow-md shadow-emerald-500/25"
-            : "bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] shadow-md shadow-primary/20 hover:opacity-90"
+            ? "bg-emerald-500"
+            : "bg-primary hover:opacity-90"
         }`}
       >
         {justAdded ? (
@@ -82,7 +84,7 @@ export function ProductDetailActions({ product }: { product: Product }) {
 
       <Link
         href="/cart"
-        className="inline-flex h-10 flex-1 items-center justify-center gap-1 rounded-lg border border-border bg-background px-2 text-xs font-semibold text-foreground transition hover:bg-muted/60 sm:h-12 sm:gap-2 sm:rounded-2xl sm:px-5 sm:text-sm"
+        className="inline-flex h-10 min-w-0 items-center justify-center gap-1 rounded-lg border border-border bg-background px-2 text-xs font-semibold text-foreground transition hover:bg-muted/60 sm:h-12 sm:gap-2 sm:rounded-2xl sm:px-5 sm:text-sm"
       >
         <ShoppingCart className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
         Carrito
@@ -90,7 +92,7 @@ export function ProductDetailActions({ product }: { product: Product }) {
 
       <Link
         href="/catalog"
-        className="inline-flex h-10 flex-1 items-center justify-center gap-1 rounded-lg border border-border bg-background px-2 text-xs font-semibold text-muted-foreground transition hover:text-primary sm:h-12 sm:gap-2 sm:rounded-2xl sm:px-5 sm:text-sm"
+        className="inline-flex h-10 min-w-0 items-center justify-center gap-1 rounded-lg border border-border bg-background px-2 text-xs font-semibold text-muted-foreground transition hover:text-primary sm:h-12 sm:gap-2 sm:rounded-2xl sm:px-5 sm:text-sm"
       >
         Explorar
         <ArrowRight className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />

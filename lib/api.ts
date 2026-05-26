@@ -202,7 +202,7 @@ function getBrandName(value: unknown): string | null {
   return null
 }
 
-const PRIVATE_IP_RE = /^https?:\/\/192\.168\.\d{1,3}\.\d{1,3}(:\d+)?\//
+const PRIVATE_IP_RE = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(:\d+)?\//
 
 export function rewriteImageUrl(url: string | null | undefined): string | null {
   const uploadsBase = process.env.NEXT_PUBLIC_UPLOADS_URL?.trim()
@@ -247,6 +247,16 @@ function normalizeProductRecord(rawProduct: unknown): Product | null {
         rawProduct.eta ??
         rawProduct.arrivalDate ??
         rawProduct.arrival_date,
+      ) ?? null,
+    createdAt:
+      toText(
+        rawProduct.createdAt ??
+        rawProduct.created_at ??
+        rawProduct.created ??
+        rawProduct.dateCreated ??
+        rawProduct.date_created ??
+        rawProduct.publishedAt ??
+        rawProduct.published_at,
       ) ?? null,
     image_url: rewriteImageUrl(toText(rawProduct.image_url ?? rawProduct.imageUrl ?? rawProduct.photo ?? rawProduct.image)),
     images: (toTextArray(rawProduct.images ?? rawProduct.photos) ?? []).map((img) => rewriteImageUrl(img)).filter((x): x is string => Boolean(x)),

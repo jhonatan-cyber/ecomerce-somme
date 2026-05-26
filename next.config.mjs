@@ -1,7 +1,15 @@
+import { networkInterfaces } from "os"
+
+const localDevOrigins = Object.values(networkInterfaces())
+  .flat()
+  .filter((network) => network && network.family === "IPv4" && !network.internal)
+  .map((network) => network.address)
+
 /** @type {import('next').NextConfig} */
-const useOptimizedImages = process.env.NEXT_PUBLIC_UPLOADS_URL?.trim().length > 0
+const useOptimizedImages = false
 
 let nextConfig = {
+  allowedDevOrigins: localDevOrigins,
   images: {
     unoptimized: !useOptimizedImages,
     remotePatterns: [

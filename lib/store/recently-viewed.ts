@@ -6,6 +6,8 @@ interface RecentlyViewedItem {
   name: string
   price: number
   image_url: string | null
+  stock?: number
+  category?: string | null
 }
 
 interface RecentlyViewedStore {
@@ -28,7 +30,7 @@ export const useRecentlyViewedStore = create<RecentlyViewedStore>()(
       clearItems: () => set({ items: [] }),
     }),
     {
-      name: "recently-viewed",
+      name: "recently-viewed-v2",
     },
   ),
 )

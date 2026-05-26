@@ -21,7 +21,7 @@ export function StoreHeader({
   brands?: { id: string; name: string; logo: string | null }[]
 }) {
   return (
-    <header className="sticky top-0 z-50 border-b border-white/50 bg-background/80 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/70">
+    <header className="sticky top-0 z-50 border-b border-white/50 bg-background/95 md:bg-background/80 md:backdrop-blur-2xl supports-[backdrop-filter]:md:bg-background/70">
       <div className="border-b border-cyan-400/10 bg-slate-950 text-slate-200">
         <div className="container mx-auto flex min-h-8 items-center justify-between gap-3 px-4 py-1.5 text-[11px] md:min-h-9 md:py-0">
           <div className="flex items-center gap-3">
@@ -48,44 +48,41 @@ export function StoreHeader({
       </div>
 
       <div className="container mx-auto px-3 py-2 md:px-4 md:py-3">
-        <div className="grid items-center gap-2 lg:rounded-[1.7rem] lg:border lg:border-border/70 lg:bg-card/85 lg:px-4 lg:py-3 lg:shadow-[0_24px_80px_-40px_rgba(15,23,42,0.45)] lg:backdrop-blur xl:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-4">
-          <div className="flex items-center gap-3">
-            <Link href="/" data-tour="header-logo" className="group min-w-0 flex-1 transition hover:opacity-90">
-              <div className="flex items-center gap-3">
-                <Image
-                  src="/logo.webp"
-                  alt="Somme Technology"
-                  width={40}
-                  height={40}
-                  className="h-8 w-8 rounded-xl object-contain transition group-hover:scale-[1.03] lg:h-10 lg:w-10"
-                  unoptimized
-                />
-                <div className="min-w-0">
-                  <p className="truncate bg-gradient-to-r from-slate-950 via-blue-700 to-cyan-500 bg-clip-text text-base font-black text-transparent sm:text-xl">
-                    Somme Technology
-                  </p>
-                  <p className="hidden text-[11px] text-muted-foreground xl:block">
-                    Proyectos y Servicios Tecnologicos
-                  </p>
-                </div>
-              </div>
-            </Link>
-
-            <div className="relative z-50 flex items-center gap-2 lg:hidden">
-              <ThemeToggle />
+        <div className="grid items-center gap-2 max-lg:grid-cols-[auto_1fr_auto] lg:rounded-[1.7rem] lg:border lg:border-border/70 lg:bg-card/85 lg:px-4 lg:py-3 lg:shadow-[0_24px_80px_-40px_rgba(15,23,42,0.45)] lg:backdrop-blur xl:grid-cols-[auto_minmax(0,1fr)_auto] lg:gap-4">
+          {/* Logo — imagen siempre visible, texto solo en desktop */}
+          <Link href="/" data-tour="header-logo" className="flex items-center gap-3 transition hover:opacity-90">
+            <Image
+              src="/logo.webp"
+              alt="Somme Technology"
+              width={40}
+              height={40}
+              className="h-8 w-8 shrink-0 rounded-xl object-contain transition lg:h-10 lg:w-10"
+              unoptimized
+            />
+            <div className="hidden min-w-0 lg:block">
+              <p className="truncate bg-gradient-to-r from-slate-950 via-blue-700 to-cyan-500 bg-clip-text text-base font-black text-transparent sm:text-xl">
+                Somme Technology
+              </p>
+              <p className="hidden text-[11px] text-muted-foreground xl:block">
+                Proyectos y Servicios Tecnologicos
+              </p>
             </div>
-          </div>
+          </Link>
 
-          <div className="flex flex-col gap-1.5 lg:hidden">
-            <div className="overflow-hidden rounded-[1.15rem] border border-border bg-background/80 shadow-inner">
-              <SearchPopover variant="compact" />
-            </div>
+          {/* Search — mobile: entre logo y theme, desktop: columna central */}
+          <div className="overflow-hidden rounded-[1.15rem] border border-border bg-background/80 shadow-inner lg:hidden">
+            <SearchPopover variant="compact" />
           </div>
-
           <div data-tour="search-bar" className="hidden lg:block">
             <SearchPopover />
           </div>
 
+          {/* Theme toggle — mobile solitario a la derecha */}
+          <div className="flex items-center justify-end lg:hidden">
+            <ThemeToggle />
+          </div>
+
+          {/* Desktop actions */}
           <div className="hidden items-center justify-end gap-3 lg:flex">
             <Tooltip delayDuration={200}>
               <TooltipTrigger asChild>

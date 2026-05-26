@@ -73,6 +73,7 @@ export function StoreImage({
         src={src}
         alt={alt}
         priority={priority}
+        unoptimized
         className={cn(className, isLoading && "opacity-0")}
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         onLoad={handleLoad}

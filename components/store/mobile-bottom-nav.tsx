@@ -24,7 +24,7 @@ export function MobileBottomNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-[70] border-t border-border/80 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85 md:hidden"
+      className="fixed inset-x-0 bottom-0 z-[70] border-t border-border/80 bg-background/95 md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-label="Navegación inferior"
     >
@@ -37,7 +37,9 @@ export function MobileBottomNav() {
             <li key={link.href} className="flex items-center justify-center">
               <Link
                 href={link.href}
-                className={`relative flex w-full flex-col items-center justify-center gap-1 rounded-xl py-1.5 text-[11px] font-semibold transition ${
+                className={`flex flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-semibold transition ${
+                  link.center ? "w-auto" : "w-full py-1.5"
+                } ${
                   link.center
                     ? active
                       ? "text-white"
@@ -50,9 +52,9 @@ export function MobileBottomNav() {
               >
                 {link.center ? (
                   <span
-                    className={`absolute -top-6 flex h-14 w-14 items-center justify-center rounded-full border shadow-lg transition ${
+                    className={`-mt-3 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 shadow-lg transition ${
                       active
-                        ? "border-primary/70 bg-primary text-white shadow-primary/30"
+                        ? "border-primary bg-primary text-white shadow-primary/30"
                         : "border-border bg-card text-foreground"
                     }`}
                   >
@@ -62,7 +64,7 @@ export function MobileBottomNav() {
                   <Icon className={`h-5 w-5 ${active ? "text-primary" : ""}`} />
                 )}
 
-                <span className={link.center ? "mt-6" : ""}>{link.label}</span>
+                <span className={link.center ? "sr-only" : ""}>{link.label}</span>
 
                 {"badge" in link && typeof link.badge === "number" && link.badge > 0 ? (
                   <span className="absolute right-4 top-1.5 min-w-5 rounded-full bg-primary px-1.5 text-center text-[10px] font-black text-white">

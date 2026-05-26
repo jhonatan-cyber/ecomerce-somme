@@ -7,7 +7,54 @@ import type { Product } from "@/lib/types"
 type StoreBranch = {
   id: string
   name: string
-  type: "Sucursal" | "Depósito"
+  type: "Sucursal" | "Deposito"
+}
+
+function QuantityControls({
+  branchId,
+  branchName,
+  stock,
+  quantity,
+  onIncrement,
+  onDecrement,
+}: {
+  branchId: string
+  branchName: string
+  stock: number
+  quantity: number
+  onIncrement: (branchId: string, stock: number) => void
+  onDecrement: (branchId: string) => void
+}) {
+  const hasStock = stock > 0
+
+  return (
+    <div className="grid grid-cols-[2.5rem_minmax(0,1fr)_2.5rem] items-center gap-2 sm:flex sm:gap-1.5">
+      <button
+        type="button"
+        onClick={() => onDecrement(branchId)}
+        disabled={quantity <= 0}
+        className="h-10 rounded-md border border-border bg-background text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50 sm:h-8 sm:w-8"
+        aria-label={`Restar cantidad en ${branchName}`}
+      >
+        -
+      </button>
+      <input
+        type="number"
+        value={quantity}
+        readOnly
+        className="h-10 min-w-0 rounded-md border border-border bg-background px-2 text-center text-sm font-semibold sm:h-8 sm:w-14 sm:text-xs"
+      />
+      <button
+        type="button"
+        onClick={() => onIncrement(branchId, stock)}
+        disabled={!hasStock || quantity >= stock}
+        className="h-10 rounded-md border border-border bg-background text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50 sm:h-8 sm:w-8"
+        aria-label={`Sumar cantidad en ${branchName}`}
+      >
+        +
+      </button>
+    </div>
+  )
 }
 
 export function ProductBranchStockTable({ product }: { product: Product }) {
@@ -22,10 +69,10 @@ export function ProductBranchStockTable({ product }: { product: Product }) {
     let mounted = true
 
     const readLocations = async () => {
-      const endpoints: Array<{ url: string; type: "Sucursal" | "Depósito" }> = [
+      const endpoints: Array<{ url: string; type: "Sucursal" | "Deposito" }> = [
         { url: "/api/store/branches", type: "Sucursal" },
-        { url: "/api/store/deposits", type: "Depósito" },
-        { url: "/api/store/warehouses", type: "Depósito" },
+        { url: "/api/store/deposits", type: "Deposito" },
+        { url: "/api/store/warehouses", type: "Deposito" },
       ]
       const results = await Promise.all(
         endpoints.map(async ({ url, type }) => {
@@ -78,11 +125,11 @@ export function ProductBranchStockTable({ product }: { product: Product }) {
         stock: row.stock,
         type:
           row.branchType === "warehouse"
-            ? ("Depósito" as const)
+            ? ("Deposito" as const)
             : row.branchType === "branch"
               ? ("Sucursal" as const)
               : row.branchName.toLowerCase().includes("dep")
-                ? ("Depósito" as const)
+                ? ("Deposito" as const)
                 : ("Sucursal" as const),
       }))
     }
@@ -121,61 +168,63 @@ export function ProductBranchStockTable({ product }: { product: Product }) {
   }
 
   return (
-    <div className="mt-4 rounded-xl border border-border/70 bg-background/60 p-3 sm:rounded-2xl sm:p-4">
+    <div className="mt-4 rounded-xl border border-border/70 bg-background p-3 sm:rounded-2xl sm:p-4">
       <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         Stock por sucursal
       </p>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[360px] text-sm">
+
+      <div className="space-y-2 sm:hidden">
+        {rows.map((row) => (
+          <div key={row.branchId} className="rounded-lg border border-border/70 bg-card p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="break-words text-sm font-semibold text-foreground">{row.branchName}</p>
+                <p className="mt-0.5 text-xs font-semibold text-muted-foreground">{row.type}</p>
+              </div>
+              <p className="shrink-0 text-sm font-black text-foreground">{Math.max(0, row.stock)}</p>
+            </div>
+            <div className="mt-3">
+              <QuantityControls
+                branchId={row.branchId}
+                branchName={row.branchName}
+                stock={row.stock}
+                quantity={quantities[row.branchId] ?? 0}
+                onIncrement={increment}
+                onDecrement={decrement}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden sm:block">
+        <table className="w-full table-fixed text-sm">
           <thead>
             <tr className="border-b border-border/70 text-left">
-              <th className="px-2 py-2 font-semibold text-foreground">Sucursal / Depósito</th>
-              <th className="px-2 py-2 font-semibold text-foreground">Tipo</th>
-              <th className="px-2 py-2 font-semibold text-foreground">Stock</th>
-              <th className="px-2 py-2 font-semibold text-foreground">Agregar</th>
+              <th className="w-[38%] px-2 py-2 font-semibold text-foreground">Sucursal / Deposito</th>
+              <th className="w-[18%] px-2 py-2 font-semibold text-foreground">Tipo</th>
+              <th className="w-[18%] px-2 py-2 font-semibold text-foreground">Stock</th>
+              <th className="w-[26%] px-2 py-2 font-semibold text-foreground">Agregar</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => {
-              const hasStock = row.stock > 0
-              return (
-                <tr key={row.branchId} className="border-b border-border/50 last:border-b-0">
-                  <td className="px-2 py-2 text-foreground">{row.branchName}</td>
-                  <td className="px-2 py-2 text-xs font-semibold text-muted-foreground">{row.type}</td>
-                  <td className="px-2 py-2 font-semibold">
-                    {`${Math.max(0, row.stock)} unidades`}
-                  </td>
-                  <td className="px-2 py-2">
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => decrement(row.branchId)}
-                        disabled={(quantities[row.branchId] ?? 0) <= 0}
-                        className="h-8 w-8 rounded-md border border-border bg-background text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
-                        aria-label={`Restar cantidad en ${row.branchName}`}
-                      >
-                        -
-                      </button>
-                      <input
-                        type="number"
-                        value={quantities[row.branchId] ?? 0}
-                        readOnly
-                        className="h-8 w-14 rounded-md border border-border bg-background px-2 text-center text-xs font-semibold"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => increment(row.branchId, row.stock)}
-                        disabled={!hasStock || (quantities[row.branchId] ?? 0) >= row.stock}
-                        className="h-8 w-8 rounded-md border border-border bg-background text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
-                        aria-label={`Sumar cantidad en ${row.branchName}`}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )
-            })}
+            {rows.map((row) => (
+              <tr key={row.branchId} className="border-b border-border/50 last:border-b-0">
+                <td className="break-words px-2 py-2 text-foreground">{row.branchName}</td>
+                <td className="px-2 py-2 text-xs font-semibold text-muted-foreground">{row.type}</td>
+                <td className="px-2 py-2 font-semibold">{`${Math.max(0, row.stock)} unidades`}</td>
+                <td className="px-2 py-2">
+                  <QuantityControls
+                    branchId={row.branchId}
+                    branchName={row.branchName}
+                    stock={row.stock}
+                    quantity={quantities[row.branchId] ?? 0}
+                    onIncrement={increment}
+                    onDecrement={decrement}
+                  />
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

@@ -1,17 +1,7 @@
 ﻿import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import {
-  ArrowRight,
-  Clock3,
-  Flame,
-  Package2,
-  ShieldCheck,
-  Sparkles,
-  Tag,
-  TrendingUp,
-  Users,
-} from "lucide-react"
+import { ArrowRight, Flame, Sparkles } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { StoreFooter } from "@/components/store/footer"
@@ -36,45 +26,6 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", title: "Ofertas y Promociones | Somme Technology", description: "Descuentos activos, oportunidades por volumen y equipos destacados en promoción." },
 }
-
-type PromoLane = {
-  id: string
-  label: string
-  title: string
-  description: string
-  accent: string
-  icon: typeof TrendingUp
-}
-
-const promoLanes: PromoLane[] = [
-  {
-    id: "express",
-    label: "Rotación rápida",
-    title: "Ofertas que cambian con el stock",
-    description:
-      "Promociones activas sobre productos con mejor movimiento para aprovechar precios agresivos sin perder margen.",
-    accent: "from-rose-500 to-orange-500",
-    icon: Flame,
-  },
-  {
-    id: "project",
-    label: "Ventas por proyecto",
-    title: "Arma paquetes y compras por volumen",
-    description:
-      "La página está pensada para que el cliente vea descuentos visibles y luego te contacte para una propuesta más amplia.",
-    accent: "from-sky-500 to-cyan-500",
-    icon: Package2,
-  },
-  {
-    id: "b2b",
-    label: "Canal profesional",
-    title: "Cotización rápida para integradores y empresas",
-    description:
-      "Un CTA claro hacia cotización ayuda a convertir promociones sueltas en oportunidades B2B de mayor ticket.",
-    accent: "from-emerald-500 to-lime-500",
-    icon: Users,
-  },
-]
 
 function getSaleDeadlineLabel(dateValue: string | null | undefined) {
   if (!dateValue) return "Oferta sin fecha límite visible"
@@ -235,26 +186,6 @@ function PromoHero({
   )
 }
 
-function PromoLaneCard({ lane }: { lane: PromoLane }) {
-  const Icon = lane.icon
-
-  return (
-    <article className="relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.35)] dark:border-white/10 dark:bg-slate-900">
-      <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${lane.accent}`} />
-      <div className="flex items-center gap-3">
-        <div className={`flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br ${lane.accent} text-white shadow-lg`}>
-          <Icon className="h-5 w-5" />
-        </div>
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">{lane.label}</p>
-          <h3 className="text-lg font-black text-slate-900 dark:text-white">{lane.title}</h3>
-        </div>
-      </div>
-      <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400">{lane.description}</p>
-    </article>
-  )
-}
-
 export default async function PromotionsPage() {
   const saleCatalog = await getOnSaleProducts()
   const saleProducts = saleCatalog.ok
@@ -266,12 +197,6 @@ export default async function PromotionsPage() {
   )
   const heroProduct = sortedProducts[0] ?? null
   const gridProducts = heroProduct ? sortedProducts.slice(1, 9) : sortedProducts.slice(0, 8)
-  const averageDiscount = sortedProducts.length
-    ? Math.round(
-        sortedProducts.reduce((acc, product) => acc + (product.discountPercent ?? 0), 0) /
-          sortedProducts.length,
-      )
-    : 0
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf5_0%,#fff 16%,#fff 100%)] text-foreground dark:bg-[linear-gradient(180deg,#0f172a_0%,#020617_16%,#020617_100%)]">
       <StoreHeader />
@@ -304,65 +229,7 @@ export default async function PromotionsPage() {
           )}
         </section>
 
-        <section className="container mx-auto px-4 pt-8 sm:pt-10">
-          <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr_0.9fr]">
-            {promoLanes.map((lane) => (
-              <PromoLaneCard key={lane.id} lane={lane} />
-            ))}
-          </div>
-        </section>
-
         <section className="container mx-auto px-4 pt-10">
-          <div className="grid gap-4 rounded-[2rem] border border-slate-200 bg-white px-5 py-5 shadow-[0_20px_80px_-55px_rgba(15,23,42,0.5)] dark:border-white/10 dark:bg-slate-900 sm:grid-cols-3 sm:px-7">
-            <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,#fff7ed_0%,#ffedd5_100%)] p-5 dark:bg-[linear-gradient(135deg,#1c1917_0%,#292524_100%)]">
-              <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
-                <Flame className="h-4 w-4" />
-                <p className="text-[11px] font-bold uppercase tracking-[0.24em]">Activas</p>
-              </div>
-              <p className="mt-3 text-4xl font-black text-slate-950 dark:text-white">{sortedProducts.length}</p>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">productos con precio promocional visible</p>
-            </div>
-            <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,#eff6ff_0%,#e0f2fe_100%)] p-5 dark:bg-[linear-gradient(135deg,#0c1929_0%,#162032_100%)]">
-              <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400">
-                <TrendingUp className="h-4 w-4" />
-                <p className="text-[11px] font-bold uppercase tracking-[0.24em]">Promedio</p>
-              </div>
-              <p className="mt-3 text-4xl font-black text-slate-950 dark:text-white">{averageDiscount}%</p>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">descuento medio de las ofertas activas</p>
-            </div>
-            <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,#ecfdf5_0%,#d1fae5_100%)] p-5 dark:bg-[linear-gradient(135deg,#052e16_0%,#064e3b_100%)]">
-              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                <ShieldCheck className="h-4 w-4" />
-                <p className="text-[11px] font-bold uppercase tracking-[0.24em]">Apoyo comercial</p>
-              </div>
-              <p className="mt-3 text-lg font-black text-slate-950 dark:text-white">Ventas B2B listas</p>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">usa las ofertas como entrada y empuja la cotización de proyecto</p>
-            </div>
-          </div>
-        </section>
-
-        <section className="container mx-auto px-4 pt-10">
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-orange-500">Selección destacada</p>
-                <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-slate-950 dark:text-white sm:text-4xl">
-                Todo lo que hoy vale la pena mirar.
-              </h2>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-                Una grilla diseñada para que el visitante compare rápido, vea ahorro real y encuentre una salida directa
-                al producto o a una propuesta comercial más amplia.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild variant="outline" className="rounded-full">
-                <Link href="/catalog">
-                  Ver catálogo completo
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-
           {gridProducts.length > 0 ? (
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {gridProducts.map((product) => (
@@ -376,32 +243,6 @@ export default async function PromotionsPage() {
           ) : null}
         </section>
 
-        <section className="container mx-auto px-4 pt-10">
-          <div className="overflow-hidden rounded-[2rem] border border-slate-900 bg-[linear-gradient(135deg,#111827_0%,#0f172a_55%,#1d4ed8_160%)] px-6 py-8 text-white shadow-[0_30px_100px_-45px_rgba(15,23,42,0.95)] dark:border-white/10 sm:px-8">
-            <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-cyan-200">Canal empresas</p>
-                <h2 className="mt-3 text-3xl font-black tracking-[-0.03em] sm:text-4xl">
-                  Convierte la página de ofertas en una puerta de entrada a proyectos más grandes.
-                </h2>
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-                  Si un cliente encuentra una promoción atractiva, el siguiente paso ideal no siempre es “comprar una unidad”:
-                  muchas veces es pedir una propuesta integral, stock reservado o precio por volumen.
-                </p>
-              </div>
-              <div className="grid gap-3">
-                <Button
-                  asChild
-                  size="lg"
-                  variant="outline"
-                  className="rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
-                >
-                  <Link href="/catalog">Explorar todo el catálogo</Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
       <StoreFooter />

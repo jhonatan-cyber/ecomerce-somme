@@ -15,6 +15,7 @@ import "../styles/globals.css"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuwesomme.cloud"
 const IS_PRODUCTION = process.env.NODE_ENV === "production"
+const PRODUCTION_HOSTNAME = new URL(SITE_URL).hostname
 const SITE_NAME = "Somme Technology"
 const SITE_DESCRIPTION =
   "Cámaras IP, kits de seguridad, grabadores NVR, video porteros y accesorios. Asesoramiento técnico especializado y envíos a todo el país."
@@ -141,10 +142,19 @@ export default function RootLayout({
                   navigator.serviceWorker.getRegistrations().then((registrations) => {
                     registrations.forEach((registration) => registration.unregister());
                   }).catch(() => {});
-                } else if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                } else if (window.location.hostname === ${JSON.stringify(PRODUCTION_HOSTNAME)}) {
                   window.addEventListener('load', () => {
                     navigator.serviceWorker.register('/sw.js').catch(() => {});
                   });
+                } else {
+                  navigator.serviceWorker.getRegistrations().then((registrations) => {
+                    registrations.forEach((registration) => registration.unregister());
+                  }).catch(() => {});
+                  if (window.caches) {
+                    caches.keys().then((keys) => {
+                      keys.forEach((key) => caches.delete(key));
+                    }).catch(() => {});
+                  }
                 }
               }
             `,

@@ -130,7 +130,7 @@ export default async function HomePage({
 
         <BrandsCarousel brands={brands} products={products} />
 
-        <section className="container mx-auto px-4 pt-6">
+        <section className="container mx-auto px-4 pt-10">
           <RecentlyViewed />
         </section>
       </main>

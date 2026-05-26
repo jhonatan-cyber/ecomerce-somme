@@ -137,3 +137,129 @@
       linear-gradient(180deg, rgba(2,6,23,0.98) 0%, rgba(15,23,42,0.98) 100%);
   }
 }
+
+@layer components {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 2px;
+    width: 2px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  .scrollbar-thin:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .store-surface {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .store-surface::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+    background-size: 36px 36px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.32), transparent 75%);
+    z-index: -2;
+  }
+
+  .store-surface::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(34, 211, 238, 0.12), transparent 20rem),
+      radial-gradient(circle at 85% 0%, rgba(59, 130, 246, 0.12), transparent 24rem);
+    z-index: -3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  html {
+    overflow-x: hidden !important;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .store-surface [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .store-surface [class*="blur-"] {
+    filter: none !important;
+  }
+
+  .store-surface [class*="shadow-"] {
+    box-shadow: none !important;
+  }
+
+  .store-surface [class*="hover:-translate-y"],
+  .store-surface [class*="hover:scale-"],
+  .store-surface [class*="group-hover:"] {
+    transform: none !important;
+  }
+
+  .store-surface::before,
+  .store-surface::after {
+    display: none !important;
+  }
+
+  .store-surface {
+    background-image: none !important;
+  }
+
+  .product-info-card {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .store-surface img,
+  .store-surface picture,
+  .store-surface video {
+    /* Removed translateZ/backface-visibility: cause compositor glitches on Android Chrome */
+  }
+}

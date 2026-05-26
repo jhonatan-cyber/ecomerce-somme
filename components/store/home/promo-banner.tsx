@@ -104,52 +104,52 @@ export function PromoBanner({ ads = [] }: PromoBannerProps) {
     <section className="container mx-auto px-4 pt-10">
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-10 items-start">
         {/* Left: Technician discount */}
-        <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950 shadow-xl lg:col-span-4">
+        <div className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-emerald-100 shadow-xl lg:col-span-4 dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950">
           {/* Subtle accent glow */}
-          <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-emerald-500/8 blur-3xl" />
+          <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-emerald-500/10 blur-3xl dark:bg-emerald-500/8" />
 
-          <div className="relative flex h-full flex-col gap-5 p-6 sm:p-7 lg:p-8">
+          <div className="relative flex h-full flex-col gap-3 p-4 sm:gap-5 sm:p-7 lg:p-8">
             {/* Pill badge + circle percentage */}
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1">
-                <Wrench className="h-3.5 w-3.5 text-emerald-400" />
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-300">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-100 px-2.5 py-0.5 sm:px-3 sm:py-1 dark:border-emerald-500/20 dark:bg-emerald-500/10">
+                <Wrench className="h-3 w-3 text-emerald-600 sm:h-3.5 sm:w-3.5 dark:text-emerald-400" />
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-700 sm:text-[11px] dark:text-emerald-300">
                   Descuento técnico
                 </span>
               </div>
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20 sm:h-24 sm:w-24">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-emerald-100 ring-1 ring-emerald-300 sm:h-20 sm:w-20 lg:h-24 lg:w-24 dark:bg-emerald-500/10 dark:ring-emerald-500/20">
                 <div className="text-center leading-none">
-                  <span className="block text-2xl font-black text-white sm:text-3xl">15</span>
-                  <span className="block text-[10px] font-extrabold uppercase tracking-[0.3em] text-emerald-400">% OFF</span>
+                  <span className="block text-xl font-black text-emerald-900 sm:text-2xl lg:text-3xl dark:text-white">15</span>
+                  <span className="block text-[9px] font-extrabold uppercase tracking-[0.3em] text-emerald-600 sm:text-[10px] dark:text-emerald-400">% OFF</span>
                 </div>
               </div>
             </div>
 
             {/* Title + description */}
             <div>
-              <h3 className="text-lg font-bold text-white sm:text-xl">
+              <h3 className="text-base font-bold text-slate-900 sm:text-lg lg:text-xl dark:text-white">
                 Descuento exclusivo para instaladores
               </h3>
-              <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-400">
+              <p className="mt-1.5 max-w-md text-xs leading-relaxed text-slate-600 sm:mt-2 sm:text-sm dark:text-slate-400">
                 Si trabajás en el sector de seguridad electrónica, accedé a precios preferenciales en todo nuestro catálogo de cámaras, NVRs y accesorios.
               </p>
             </div>
 
             {/* Feature bullets */}
-            <ul className="space-y-1.5">
+            <ul className="space-y-1 sm:space-y-1.5">
               {[
                 "15% de descuento en tu compra",
                 "Atención personalizada por WhatsApp",
                 "Envío a todo Bolivia",
               ].map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-slate-300">
-                  <span className="mt-0.5 shrink-0 text-emerald-400">&#x2022;</span>
+                <li key={item} className="flex items-start gap-1.5 text-xs text-slate-600 sm:text-sm dark:text-slate-300 sm:gap-2">
+                  <span className="mt-0.5 shrink-0 text-emerald-500 dark:text-emerald-400">&#x2022;</span>
                   {item}
                 </li>
               ))}
             </ul>
 
-            <p className="mt-auto text-[11px] text-slate-500">
+            <p className="mt-auto text-[10px] text-slate-400 sm:text-[11px] dark:text-slate-500">
               * Aplican términos y condiciones
             </p>
           </div>

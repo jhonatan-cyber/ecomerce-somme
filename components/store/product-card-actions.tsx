@@ -4,7 +4,6 @@ import { useState } from "react"
 import { ShoppingCart, Check } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useCartStore } from "@/lib/store/cart-store"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { Product } from "@/lib/types"
 
 export function ProductCardActions({ product }: { product: Product }) {
@@ -42,42 +41,31 @@ export function ProductCardActions({ product }: { product: Product }) {
   }
 
   return (
-    <Tooltip delayDuration={150}>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          onClick={handleAddToCart}
-          disabled={outOfStock}
-          aria-label={`Agregar ${product.name} al carrito`}
-          title={`Agregar ${product.name} al carrito`}
-          className={`flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-white transition-all ${
-            outOfStock
-              ? "cursor-not-allowed bg-slate-400/80 text-white/90"
-              : "hover:scale-105 hover:shadow-lg cursor-pointer"
-          } ${
-            outOfStock
-              ? ""
-              : justAdded
-                ? "bg-emerald-500 shadow-md shadow-emerald-500/25"
-                : "bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] shadow-md shadow-primary/20 hover:opacity-90"
-          }`}
-        >
-          {justAdded ? (
-            <>
-              <Check className="h-4 w-4 flex-shrink-0" />
-              <span className="hidden sm:inline">Ok</span>
-            </>
-          ) : (
-            <>
-              <ShoppingCart className="h-4 w-4 flex-shrink-0" />
-              <span className="hidden sm:inline">{outOfStock ? "Agotado" : "Agregar"}</span>
-            </>
-          )}
-        </button>
-      </TooltipTrigger>
-      <TooltipContent side="top">
-        {outOfStock ? "Agotado (sin stock)" : "Agregar al carrito"}
-      </TooltipContent>
-    </Tooltip>
+    <button
+      type="button"
+      onClick={handleAddToCart}
+      disabled={outOfStock}
+      aria-label={`Agregar ${product.name} al carrito`}
+      title={outOfStock ? "Agotado (sin stock)" : "Agregar al carrito"}
+      className={`flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-white transition ${
+        outOfStock
+          ? "cursor-not-allowed bg-slate-400/80 text-white/90"
+          : justAdded
+            ? "bg-emerald-500"
+            : "bg-primary hover:opacity-90"
+      }`}
+    >
+      {justAdded ? (
+        <>
+          <Check className="h-4 w-4 flex-shrink-0" />
+          <span className="hidden sm:inline">Ok</span>
+        </>
+      ) : (
+        <>
+          <ShoppingCart className="h-4 w-4 flex-shrink-0" />
+          <span className="hidden sm:inline">{outOfStock ? "Agotado" : "Agregar"}</span>
+        </>
+      )}
+    </button>
   )
 }

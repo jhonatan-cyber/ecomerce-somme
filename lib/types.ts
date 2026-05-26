@@ -18,6 +18,7 @@ export interface Product {
   onSale?: boolean
   saleEndDate?: string | null
   nextArrivalDate?: string | null
+  createdAt?: string | null
   image_url: string | null
   images?: string[]
   stock: number

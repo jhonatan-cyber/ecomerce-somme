@@ -8,6 +8,9 @@ import type { Product } from "@/lib/types"
 interface ProductSliderProps {
   products: Product[]
   category: string
+  compact?: boolean
+  showDots?: boolean
+  showViewButton?: boolean
 }
 
 function chunk<T>(items: T[], size: number) {
@@ -31,7 +34,7 @@ function useItemsPerSlide() {
   return itemsPerSlide
 }
 
-export function ProductSlider({ products }: ProductSliderProps) {
+export function ProductSlider({ products, compact = false, showDots = false, showViewButton = true }: ProductSliderProps) {
   const sliderRef = useRef<HTMLDivElement | null>(null)
   const slideRefs = useRef<(HTMLDivElement | null)[]>([])
   const itemsPerSlide = useItemsPerSlide()
@@ -76,21 +79,9 @@ export function ProductSlider({ products }: ProductSliderProps) {
     return () => container.removeEventListener("scroll", onScroll)
   }, [])
 
-  // Insert promo slides every N products
-  const PROMO_INTERVAL = 4
-  const allSlides: (Product[] | "promo")[] = []
-
-  let promoIndex = 0
-  for (let i = 0; i < slides.length; i++) {
-    allSlides.push(slides[i])
-    if ((i + 1) % 2 === 0 && i < slides.length - 1) {
-      allSlides.push("promo")
-      promoIndex++
-    }
-  }
-
   return (
-    <div className="relative overflow-hidden w-full max-w-[100vw] min-w-0">
+    <div className="relative w-full">
+      {/* Desktop nav buttons */}
       <button
         type="button"
         onClick={slideLeft}
@@ -104,53 +95,69 @@ export function ProductSlider({ products }: ProductSliderProps) {
       <button
         type="button"
         onClick={slideRight}
-        disabled={currentSlide >= allSlides.length - 1}
+        disabled={currentSlide >= slides.length - 1}
         className="hidden lg:flex absolute right-0 top-1/2 z-20 -translate-y-1/2 rounded-full bg-background/90 p-2 shadow-md shadow-slate-900/10 transition disabled:opacity-50 disabled:cursor-not-allowed"
         aria-label="Siguiente"
       >
         <ChevronRight className="h-5 w-5" />
       </button>
 
+      {/* Scrollable track */}
       <div
         ref={sliderRef}
-        className="overflow-x-auto pb-4 scrollbar-hide min-w-0 max-w-[100vw]"
+        className="overflow-x-auto scrollbar-hide"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
           WebkitOverflowScrolling: "touch",
         }}
       >
-        <div className="flex gap-1.5 snap-x snap-mandatory scroll-smooth min-w-0">
-          {allSlides.map((slide, index) => (
+        <div className="flex gap-1.5 snap-x snap-mandatory scroll-smooth">
+          {slides.map((slide, index) => (
             <div
               key={index}
               ref={(el) => {
                 if (el) slideRefs.current[index] = el
               }}
-              className="flex-none snap-start w-full max-w-full min-w-0"
+              className="flex-none snap-start w-full"
             >
-              {slide === "promo" ? (
-                <div className="h-full min-h-[180px] rounded-xl bg-gradient-to-r from-blue-600 to-blue-400 p-6 flex flex-col justify-center text-white text-center">
-                  <p className="text-xs font-bold uppercase tracking-widest opacity-80">Espacio publicitario</p>
-                  <p className="mt-2 text-xl font-black">¡Tu marca aquí!</p>
-                  <p className="mt-1 text-sm opacity-90">Llega a miles de clientes</p>
-                  <div className="mt-3 inline-block rounded-full bg-white/20 px-4 py-1.5 text-xs font-bold backdrop-blur-sm">
-                    Reservar espacio →
+              <div className={`grid gap-1.5 ${itemsPerSlide === 3 ? "grid-cols-3" : "grid-cols-2"}`}>
+                {slide.map((product) => (
+                  <div key={product.id} className="min-w-0">
+                    <ProductCard product={product} compact={compact} showViewButton={showViewButton} />
                   </div>
-                </div>
-              ) : (
-                <div className={`min-w-0 grid gap-1.5 ${itemsPerSlide === 3 ? "grid-cols-3" : "grid-cols-2"}`}>
-                  {slide.map((product) => (
-                    <div key={product.id} className="min-w-0 w-full">
-                      <ProductCard product={product} />
-                    </div>
+                ))}
+                {/* Relleno para mantener el grid cuando el último slide tiene menos items */}
+                {slide.length < itemsPerSlide &&
+                  Array.from({ length: itemsPerSlide - slide.length }).map((_, i) => (
+                    <div key={`empty-${i}`} aria-hidden="true" />
                   ))}
-                </div>
-              )}
+              </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Slide indicator dots */}
+      {showDots && slides.length > 1 && (
+        <div className="mt-3 flex items-center justify-center gap-2" role="tablist" aria-label="Slides">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              role="tab"
+              aria-selected={currentSlide === index}
+              aria-label={`Ir al slide ${index + 1}`}
+              onClick={() => scrollToSlide(index)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                currentSlide === index
+                  ? "w-6 bg-foreground"
+                  : "w-2 bg-foreground/20 hover:bg-foreground/40"
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

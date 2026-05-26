@@ -6,7 +6,7 @@ import { ArrowDownUp, Check } from "lucide-react"
 import { ProductCard } from "@/components/store/product-card"
 import { ProductSlider } from "@/components/store/product-slider"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import type { Product } from "@/lib/types"
+import type { Brand, Product } from "@/lib/types"
 
 type SortOption = "default" | "price-asc" | "price-desc" | "name-asc"
 
@@ -19,6 +19,7 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 
 interface CatalogGridProps {
   products: Product[]
+  brands?: Brand[]
   grouped?: boolean
   search?: string
 }
@@ -77,7 +78,7 @@ function groupByFirstLetter(products: Product[]): { letter: string; items: Produ
     .map(([letter, items]) => ({ letter, items }))
 }
 
-function CatalogGridContent({ products, grouped = false, search }: CatalogGridProps) {
+function CatalogGridContent({ products, brands = [], grouped = false, search }: CatalogGridProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [open, setOpen] = useState(false)
@@ -264,22 +265,22 @@ function CatalogGridContent({ products, grouped = false, search }: CatalogGridPr
         </div>
       ) : (
         /* Flat grid */
-        <div data-tour="catalog-grid" className="grid grid-cols-2 gap-y-6 gap-x-6 sm:gap-y-8 sm:gap-x-8 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-          {sorted.map((p) => <ProductCard key={p.id} product={p} />)}
+        <div data-tour="catalog-grid" className="grid grid-cols-2 gap-y-6 gap-x-6 sm:gap-y-8 sm:gap-x-8 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 overflow-x-hidden">
+          {sorted.map((p) => <ProductCard key={p.id} product={p} brands={brands} />)}
         </div>
       )}
     </div>
   )
 }
 
-export function CatalogGrid(props: CatalogGridProps) {
+export function CatalogGrid({ brands, ...props }: CatalogGridProps) {
   return (
     <Suspense fallback={
       <div className="flex min-h-[200px] items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
     }>
-      <CatalogGridContent {...props} />
+      <CatalogGridContent brands={brands} {...props} />
     </Suspense>
   )
 }

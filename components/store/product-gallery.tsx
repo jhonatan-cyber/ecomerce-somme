@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState, useRef } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Camera, ChevronLeft, ChevronRight } from "lucide-react"
 import { StoreImage } from "@/components/store/store-image"
 
@@ -50,8 +50,6 @@ export function ProductGallery({ name, imageUrl, images = [] }: ProductGalleryPr
   }
 
   useEffect(() => {
-    console.log('[MOBILE DEBUG] Active index changed to:', activeIndex)
-    console.log('[MOBILE DEBUG] Active image:', galleryImages[activeIndex])
     if (galleryImages.length && activeIndex > galleryImages.length - 1) {
       setActiveIndex(galleryImages.length - 1)
     }
@@ -61,16 +59,12 @@ export function ProductGallery({ name, imageUrl, images = [] }: ProductGalleryPr
     setFailedImages((prev) => (prev.includes(img) ? prev : [...prev, img]))
 
   const goPrev = () => {
-    console.log('[MOBILE DEBUG] goPrev clicked, current index:', activeIndex)
     const newIndex = activeIndex === 0 ? galleryImages.length - 1 : activeIndex - 1
-    console.log('[MOBILE DEBUG] Setting new index to:', newIndex)
     setActiveIndex(newIndex)
   }
 
   const goNext = () => {
-    console.log('[MOBILE DEBUG] goNext clicked, current index:', activeIndex)
     const newIndex = activeIndex === galleryImages.length - 1 ? 0 : activeIndex + 1
-    console.log('[MOBILE DEBUG] Setting new index to:', newIndex)
     setActiveIndex(newIndex)
   }
 
@@ -98,8 +92,6 @@ export function ProductGallery({ name, imageUrl, images = [] }: ProductGalleryPr
   }
 
   const handleThumbnailClick = (index: number) => {
-    console.log('[MOBILE DEBUG] Thumbnail clicked, index:', index)
-    console.log('[MOBILE DEBUG] Current active index:', activeIndex)
     setActiveIndex(index)
   }
 
@@ -107,18 +99,18 @@ export function ProductGallery({ name, imageUrl, images = [] }: ProductGalleryPr
     <div data-tour="product-gallery" className="flex flex-col gap-3 sm:gap-4">
       {/* Main image */}
       <div
-        className="relative w-full overflow-hidden rounded-xl border border-border/60 bg-muted/20 sm:rounded-[1.75rem]"
+        className="relative -mx-4 w-screen overflow-hidden border-y border-border/60 bg-muted/20 sm:mx-0 sm:w-full sm:rounded-[1.75rem] sm:border"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         {activeImage ? (
-          <div className="relative aspect-square w-full sm:aspect-[4/3]">
+          <div className="relative h-[56vw] min-h-[230px] max-h-[420px] w-full sm:h-[420px] sm:max-h-[520px] lg:h-[500px] lg:max-h-[620px]">
             <StoreImage
               src={activeImage}
               alt={name}
               fill
-              className="rounded-xl object-contain sm:rounded-[1.75rem]"
+              className="object-contain sm:rounded-[1.75rem]"
               fallbackText="Sin imagen"
               fallbackClassName="bg-muted"
               onImageError={() => markFailed(activeImage)}
@@ -138,18 +130,18 @@ export function ProductGallery({ name, imageUrl, images = [] }: ProductGalleryPr
             <button
               type="button"
               onClick={goPrev}
-              className="absolute left-2 top-1/2 z-50 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-white shadow-xl transition active:scale-90 sm:left-4 sm:h-11 sm:w-11"
+              className="absolute left-2 top-1/2 z-50 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-white shadow-xl transition active:scale-90 sm:left-4 sm:h-11 sm:w-11"
               aria-label="Imagen anterior"
             >
-              <ChevronLeft className="h-6 w-6 text-slate-900" />
+              <ChevronLeft className="h-5 w-5 text-slate-900 sm:h-6 sm:w-6" />
             </button>
             <button
               type="button"
               onClick={goNext}
-              className="absolute right-2 top-1/2 z-50 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-white shadow-xl transition active:scale-90 sm:right-4 sm:h-11 sm:w-11"
+              className="absolute right-2 top-1/2 z-50 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-white shadow-xl transition active:scale-90 sm:right-4 sm:h-11 sm:w-11"
               aria-label="Imagen siguiente"
             >
-              <ChevronRight className="h-6 w-6 text-slate-900" />
+              <ChevronRight className="h-5 w-5 text-slate-900 sm:h-6 sm:w-6" />
             </button>
             
             <div className="pointer-events-none absolute bottom-3 left-1/2 z-50 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-slate-950/80 px-3 py-1.5 text-sm font-semibold text-white backdrop-blur">
@@ -183,10 +175,7 @@ export function ProductGallery({ name, imageUrl, images = [] }: ProductGalleryPr
             <button
               key={`${img}-${i}`}
               type="button"
-              onClick={() => {
-                console.log('[MOBILE DEBUG] Thumbnail button clicked, index:', i)
-                handleThumbnailClick(i)
-              }}
+              onClick={() => handleThumbnailClick(i)}
               className={`relative aspect-square h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition ${
                 activeIndex === i
                   ? "border-primary shadow-[0_0_0_2px_rgba(59,130,246,0.2)]"

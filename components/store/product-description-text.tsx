@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 
@@ -7,14 +7,11 @@ const DESCRIPTION_CHAR_LIMIT = 220
 export function ProductDescriptionText({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false)
   const isLong = text.length > DESCRIPTION_CHAR_LIMIT
+  const collapsed = isLong && !expanded
 
   return (
     <div>
-      <p className={
-        isLong && !expanded
-          ? "mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground"
-          : "mt-3 text-sm leading-6 text-muted-foreground"
-      }>
+      <p className={`mt-3 text-sm leading-6 text-muted-foreground ${collapsed ? "max-h-[4.5rem] overflow-hidden" : ""}`}>
         {text}
       </p>
       {isLong && (

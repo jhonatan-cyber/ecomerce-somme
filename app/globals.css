@@ -260,8 +260,57 @@
 
 /* Android/WebKit mobile rendering stability */
 @media (max-width: 768px) {
+  html {
+    overflow-x: hidden !important;
+  }
+
+  /* Avoid horizontal jitter from transformed layers on mobile */
+  *{
+    -webkit-tap-highlight-color: transparent;
+  }
+
   .store-surface [class*="backdrop-blur"] {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
+  }
+
+  .store-surface [class*="blur-"] {
+    filter: none !important;
+  }
+
+  .store-surface [class*="shadow-"] {
+    box-shadow: none !important;
+  }
+
+  /* Disable hover-like transforms on touch devices to prevent compositor glitches */
+  .store-surface [class*="hover:-translate-y"],
+  .store-surface [class*="hover:scale-"],
+  .store-surface [class*="group-hover:"] {
+    transform: none !important;
+  }
+
+  /* Reduce heavy compositing layers on mobile to avoid scroll artifacts */
+  .store-surface::before,
+  .store-surface::after {
+    display: none !important;
+  }
+
+  .store-surface {
+    background-image: none !important;
+  }
+
+  /* Product detail text rendering stability on Android WebView/Chrome */
+  .product-info-card {
+    contain: paint;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Stabilize image/text layers inside cards on Android */
+  .store-surface img,
+  .store-surface picture,
+  .store-surface video {
+    /* Removed: backface-visibility and translateZ cause compositor glitches on Android Chrome */
   }
 }
