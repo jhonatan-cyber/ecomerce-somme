@@ -18,9 +18,9 @@ function formatExpiry(dateStr: string): { label: string; urgent: boolean } {
   const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
 
   if (diffDays <= 0) return { label: "Vence hoy", urgent: true }
-  if (diffDays === 1) return { label: "Vence maÃ±ana", urgent: true }
-  if (diffDays <= 3) return { label: `${diffDays} dÃ­as restantes`, urgent: true }
-  if (diffDays <= 7) return { label: `${diffDays} dÃ­as`, urgent: false }
+  if (diffDays === 1) return { label: "Vence mañana", urgent: true }
+  if (diffDays <= 3) return { label: `${diffDays} días restantes`, urgent: true }
+  if (diffDays <= 7) return { label: `${diffDays} días`, urgent: false }
   return {
     label: date.toLocaleDateString("es-BO", { day: "numeric", month: "short" }),
     urgent: false,
@@ -246,4 +246,5 @@ export function OnSaleSection({ products }: { products: Product[] }) {
     </section>
   )
 }
+
 

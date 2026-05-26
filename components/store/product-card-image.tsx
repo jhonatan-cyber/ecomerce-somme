@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
@@ -65,7 +65,7 @@ export function ProductCardImage({
 
   return (
     <div
-      className="relative aspect-square overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-900 dark:to-slate-800 transition-transform duration-300 group-hover:scale-105"
+      className="relative aspect-square overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-900 dark:to-slate-800 transition-transform duration-300 md:group-hover:scale-105"
       onMouseEnter={startSlide}
       onMouseLeave={stopSlide}
     >
@@ -74,7 +74,7 @@ export function ProductCardImage({
           <div className="flex h-full touch-pan-y">
             {images.map((src, i) => (
               <div
-                key={src}
+                key={`${src}-${i}`}
                 className="relative h-full w-full min-w-0 shrink-0 grow-0 basis-full"
               >
                 <Image
@@ -104,7 +104,7 @@ export function ProductCardImage({
       {/* Top badges */}
       <div className="absolute inset-x-0 top-0 flex items-start justify-between p-2 sm:p-2.5">
         {brandLogo ? (
-          <div className="overflow-hidden rounded-md bg-white/95 px-1.5 py-1 shadow-sm backdrop-blur-sm sm:px-2 sm:py-1">
+          <div className="overflow-hidden rounded-md bg-white/95 px-1.5 py-1 shadow-sm sm:px-2 sm:py-1">
             <Image
               src={brandLogo}
               alt="Marca"
@@ -132,7 +132,7 @@ export function ProductCardImage({
             -{discountPercent}%
           </span>
         ) : lowStock ? (
-          <span className="rounded-lg bg-amber-500/90 px-1.5 py-1 text-[9px] sm:px-2 sm:py-1 sm:text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-sm">
+          <span className="rounded-lg bg-amber-500/90 px-1.5 py-1 text-[9px] sm:px-2 sm:py-1 sm:text-[10px] font-bold uppercase tracking-wide text-white">
             <span className="hidden sm:inline">Últimas unidades</span>
             <span className="sm:hidden">¡Últimas!</span>
           </span>
@@ -162,3 +162,4 @@ export function ProductCardImage({
     </div>
   )
 }
+

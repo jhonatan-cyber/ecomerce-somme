@@ -257,3 +257,11 @@
     transition: none !important;
   }
 }
+
+/* Android/WebKit mobile rendering stability */
+@media (max-width: 768px) {
+  .store-surface [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}

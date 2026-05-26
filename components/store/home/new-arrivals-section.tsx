@@ -26,7 +26,7 @@ export function NewArrivalsSection({ products }: { products: Product[] }) {
             <p className="text-base font-black uppercase tracking-[0.18em] text-foreground">
               Novedades
             </p>
-            <p className="text-xs text-muted-foreground">Ãšltimos productos agregados al catÃ¡logo</p>
+            <p className="text-xs text-muted-foreground">Últimos productos agregados al catálogo</p>
           </div>
         </div>
         <Link
@@ -55,4 +55,5 @@ export function NewArrivalsSection({ products }: { products: Product[] }) {
     </section>
   )
 }
+
 

@@ -42,9 +42,9 @@ export function HeroSection({
     ? products.slice(0, 8)
     : getRandomProducts(products, 8)
 
-  const title = selectedCategory?.name ?? "CatÃ¡logo"
+  const title = selectedCategory?.name ?? "Catálogo"
   const subtitle = selectedCategory
-    ? `${products.length} producto${products.length === 1 ? "" : "s"} en esta categorÃ­a`
+    ? `${products.length} producto${products.length === 1 ? "" : "s"} en esta categoría`
     : `${heroCategoryProductCount} producto${heroCategoryProductCount === 1 ? "" : "s"} disponibles`
 
   return (
@@ -62,7 +62,7 @@ export function HeroSection({
           href={selectedCategory ? `/catalog?category=${encodeURIComponent(selectedCategory.id)}` : "/catalog"}
           className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] px-4 py-2 text-xs font-bold text-white transition hover:opacity-90 sm:w-fit sm:px-5 sm:py-2.5 sm:text-sm"
         >
-          Ver catÃ¡logo completo
+          Ver catálogo completo
           <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Link>
       </div>
@@ -75,10 +75,12 @@ export function HeroSection({
         </div>
       ) : (
         <div className="flex min-h-[280px] items-center justify-center p-6 text-center text-sm text-muted-foreground">
-          No hay productos disponibles todavÃ­a.
+          No hay productos disponibles todavía.
         </div>
       )}
     </section>
   )
 }
+
+
 

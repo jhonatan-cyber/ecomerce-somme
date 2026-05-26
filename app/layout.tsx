@@ -10,6 +10,7 @@ import { TourProvider, TourComponent } from "@/components/tour"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { PusherProvider } from "@/components/pusher-provider"
 import { InstallPrompt } from "@/components/pwa/install-prompt"
+import { MobileBottomNav } from "@/components/store/mobile-bottom-nav"
 import "../styles/globals.css"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuwesomme.cloud"
@@ -149,25 +150,28 @@ export default function RootLayout({
             `,
           }}
         />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <TourProvider>
-            <Suspense fallback={
-  <div className="flex min-h-screen items-center justify-center">
-    <LoadingSpinner size="lg" />
-  </div>
-}>{children}</Suspense>
-            <TourComponent />
-            <PusherProvider />
-            <Toaster />
-            <InstallPrompt />
-            <Analytics />
-          </TourProvider>
-        </ThemeProvider>
+        <div className="pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <TourProvider>
+              <Suspense fallback={
+    <div className="flex min-h-screen items-center justify-center">
+      <LoadingSpinner size="lg" />
+    </div>
+  }>{children}</Suspense>
+              <TourComponent />
+              <PusherProvider />
+              <Toaster />
+              <InstallPrompt />
+              <Analytics />
+            </TourProvider>
+          </ThemeProvider>
+          <MobileBottomNav />
+        </div>
       </body>
     </html>
   )

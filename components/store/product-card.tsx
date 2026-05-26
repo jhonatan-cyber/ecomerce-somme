@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import { Eye } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { Product, Brand } from "@/lib/types"
@@ -35,7 +35,7 @@ export function ProductCard({
   const lowStock = inStock && product.stock <= (product.minimumStock ?? 3)
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/20">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-all duration-300 md:hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/20">
       {/* Image slider */}
       <Link
         href={`/product/${encodeURIComponent(product.id)}`}
@@ -120,3 +120,4 @@ export function ProductCard({
     </article>
   )
 }
+
