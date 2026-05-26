@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import { ArrowRight, Clock, History } from "lucide-react"
 import { ProductSlider } from "@/components/store/product-slider"
 import { useRecentlyViewedStore } from "@/lib/store/recently-viewed"
@@ -40,7 +41,14 @@ function toProduct(item: RecentItem): Product {
 }
 
 export function RecentlyViewed() {
+  const [isMounted, setIsMounted] = useState(false)
   const items = useRecentlyViewedStore((state) => state.items)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  if (!isMounted) return null
 
   const products = items.map(toProduct)
 

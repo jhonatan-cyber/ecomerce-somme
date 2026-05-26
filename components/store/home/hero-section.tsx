@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Camera, Eye } from "lucide-react"
+import { ArrowRight, Camera } from "lucide-react"
 import { ProductCardActions } from "@/components/store/product-card-actions"
 import type { Category, Product } from "@/lib/types"
 
@@ -127,15 +127,7 @@ export function HeroSection({
                     </p>
                   </div>
 
-                  <div className="mt-1 flex gap-2">
-                    <Link
-                      href={`/product/${encodeURIComponent(product.id)}`}
-                      scroll
-                      className="hidden min-w-0 flex-1 items-center justify-center rounded-lg border border-border bg-background px-2 py-2 text-xs font-bold text-foreground sm:flex"
-                      title="Ver producto"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Link>
+                  <div className="mt-1">
                     <ProductCardActions product={product} />
                   </div>
                 </div>

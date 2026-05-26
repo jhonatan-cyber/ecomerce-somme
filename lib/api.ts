@@ -205,9 +205,31 @@ function getBrandName(value: unknown): string | null {
 const PRIVATE_IP_RE = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(:\d+)?\//
 
 export function rewriteImageUrl(url: string | null | undefined): string | null {
-  const uploadsBase = process.env.NEXT_PUBLIC_UPLOADS_URL?.trim()
-  if (!url || !uploadsBase) return url ?? null
-  return url.replace(PRIVATE_IP_RE, `${uploadsBase.replace(/\/+$/, "")}/`)
+  const rawUploadsBase =
+    process.env.NEXT_PUBLIC_UPLOADS_URL?.trim() ||
+    process.env.NEXT_PUBLIC_API_URL?.trim()
+  if (!url) return null
+
+  if (!rawUploadsBase) return url
+
+  const normalizedRawBase = rawUploadsBase.replace(/\/+$/, "")
+  const normalizedBase = normalizedRawBase.endsWith("/api")
+    ? normalizedRawBase.slice(0, -4)
+    : normalizedRawBase
+  const trimmedUrl = url.trim()
+
+  if (!trimmedUrl) return null
+
+  if (trimmedUrl.startsWith("/img/")) {
+    return `${normalizedBase}${trimmedUrl}`
+  }
+
+  if (!trimmedUrl.startsWith("http://") && !trimmedUrl.startsWith("https://")) {
+    const normalizedPath = trimmedUrl.startsWith("/") ? trimmedUrl : `/${trimmedUrl}`
+    return `${normalizedBase}${normalizedPath}`
+  }
+
+  return trimmedUrl.replace(PRIVATE_IP_RE, `${normalizedBase}/`)
 }
 
 function normalizeProductRecord(rawProduct: unknown): Product | null {

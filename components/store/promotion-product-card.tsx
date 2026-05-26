@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import useEmblaCarousel from "embla-carousel-react"
-import { ArrowRight, Check, Clock3, ShoppingCart, Tag } from "lucide-react"
+import { Check, Clock3, ShoppingCart, Tag } from "lucide-react"
 
 import { useToast } from "@/hooks/use-toast"
 import { useCartStore } from "@/lib/store/cart-store"
@@ -212,7 +212,7 @@ export function PromotionProductCard({ product }: { product: Product }) {
           <p className="text-2xl font-black text-slate-900 dark:text-white">{formatPrice(product.price)}</p>
         </div>
 
-        <div className="mt-6 flex items-center gap-3">
+        <div className="mt-6">
           <button
             type="button"
             onClick={handleAddToCart}
@@ -237,15 +237,6 @@ export function PromotionProductCard({ product }: { product: Product }) {
               </>
             )}
           </button>
-
-          <Link
-            href={`/product/${encodeURIComponent(product.id)}`}
-            scroll
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-bold text-slate-800 transition hover:border-orange-300 hover:text-orange-600 dark:border-white/10 dark:text-slate-200 dark:hover:border-orange-500 dark:hover:text-orange-400"
-          >
-            Ver detalle
-            <ArrowRight className="h-4 w-4" />
-          </Link>
         </div>
       </div>
     </article>

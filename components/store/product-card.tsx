@@ -1,5 +1,5 @@
 ﻿import Link from "next/link"
-import { Eye, AlertCircle } from "lucide-react"
+import { AlertCircle } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { Product, Brand } from "@/lib/types"
 import { formatPrice } from "@/lib/utils"
@@ -13,7 +13,7 @@ interface ProductCardProps {
   isComparisonEnabled?: boolean
   brands?: Brand[]
   isNew?: boolean
-  /** Ocultar el botón "Ver producto" (útil en cards compactas o con espacio limitado) */
+  /** Compatibilidad: ya no se usa, todas las cards ocultan "Ver producto". */
   showViewButton?: boolean
   /** Ocultar la marca / categoría en la card */
   showBrand?: boolean
@@ -49,7 +49,7 @@ export function ProductCard({
   isComparisonEnabled = false,
   brands = [],
   isNew = false,
-  showViewButton = true,
+  showViewButton: _showViewButton = false,
   showBrand = true,
   compact = false,
 }: ProductCardProps) {
@@ -155,24 +155,7 @@ export function ProductCard({
 
       {/* Footer actions */}
       <div className={`flex flex-nowrap items-center justify-between gap-2 border-t border-border/50 ${compact ? "px-1.5 py-1.5" : "px-2 py-2"}`}>
-        {showViewButton ? (
-          <>
-            <Link
-              href={`/product/${encodeURIComponent(product.id)}`}
-              scroll
-              className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-xs font-bold text-foreground transition-all hover:border-primary/60 hover:text-primary hover:shadow-md hover:shadow-primary/20 sm:gap-2"
-              title="Ver producto"
-            >
-              <Eye className="h-4 w-4 flex-shrink-0" />
-              <span className="hidden sm:inline">Ver</span>
-            </Link>
-            <div className="min-w-0 flex-1">
-              <ProductCardActions product={product} />
-            </div>
-          </>
-        ) : (
-          <ProductCardActions product={product} />
-        )}
+        <ProductCardActions product={product} />
       </div>
     </article>
   )

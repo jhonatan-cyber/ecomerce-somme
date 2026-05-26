@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { createOrder } from "@/lib/api-create-order"
+import { rewriteImageUrl } from "@/lib/api"
 import { useCartStore } from "@/lib/store/cart-store"
 import { useToast } from "@/hooks/use-toast"
 
@@ -199,7 +200,8 @@ export default function CheckoutPage() {
         const payload = await response.json().catch(() => null)
         if (!response.ok) return null
         const configuredUrl = payload?.data?.checkoutQrImageUrl
-        return typeof configuredUrl === "string" && configuredUrl.trim() ? configuredUrl.trim() : null
+        if (typeof configuredUrl !== "string" || !configuredUrl.trim()) return null
+        return rewriteImageUrl(configuredUrl.trim())
       })
       .then((configuredUrl) => {
         if (!isMounted || !configuredUrl) return
