@@ -40,7 +40,7 @@ function SlideImage({ src, name, priority }: { src: string; name: string; priori
         src={src}
         alt={name}
         fill
-        sizes="(min-width: 1536px) 18vw, (min-width: 1280px) 22vw, (min-width: 1024px) 28vw, (min-width: 640px) 45vw, 44vw"
+        sizes="(min-width: 1536px) 18vw, (min-width: 1280px) 22vw, (min-width: 1024px) 30vw, (min-width: 768px) 40vw, (min-width: 480px) 48vw, 96vw"
         className={`object-contain transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
         placeholder="blur"
         blurDataURL={BLUR_PLACEHOLDER}
@@ -65,11 +65,24 @@ export function ProductCardImage({
   isNew,
 }: ProductCardImageProps) {
   const hasMultiple = images.length > 1
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, dragFree: false })
   const [activeIndex, setActiveIndex] = useState(0)
   const [showArrows, setShowArrows] = useState(false)
   const [logoError, setLogoError] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const shouldUseImageCarousel = hasMultiple && !isTouchDevice
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const media = window.matchMedia("(hover: none), (pointer: coarse)")
+    const update = () => {
+      setIsTouchDevice(media.matches || navigator.maxTouchPoints > 0)
+    }
+    update()
+    media.addEventListener("change", update)
+    return () => media.removeEventListener("change", update)
+  }, [])
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return
@@ -186,7 +199,7 @@ export function ProductCardImage({
   }
 
   // Multiple images: carousel
-  if (hasMultiple) {
+  if (shouldUseImageCarousel) {
     return (
       <div
         className="relative aspect-square w-full overflow-hidden bg-slate-100 dark:bg-slate-900"

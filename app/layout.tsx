@@ -160,7 +160,7 @@ export default function RootLayout({
             `,
           }}
         />
-        <div className="pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
+        <div className="pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0">
           <ThemeProvider
             attribute="class"
             defaultTheme="system"

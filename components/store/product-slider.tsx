@@ -25,7 +25,18 @@ function useItemsPerSlide() {
   const [itemsPerSlide, setItemsPerSlide] = useState(2)
 
   useEffect(() => {
-    const update = () => setItemsPerSlide(window.innerWidth >= 1024 ? 3 : 2)
+    const update = () => {
+      const width = window.innerWidth
+      if (width < 520) {
+        setItemsPerSlide(1)
+        return
+      }
+      if (width >= 1280) {
+        setItemsPerSlide(3)
+        return
+      }
+      setItemsPerSlide(2)
+    }
     update()
     window.addEventListener("resize", update)
     return () => window.removeEventListener("resize", update)
@@ -40,6 +51,7 @@ export function ProductSlider({ products, compact = false, showDots = false, sho
   const itemsPerSlide = useItemsPerSlide()
   const slides = chunk(products, itemsPerSlide)
   const [currentSlide, setCurrentSlide] = useState(0)
+  const productsSignature = products.map((product) => product.id).join("|")
 
   const scrollToSlide = useCallback((index: number) => {
     const container = sliderRef.current
@@ -58,8 +70,13 @@ export function ProductSlider({ products, compact = false, showDots = false, sho
   }, [currentSlide, scrollToSlide, slides.length])
 
   useEffect(() => {
+    const container = sliderRef.current
+    slideRefs.current = []
     setCurrentSlide(0)
-  }, [itemsPerSlide, products.length])
+    if (container) {
+      container.scrollTo({ left: 0, behavior: "auto" })
+    }
+  }, [itemsPerSlide, productsSignature])
 
   useEffect(() => {
     const container = sliderRef.current
@@ -112,7 +129,7 @@ export function ProductSlider({ products, compact = false, showDots = false, sho
           WebkitOverflowScrolling: "touch",
         }}
       >
-        <div className="flex gap-1.5 snap-x snap-mandatory scroll-smooth">
+        <div className="flex gap-2 snap-x snap-mandatory sm:gap-3 sm:scroll-smooth">
           {slides.map((slide, index) => (
             <div
               key={index}
@@ -121,7 +138,11 @@ export function ProductSlider({ products, compact = false, showDots = false, sho
               }}
               className="flex-none snap-start w-full"
             >
-              <div className={`grid gap-1.5 ${itemsPerSlide === 3 ? "grid-cols-3" : "grid-cols-2"}`}>
+              <div
+                className={`grid gap-2 sm:gap-3 ${
+                  itemsPerSlide === 3 ? "grid-cols-3" : itemsPerSlide === 2 ? "grid-cols-2" : "grid-cols-1"
+                }`}
+              >
                 {slide.map((product) => (
                   <div key={product.id} className="min-w-0">
                     <ProductCard product={product} compact={compact} showViewButton={showViewButton} />
