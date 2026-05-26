@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useCallback, useEffect, useRef } from "react"
 import Link from "next/link"
@@ -12,7 +12,7 @@ import { formatPrice } from "@/lib/utils"
 import type { Product } from "@/lib/types"
 
 function getSaleDeadlineLabel(dateValue: string | null | undefined) {
-  if (!dateValue) return "Oferta sin fecha límite visible"
+  if (!dateValue) return "Oferta sin fecha lÃ­mite visible"
 
   const target = new Date(dateValue)
   const now = new Date()
@@ -20,10 +20,10 @@ function getSaleDeadlineLabel(dateValue: string | null | undefined) {
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
 
   if (diffDays <= 0) return "Termina hoy"
-  if (diffDays === 1) return "Termina mañana"
-  if (diffDays <= 6) return `${diffDays} días restantes`
+  if (diffDays === 1) return "Termina maÃ±ana"
+  if (diffDays <= 6) return `${diffDays} dÃ­as restantes`
 
-  return `Vigente hasta ${target.toLocaleDateString("es-CL", {
+  return `Vigente hasta ${target.toLocaleDateString("es-BO", {
     day: "numeric",
     month: "short",
   })}`
@@ -172,7 +172,7 @@ export function PromotionProductCard({ product }: { product: Product }) {
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-              {product.brand ?? "Selección Somme"}
+              {product.brand ?? "SelecciÃ³n Somme"}
             </p>
             <Link href={`/product/${encodeURIComponent(product.id)}`} scroll>
               <h3 className="mt-2 line-clamp-2 text-lg font-black leading-tight text-slate-900 transition-colors group-hover:text-orange-600 dark:text-white dark:group-hover:text-orange-400">
@@ -251,3 +251,4 @@ export function PromotionProductCard({ product }: { product: Product }) {
     </article>
   )
 }
+

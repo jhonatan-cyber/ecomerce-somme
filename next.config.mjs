@@ -22,7 +22,11 @@ if (isProduction) {
     skipWaiting: true,
     runtimeCaching: [
       {
-        urlPattern: /\/api\/store\/(products|categories|brands|slides|ads|branches)/,
+        urlPattern: /\/api\/store\/products(\?.*)?$/,
+        handler: "NetworkOnly",
+      },
+      {
+        urlPattern: /\/api\/store\/(categories|brands|slides|ads|branches)/,
         handler: "StaleWhileRevalidate",
         options: {
           cacheName: "store-api-cache",

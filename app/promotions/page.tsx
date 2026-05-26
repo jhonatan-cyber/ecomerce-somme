@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+﻿import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import {
@@ -26,15 +26,15 @@ export const dynamic = "force-dynamic"
 export const metadata: Metadata = {
   title: "Ofertas y Promociones | Somme Technology",
   description:
-    "Descubre descuentos activos, oportunidades por volumen y equipos destacados en promoción para proyectos de seguridad electrónica.",
+    "Descubre descuentos activos, oportunidades por volumen y equipos destacados en promociÃ³n para proyectos de seguridad electrÃ³nica.",
   alternates: { canonical: "/promotions" },
   openGraph: {
     title: "Ofertas y Promociones | Somme Technology",
-    description: "Descuentos activos, oportunidades por volumen y equipos destacados en promoción.",
+    description: "Descuentos activos, oportunidades por volumen y equipos destacados en promociÃ³n.",
     url: "/promotions",
     type: "website",
   },
-  twitter: { card: "summary_large_image", title: "Ofertas y Promociones | Somme Technology", description: "Descuentos activos, oportunidades por volumen y equipos destacados en promoción." },
+  twitter: { card: "summary_large_image", title: "Ofertas y Promociones | Somme Technology", description: "Descuentos activos, oportunidades por volumen y equipos destacados en promociÃ³n." },
 }
 
 type PromoLane = {
@@ -49,7 +49,7 @@ type PromoLane = {
 const promoLanes: PromoLane[] = [
   {
     id: "express",
-    label: "Rotación rápida",
+    label: "RotaciÃ³n rÃ¡pida",
     title: "Ofertas que cambian con el stock",
     description:
       "Promociones activas sobre productos con mejor movimiento para aprovechar precios agresivos sin perder margen.",
@@ -61,23 +61,23 @@ const promoLanes: PromoLane[] = [
     label: "Ventas por proyecto",
     title: "Arma paquetes y compras por volumen",
     description:
-      "La página está pensada para que el cliente vea descuentos visibles y luego te contacte para una propuesta más amplia.",
+      "La pÃ¡gina estÃ¡ pensada para que el cliente vea descuentos visibles y luego te contacte para una propuesta mÃ¡s amplia.",
     accent: "from-sky-500 to-cyan-500",
     icon: Package2,
   },
   {
     id: "b2b",
     label: "Canal profesional",
-    title: "Cotización rápida para integradores y empresas",
+    title: "CotizaciÃ³n rÃ¡pida para integradores y empresas",
     description:
-      "Un CTA claro hacia cotización ayuda a convertir promociones sueltas en oportunidades B2B de mayor ticket.",
+      "Un CTA claro hacia cotizaciÃ³n ayuda a convertir promociones sueltas en oportunidades B2B de mayor ticket.",
     accent: "from-emerald-500 to-lime-500",
     icon: Users,
   },
 ]
 
 function getSaleDeadlineLabel(dateValue: string | null | undefined) {
-  if (!dateValue) return "Oferta sin fecha límite visible"
+  if (!dateValue) return "Oferta sin fecha lÃ­mite visible"
 
   const target = new Date(dateValue)
   const now = new Date()
@@ -85,10 +85,10 @@ function getSaleDeadlineLabel(dateValue: string | null | undefined) {
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
 
   if (diffDays <= 0) return "Termina hoy"
-  if (diffDays === 1) return "Termina mañana"
-  if (diffDays <= 6) return `${diffDays} días restantes`
+  if (diffDays === 1) return "Termina maÃ±ana"
+  if (diffDays <= 6) return `${diffDays} dÃ­as restantes`
 
-  return `Vigente hasta ${target.toLocaleDateString("es-CL", {
+  return `Vigente hasta ${target.toLocaleDateString("es-BO", {
     day: "numeric",
     month: "short",
   })}`
@@ -135,11 +135,11 @@ function PromoHero({
             </div>
 
             <h1 className="max-w-3xl text-4xl font-black tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">
-              Precios calientes para cerrar compras más rápido.
+              Precios calientes para cerrar compras mÃ¡s rÃ¡pido.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-              Reunimos las mejores oportunidades visibles del catálogo en una sola página, con énfasis en stock real,
-              ahorro inmediato y salidas rápidas hacia producto o cotización.
+              Reunimos las mejores oportunidades visibles del catÃ¡logo en una sola pÃ¡gina, con Ã©nfasis en stock real,
+              ahorro inmediato y salidas rÃ¡pidas hacia producto o cotizaciÃ³n.
             </p>
           </div>
 
@@ -285,16 +285,16 @@ export default async function PromotionsPage() {
               <div className="mx-auto max-w-2xl">
                 <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-orange-500">Promociones</p>
                 <h1 className="mt-3 text-4xl font-black tracking-[-0.04em] text-slate-950 dark:text-white sm:text-5xl">
-                  Estamos preparando la próxima ola de ofertas.
+                  Estamos preparando la prÃ³xima ola de ofertas.
                 </h1>
                 <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400 sm:text-base">
-                  Cuando activemos descuentos visibles en el catálogo, esta página se convertirá en el centro de campañas,
+                  Cuando activemos descuentos visibles en el catÃ¡logo, esta pÃ¡gina se convertirÃ¡ en el centro de campaÃ±as,
                   bundles y oportunidades para clientes finales y B2B.
                 </p>
                 <div className="mt-8 flex flex-wrap justify-center gap-3">
                   <Button asChild size="lg" className="rounded-full bg-orange-500 px-7 hover:bg-orange-400">
                     <Link href="/catalog">
-                      Explorar catálogo
+                      Explorar catÃ¡logo
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </Button>
@@ -336,7 +336,7 @@ export default async function PromotionsPage() {
                 <p className="text-[11px] font-bold uppercase tracking-[0.24em]">Apoyo comercial</p>
               </div>
               <p className="mt-3 text-lg font-black text-slate-950 dark:text-white">Ventas B2B listas</p>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">usa las ofertas como entrada y empuja la cotización de proyecto</p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">usa las ofertas como entrada y empuja la cotizaciÃ³n de proyecto</p>
             </div>
           </div>
         </section>
@@ -344,19 +344,19 @@ export default async function PromotionsPage() {
         <section className="container mx-auto px-4 pt-10">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-orange-500">Selección destacada</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-orange-500">SelecciÃ³n destacada</p>
                 <h2 className="mt-2 text-3xl font-black tracking-[-0.03em] text-slate-950 dark:text-white sm:text-4xl">
                 Todo lo que hoy vale la pena mirar.
               </h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-                Una grilla diseñada para que el visitante compare rápido, vea ahorro real y encuentre una salida directa
-                al producto o a una propuesta comercial más amplia.
+                Una grilla diseÃ±ada para que el visitante compare rÃ¡pido, vea ahorro real y encuentre una salida directa
+                al producto o a una propuesta comercial mÃ¡s amplia.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <Button asChild variant="outline" className="rounded-full">
                 <Link href="/catalog">
-                  Ver catálogo completo
+                  Ver catÃ¡logo completo
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
@@ -371,7 +371,7 @@ export default async function PromotionsPage() {
             </div>
           ) : heroProduct ? (
             <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-white px-6 py-10 text-center text-sm font-medium text-slate-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-400">
-              La oferta principal está activa y pronto sumaremos más productos destacados aquí.
+              La oferta principal estÃ¡ activa y pronto sumaremos mÃ¡s productos destacados aquÃ­.
             </div>
           ) : null}
         </section>
@@ -382,10 +382,10 @@ export default async function PromotionsPage() {
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-cyan-200">Canal empresas</p>
                 <h2 className="mt-3 text-3xl font-black tracking-[-0.03em] sm:text-4xl">
-                  Convierte la página de ofertas en una puerta de entrada a proyectos más grandes.
+                  Convierte la pÃ¡gina de ofertas en una puerta de entrada a proyectos mÃ¡s grandes.
                 </h2>
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-                  Si un cliente encuentra una promoción atractiva, el siguiente paso ideal no siempre es “comprar una unidad”:
+                  Si un cliente encuentra una promociÃ³n atractiva, el siguiente paso ideal no siempre es â€œcomprar una unidadâ€:
                   muchas veces es pedir una propuesta integral, stock reservado o precio por volumen.
                 </p>
               </div>
@@ -396,7 +396,7 @@ export default async function PromotionsPage() {
                   variant="outline"
                   className="rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
                 >
-                  <Link href="/catalog">Explorar todo el catálogo</Link>
+                  <Link href="/catalog">Explorar todo el catÃ¡logo</Link>
                 </Button>
               </div>
             </div>
@@ -408,3 +408,4 @@ export default async function PromotionsPage() {
     </div>
   )
 }
+

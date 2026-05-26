@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
@@ -9,7 +9,7 @@ import { ProductCard } from "@/components/store/product-card"
 import type { Product } from "@/lib/types"
 
 function formatPrice(price: number) {
-  return `BOB ${price.toLocaleString("es-CL")}`
+  return `BOB ${price.toLocaleString("es-BO")}`
 }
 
 function formatExpiry(dateStr: string): { label: string; urgent: boolean } {
@@ -18,11 +18,11 @@ function formatExpiry(dateStr: string): { label: string; urgent: boolean } {
   const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
 
   if (diffDays <= 0) return { label: "Vence hoy", urgent: true }
-  if (diffDays === 1) return { label: "Vence mañana", urgent: true }
-  if (diffDays <= 3) return { label: `${diffDays} días restantes`, urgent: true }
-  if (diffDays <= 7) return { label: `${diffDays} días`, urgent: false }
+  if (diffDays === 1) return { label: "Vence maÃ±ana", urgent: true }
+  if (diffDays <= 3) return { label: `${diffDays} dÃ­as restantes`, urgent: true }
+  if (diffDays <= 7) return { label: `${diffDays} dÃ­as`, urgent: false }
   return {
-    label: date.toLocaleDateString("es-CL", { day: "numeric", month: "short" }),
+    label: date.toLocaleDateString("es-BO", { day: "numeric", month: "short" }),
     urgent: false,
   }
 }
@@ -246,3 +246,4 @@ export function OnSaleSection({ products }: { products: Product[] }) {
     </section>
   )
 }
+

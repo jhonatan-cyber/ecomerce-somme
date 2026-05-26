@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import Image from "next/image"
 import { AlertTriangle, ArrowLeft, CalendarDays, Camera, CheckCircle2, PackageSearch, ShieldCheck, Tag, Truck, Wifi, XCircle } from "lucide-react"
 import { ProductDetailActions } from "@/components/store/product-detail-actions"
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const title = `${product.name} | Somme Technology`
   const description = product.description
     ? product.description.slice(0, 160)
-    : `${product.name} - ${product.category ?? "Cámaras de seguridad"}. BOB ${product.price.toLocaleString("es-CL")}`
+    : `${product.name} - ${product.category ?? "Cámaras de seguridad"}. BOB ${product.price.toLocaleString("es-BO")}`
   return {
     title,
     description,
@@ -51,14 +51,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 function formatPrice(price: number) {
-  return `BOB ${price.toLocaleString("es-CL")}`
+  return `BOB ${price.toLocaleString("es-BO")}`
 }
 
 function formatDateLabel(value: string | null | undefined) {
   if (!value) return null
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  return date.toLocaleDateString("es-CL", {
+  return date.toLocaleDateString("es-BO", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -195,7 +195,7 @@ export default async function ProductDetailPage({
           </Link>
         </div>
 
-        {/* Main grid — stacked on mobile, side by side on lg */}
+        {/* Main grid â€” stacked on mobile, side by side on lg */}
         <div className="grid gap-6 overflow-x-hidden lg:grid-cols-[1.05fr_0.95fr] lg:gap-8">
 
           {/* Gallery - sin contenedor card */}
@@ -207,12 +207,12 @@ export default async function ProductDetailPage({
             />
           </div>
 
-          {/* Info column — gap on mobile */}
+          {/* Info column â€” gap on mobile */}
           <div data-tour="product-info" className="flex flex-col gap-4 pt-2 lg:pt-0">
 
             {/* Main info card */}
             <div className="rounded-[1.5rem] border border-border/70 bg-card p-4 shadow-sm sm:rounded-[2rem] sm:p-6">
-              {/* Category + brand — solo categoría arriba */}
+              {/* Category + brand â€” solo categoría arriba */}
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
                   {product.category || "Producto"}
@@ -229,7 +229,7 @@ export default async function ProductDetailPage({
                 <ProductDescriptionText text={product.description} />
               )}
 
-              {/* Brand logo — debajo de la descripción, más grande */}
+              {/* Brand logo â€” debajo de la descripción, más grande */}
               {product.brandLogo ? (
                 <div className="mt-3 flex justify-end">
                   <div className="inline-flex items-center overflow-hidden rounded-lg border border-border/60 bg-white px-3 py-2">
@@ -344,7 +344,7 @@ export default async function ProductDetailPage({
               <ProductBranchStockTable product={product} />
             </div>
 
-            {/* Specs + support — side by side on sm, stacked on xs */}
+            {/* Specs + support â€” side by side on sm, stacked on xs */}
             <div className="grid gap-4 sm:grid-cols-2">
               {hasSpecs && (
                 <div className="rounded-[1.25rem] border border-border/70 bg-card p-4 shadow-sm sm:rounded-[1.5rem]">
@@ -449,3 +449,6 @@ export default async function ProductDetailPage({
     </div>
   )
 }
+
+
+

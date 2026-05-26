@@ -13,6 +13,7 @@ import { InstallPrompt } from "@/components/pwa/install-prompt"
 import "../styles/globals.css"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuwesomme.cloud"
+const IS_PRODUCTION = process.env.NODE_ENV === "production"
 const SITE_NAME = "Somme Technology"
 const SITE_DESCRIPTION =
   "Cámaras IP, kits de seguridad, grabadores NVR, video porteros y accesorios. Asesoramiento técnico especializado y envíos a todo el país."
@@ -97,7 +98,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    locale: "es_AR",
+    locale: "es_BO",
     url: SITE_URL,
     siteName: SITE_NAME,
     title: SITE_NAME,
@@ -133,10 +134,17 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              if ('serviceWorker' in navigator && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-                window.addEventListener('load', () => {
-                  navigator.serviceWorker.register('/sw.js').catch(() => {});
-                });
+              if ('serviceWorker' in navigator) {
+                const isProd = ${JSON.stringify(IS_PRODUCTION)};
+                if (!isProd) {
+                  navigator.serviceWorker.getRegistrations().then((registrations) => {
+                    registrations.forEach((registration) => registration.unregister());
+                  }).catch(() => {});
+                } else if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                  window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js').catch(() => {});
+                  });
+                }
               }
             `,
           }}

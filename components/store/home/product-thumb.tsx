@@ -1,10 +1,10 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import Image from "next/image"
 import { Camera } from "lucide-react"
 import type { Product } from "@/lib/types"
 
 function formatPrice(price: number) {
-  return `BOB ${price.toLocaleString("es-CL")}`
+  return `BOB ${price.toLocaleString("es-BO")}`
 }
 
 export function ProductThumb({ product }: { product: Product }) {
@@ -50,3 +50,4 @@ export function ProductThumb({ product }: { product: Product }) {
     </Link>
   )
 }
+

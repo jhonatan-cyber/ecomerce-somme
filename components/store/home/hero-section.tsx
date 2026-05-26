@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, Camera } from "lucide-react"
 import { ProductCard } from "@/components/store/product-card"
@@ -13,7 +13,7 @@ interface HeroSectionProps {
 }
 
 function formatPrice(price: number) {
-  return `BOB ${price.toLocaleString("es-CL")}`
+  return `BOB ${price.toLocaleString("es-BO")}`
 }
 
 // Deterministic shuffle using product id so it's stable per SSR render
@@ -42,9 +42,9 @@ export function HeroSection({
     ? products.slice(0, 8)
     : getRandomProducts(products, 8)
 
-  const title = selectedCategory?.name ?? "Catálogo"
+  const title = selectedCategory?.name ?? "CatÃ¡logo"
   const subtitle = selectedCategory
-    ? `${products.length} producto${products.length === 1 ? "" : "s"} en esta categoría`
+    ? `${products.length} producto${products.length === 1 ? "" : "s"} en esta categorÃ­a`
     : `${heroCategoryProductCount} producto${heroCategoryProductCount === 1 ? "" : "s"} disponibles`
 
   return (
@@ -62,7 +62,7 @@ export function HeroSection({
           href={selectedCategory ? `/catalog?category=${encodeURIComponent(selectedCategory.id)}` : "/catalog"}
           className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_100%)] px-4 py-2 text-xs font-bold text-white transition hover:opacity-90 sm:w-fit sm:px-5 sm:py-2.5 sm:text-sm"
         >
-          Ver catálogo completo
+          Ver catÃ¡logo completo
           <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Link>
       </div>
@@ -75,9 +75,10 @@ export function HeroSection({
         </div>
       ) : (
         <div className="flex min-h-[280px] items-center justify-center p-6 text-center text-sm text-muted-foreground">
-          No hay productos disponibles todavía.
+          No hay productos disponibles todavÃ­a.
         </div>
       )}
     </section>
   )
 }
+

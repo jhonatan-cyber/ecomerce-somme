@@ -1,11 +1,11 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, Camera, Sparkles } from "lucide-react"
 import { ProductCard } from "@/components/store/product-card"
 import type { Product } from "@/lib/types"
 
 function formatPrice(price: number) {
-  return `BOB ${price.toLocaleString("es-CL")}`
+  return `BOB ${price.toLocaleString("es-BO")}`
 }
 
 export function NewArrivalsSection({ products }: { products: Product[] }) {
@@ -26,7 +26,7 @@ export function NewArrivalsSection({ products }: { products: Product[] }) {
             <p className="text-base font-black uppercase tracking-[0.18em] text-foreground">
               Novedades
             </p>
-            <p className="text-xs text-muted-foreground">Últimos productos agregados al catálogo</p>
+            <p className="text-xs text-muted-foreground">Ãšltimos productos agregados al catÃ¡logo</p>
           </div>
         </div>
         <Link
@@ -55,3 +55,4 @@ export function NewArrivalsSection({ products }: { products: Product[] }) {
     </section>
   )
 }
+

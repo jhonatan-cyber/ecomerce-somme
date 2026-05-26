@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useCallback, useEffect, useRef } from "react"
 import Link from "next/link"
@@ -10,7 +10,7 @@ import { useCartStore } from "@/lib/store/cart-store"
 import type { Product } from "@/lib/types"
 
 function formatPrice(price: number) {
-  return `BOB ${price.toLocaleString("es-CL")}`
+  return `BOB ${price.toLocaleString("es-BO")}`
 }
 
 function getProductImages(product: Product) {
@@ -216,3 +216,4 @@ export function SuggestedProductCard({ product }: { product: Product }) {
     </div>
   )
 }
+

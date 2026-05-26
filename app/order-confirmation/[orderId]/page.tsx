@@ -28,7 +28,7 @@ function formatDate(value: string | null | undefined) {
   if (!value) return "Pendiente"
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  return date.toLocaleString("es-AR", { dateStyle: "medium", timeStyle: "short" })
+  return date.toLocaleString("es-BO", { dateStyle: "medium", timeStyle: "short" })
 }
 
 export default async function OrderConfirmationPage({
@@ -165,3 +165,4 @@ export default async function OrderConfirmationPage({
     </div>
   )
 }
+
