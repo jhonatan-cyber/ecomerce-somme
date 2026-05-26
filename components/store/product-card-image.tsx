@@ -65,24 +65,11 @@ export function ProductCardImage({
   isNew,
 }: ProductCardImageProps) {
   const hasMultiple = images.length > 1
-  const [isTouchDevice, setIsTouchDevice] = useState(false)
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, dragFree: false })
   const [activeIndex, setActiveIndex] = useState(0)
   const [showArrows, setShowArrows] = useState(false)
   const [logoError, setLogoError] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const shouldUseImageCarousel = hasMultiple && !isTouchDevice
-
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    const media = window.matchMedia("(hover: none), (pointer: coarse)")
-    const update = () => {
-      setIsTouchDevice(media.matches || navigator.maxTouchPoints > 0)
-    }
-    update()
-    media.addEventListener("change", update)
-    return () => media.removeEventListener("change", update)
-  }, [])
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return
@@ -199,7 +186,7 @@ export function ProductCardImage({
   }
 
   // Multiple images: carousel
-  if (shouldUseImageCarousel) {
+  if (hasMultiple) {
     return (
       <div
         className="relative aspect-square w-full overflow-hidden bg-slate-100 dark:bg-slate-900"
