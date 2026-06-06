@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 export async function proxyStoreGet(remoteUrl: string, errorMessage: string) {
+  console.log(`[proxyStoreGet] Fetching from: ${remoteUrl}`)
   try {
     const response = await fetch(remoteUrl, {
       method: "GET",
@@ -10,6 +11,8 @@ export async function proxyStoreGet(remoteUrl: string, errorMessage: string) {
       },
       cache: "no-store",
     })
+
+    console.log(`[proxyStoreGet] Response status: ${response.status}`)
 
     const payload = await response.text()
 
@@ -21,7 +24,7 @@ export async function proxyStoreGet(remoteUrl: string, errorMessage: string) {
       },
     })
   } catch (error) {
-    console.error(errorMessage, error)
+    console.error(`[proxyStoreGet] ${errorMessage}`, error)
     return NextResponse.json({ error: errorMessage }, { status: 502 })
   }
 }

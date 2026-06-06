@@ -475,12 +475,19 @@ export async function getSlides(): Promise<{ ok: boolean; slides: { url: string;
 
 export async function getAds(): Promise<{ ok: boolean; ads: { url: string; alt: string }[] }> {
   const sourceUrl = joinApiUrl("/ads")
+  console.log(`getAds: attempting to fetch from ${sourceUrl}`)
   try {
     const response = await fetch(sourceUrl, { next: { revalidate: 60 }, headers: { Accept: "application/json" } })
-    if (!response.ok) return { ok: false, ads: [] }
+    if (!response.ok) {
+      console.error(`getAds failed: ${response.status} from ${sourceUrl}`)
+      return { ok: false, ads: [] }
+    }
     const payload = await response.json() as { data?: { url: string; alt: string }[] }
-    return { ok: true, ads: payload.data ?? [] }
-  } catch {
+    const ads = payload.data ?? []
+    console.log(`getAds success: loaded ${ads.length} ads from ${sourceUrl}`)
+    return { ok: true, ads }
+  } catch (error) {
+    console.error(`getAds error from ${sourceUrl}:`, error)
     return { ok: false, ads: [] }
   }
 }
