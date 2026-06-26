@@ -467,7 +467,11 @@ export async function getSlides(): Promise<{ ok: boolean; slides: { url: string;
     const response = await fetch(sourceUrl, { next: { revalidate: 60 }, headers: { Accept: "application/json" } })
     if (!response.ok) return { ok: false, slides: [] }
     const payload = await response.json() as { data?: { url: string; alt: string }[] }
-    return { ok: true, slides: payload.data ?? [] }
+    const slides = (payload.data ?? []).map((slide) => ({
+      url: rewriteImageUrl(slide.url) ?? slide.url,
+      alt: slide.alt,
+    }))
+    return { ok: true, slides }
   } catch {
     return { ok: false, slides: [] }
   }
@@ -483,7 +487,10 @@ export async function getAds(): Promise<{ ok: boolean; ads: { url: string; alt: 
       return { ok: false, ads: [] }
     }
     const payload = await response.json() as { data?: { url: string; alt: string }[] }
-    const ads = payload.data ?? []
+    const ads = (payload.data ?? []).map((ad) => ({
+      url: rewriteImageUrl(ad.url) ?? ad.url,
+      alt: ad.alt,
+    }))
     console.log(`getAds success: loaded ${ads.length} ads from ${sourceUrl}`)
     return { ok: true, ads }
   } catch (error) {
