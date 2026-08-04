@@ -3,6 +3,7 @@
 import { ArrowRight, Megaphone } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { AdCarousel } from "./ad-carousel"
+import { buildStoreApiUrl, fetchStoreRemote } from "@/lib/store-api-root"
 
 interface AdSlide {
   url: string
@@ -44,8 +45,9 @@ export function PromoBanner({ ads = [] }: PromoBannerProps) {
       if (refreshInFlightRef.current) return
       refreshInFlightRef.current = true
       try {
-        console.log(`[PromoBanner] Fetching ads from /api/store/ads`)
-        const res = await fetch("/api/store/ads", { cache: "no-store" })
+        const adsUrl = buildStoreApiUrl("/ads")
+        console.log(`[PromoBanner] Fetching ads from ${adsUrl}`)
+        const res = await fetchStoreRemote(adsUrl)
         console.log(`[PromoBanner] Response status: ${res.status}`)
         if (!res.ok) return
         const payload = (await res.json()) as { data?: AdSlide[] }
@@ -93,8 +95,9 @@ export function PromoBanner({ ads = [] }: PromoBannerProps) {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        console.log(`[PromoBanner] Interval refresh: Fetching ads from /api/store/ads`)
-        const res = await fetch("/api/store/ads", { cache: "no-store" })
+        const adsUrl = buildStoreApiUrl("/ads")
+        console.log(`[PromoBanner] Interval refresh: Fetching ads from ${adsUrl}`)
+        const res = await fetchStoreRemote(adsUrl)
         console.log(`[PromoBanner] Interval refresh: Response status ${res.status}`)
         if (!res.ok) return
         const payload = (await res.json()) as { data?: AdSlide[] }

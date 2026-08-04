@@ -1,5 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { getRemoteStoreOrdersUrl } from "@/lib/server-store-api"
+import { buildForwardedResponse, buildProxyError } from "@/lib/server-store-proxy"
+import { fetchStoreRemote } from "@/lib/store-api-root"
 
 export const dynamic = "force-dynamic"
 
@@ -9,28 +11,13 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params
-    const response = await fetch(getRemoteStoreOrdersUrl(id), {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-      cache: "no-store",
-    })
+    const response = await fetchStoreRemote(getRemoteStoreOrdersUrl(id))
 
-    const payload = await response.text()
-
-    return new NextResponse(payload, {
-      status: response.status,
-      headers: {
-        "Content-Type": response.headers.get("content-type") ?? "application/json",
-        "Cache-Control": "no-store",
-      },
-    })
+    // cacheControl explícito: las respuestas de pedidos nunca deben cachearse,
+    // aunque el upstream envíe su propio cache-control.
+    return buildForwardedResponse(response, { cacheControl: "no-store" })
   } catch (error) {
     console.error("Error proxying storefront order lookup:", error)
-    return NextResponse.json(
-      { error: "No se pudo consultar el pedido en el dashboard." },
-      { status: 502 },
-    )
+    return buildProxyError("No se pudo consultar el pedido en el dashboard.")
   }
 }

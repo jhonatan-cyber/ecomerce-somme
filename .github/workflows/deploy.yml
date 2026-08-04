@@ -24,6 +24,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Lint client/server boundary
+        run: pnpm lint:boundary
+
       - name: Build
         run: pnpm build
         env:

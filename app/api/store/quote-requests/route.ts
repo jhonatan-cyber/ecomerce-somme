@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { getRemoteStoreQuoteRequestsUrl } from "@/lib/server-store-api"
+import { buildForwardedResponse, buildProxyError } from "@/lib/server-store-proxy"
+import { fetchStoreRemote } from "@/lib/store-api-root"
 import { consumeRateLimit, getClientIpFromRequest } from "@/lib/server/rate-limit"
 
 export const dynamic = "force-dynamic"
@@ -31,30 +33,19 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.text()
-    const response = await fetch(getRemoteStoreQuoteRequestsUrl(), {
+    const response = await fetchStoreRemote(getRemoteStoreQuoteRequestsUrl(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
       },
       body,
-      cache: "no-store",
     })
 
-    const payload = await response.text()
-
-    return new NextResponse(payload, {
-      status: response.status,
-      headers: {
-        "Content-Type": response.headers.get("content-type") ?? "application/json",
-        "Cache-Control": "no-store",
-      },
-    })
+    // cacheControl explícito: las respuestas de escritura nunca deben cachearse,
+    // aunque el upstream envíe su propio cache-control.
+    return buildForwardedResponse(response, { cacheControl: "no-store" })
   } catch (error) {
     console.error("Error proxying store quote request creation:", error)
-    return NextResponse.json(
-      { error: "No se pudo conectar con el dashboard para registrar la solicitud." },
-      { status: 502 },
-    )
+    return buildProxyError("No se pudo conectar con el dashboard para registrar la solicitud.")
   }
 }

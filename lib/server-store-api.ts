@@ -1,85 +1,63 @@
-function resolveRemoteStoreApiRoot() {
-  const explicitStoreRoot = process.env.NEXT_PUBLIC_STORE_API_URL?.trim()
-  if (explicitStoreRoot) {
-    return explicitStoreRoot.replace(/\/$/, "")
-  }
+/**
+ * Resolución server-side de URLs remotas del storefront (proxy hacia el
+ * dashboard). Módulo EXCLUSIVAMENTE server-side: resuelve siempre URL
+ * absoluta (clientFallback: false) y lanza si falta config. Lo protege
+ * `import "server-only"` + el lint de CI `lint:boundary`
+ * (scripts/lint-client-boundary.js); no debe importarse desde componentes.
+ */
+import "server-only"
 
-  const apiRoot = process.env.NEXT_PUBLIC_API_URL?.trim()
-  if (apiRoot) {
-    const normalizedApiRoot = apiRoot.replace(/\/$/, "")
+import { buildStoreApiUrl } from "./store-api-root"
+import type { ResolveStoreApiRootOptions } from "./store-api-root"
 
-    if (normalizedApiRoot.endsWith("/store")) {
-      return normalizedApiRoot
-    }
-
-    return `${normalizedApiRoot}/store`
-  }
-
-  throw new Error("No se configuró NEXT_PUBLIC_STORE_API_URL o NEXT_PUBLIC_API_URL para el proxy del storefront.")
-}
-
-function buildRemoteStoreUrl(path: string, search?: string) {
-  const root = resolveRemoteStoreApiRoot()
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`
-  const baseUrl = `${root}${normalizedPath}`
-
-  if (!search) {
-    return baseUrl
-  }
-
-  const normalizedSearch = search.startsWith("?") ? search : `?${search}`
-  return `${baseUrl}${normalizedSearch}`
+/**
+ * Opciones para la resolución server-side de la URL del storefront:
+ * siempre URL absoluta (sin fallback de cliente) y error si falta config.
+ * Todas las URLs remotas del proxy delegan en buildStoreApiUrl, el único
+ * punto de construcción de URLs del storefront.
+ */
+const REMOTE_STORE_OPTIONS: ResolveStoreApiRootOptions = {
+  clientFallback: false,
+  throwIfMissing: true,
 }
 
 export function getRemoteStoreOrdersUrl(orderId?: string) {
   const path = orderId ? `/orders/${encodeURIComponent(orderId)}` : "/orders"
-  return buildRemoteStoreUrl(path)
+  return buildStoreApiUrl(path, REMOTE_STORE_OPTIONS)
 }
 
 export function getRemoteStoreQuoteRequestsUrl() {
-  return buildRemoteStoreUrl("/quote-requests")
+  return buildStoreApiUrl("/quote-requests", REMOTE_STORE_OPTIONS)
 }
 
 export function getRemoteStoreProductsUrl(search?: string) {
-  return buildRemoteStoreUrl("/products", search)
+  return buildStoreApiUrl("/products", REMOTE_STORE_OPTIONS, search)
 }
 
 export function getRemoteStoreProductDetailUrl(productId: string) {
-  return buildRemoteStoreUrl(`/products/${encodeURIComponent(productId)}`)
+  return buildStoreApiUrl(`/products/${encodeURIComponent(productId)}`, REMOTE_STORE_OPTIONS)
 }
 
 export function getRemoteStoreOnSaleProductsUrl() {
-  return buildRemoteStoreUrl("/products/on-sale")
+  return buildStoreApiUrl("/products/on-sale", REMOTE_STORE_OPTIONS)
 }
 
 export function getRemoteStoreCategoriesUrl() {
-  return buildRemoteStoreUrl("/categories")
+  return buildStoreApiUrl("/categories", REMOTE_STORE_OPTIONS)
 }
 
 export function getRemoteStoreBrandsUrl() {
-  return buildRemoteStoreUrl("/brands")
-}
-
-export function getRemoteStoreBranchesUrl() {
-  return buildRemoteStoreUrl("/branches")
-}
-
-export function getRemoteStoreDepositsUrl() {
-  return buildRemoteStoreUrl("/deposits")
-}
-
-export function getRemoteStoreWarehousesUrl() {
-  return buildRemoteStoreUrl("/warehouses")
+  return buildStoreApiUrl("/brands", REMOTE_STORE_OPTIONS)
 }
 
 export function getRemoteStoreSlidesUrl() {
-  return buildRemoteStoreUrl("/slides")
+  return buildStoreApiUrl("/slides", REMOTE_STORE_OPTIONS)
 }
 
 export function getRemoteStoreAdsUrl() {
-  return buildRemoteStoreUrl("/ads")
+  return buildStoreApiUrl("/ads", REMOTE_STORE_OPTIONS)
 }
 
 export function getRemoteStoreSettingsUrl() {
-  return buildRemoteStoreUrl("/settings")
+  return buildStoreApiUrl("/settings", REMOTE_STORE_OPTIONS)
 }

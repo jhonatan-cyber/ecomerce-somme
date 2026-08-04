@@ -1,3 +1,11 @@
+/**
+ * Rate-limit en memoria del storefront (usado por quote-requests). Módulo
+ * EXCLUSIVAMENTE server-side: los buckets viven en memoria del proceso.
+ * Lo protege `import "server-only"` + el lint de CI `lint:boundary`
+ * (scripts/lint-client-boundary.js); no debe importarse desde componentes.
+ */
+import "server-only"
+
 export interface RateLimitResult {
   allowed: boolean
   remaining: number

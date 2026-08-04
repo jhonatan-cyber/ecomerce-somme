@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { ChevronDown, Facebook, Instagram, Mail, MapPin, Phone, ShieldCheck, Truck, Youtube } from "lucide-react"
+import { buildStoreApiUrl, fetchStoreRemote } from "@/lib/store-api-root"
 
 type SocialLinks = {
   facebook: string | null
@@ -31,7 +32,7 @@ export function StoreFooter() {
   useEffect(() => {
     let mounted = true
 
-    fetch("/api/store/settings", { cache: "no-store" })
+    fetchStoreRemote(buildStoreApiUrl("/settings"))
       .then((response) => (response.ok ? response.json() : null))
       .then((payload) => {
         if (!mounted || !payload?.data) return

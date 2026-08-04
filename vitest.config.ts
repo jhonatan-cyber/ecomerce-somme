@@ -27,6 +27,12 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "."),
+      // server-only usa la condicion de export `react-server` (-> empty.js)
+      // que Next.js aplica en el bundle server pero vitest no: sin este alias
+      // resuelve a index.js, que lanza al importarse. Apuntar al stub local
+      // (test/server-only.ts) replica el comportamiento del servidor en los
+      // tests y desacopla la config del layout interno del paquete.
+      "server-only": path.resolve(__dirname, "test/server-only.ts"),
     },
   },
 })

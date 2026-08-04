@@ -1,52 +1,21 @@
 import { NextResponse } from "next/server"
+import { fetchFirstStoreData, resolveStoreApiRootOrNull } from "@/lib/store-api-root"
 
 export const dynamic = "force-dynamic"
 
-function resolveStoreRoot() {
-  const explicitStoreRoot = process.env.NEXT_PUBLIC_STORE_API_URL?.trim()
-  if (explicitStoreRoot) return explicitStoreRoot.replace(/\/$/, "")
-
-  const apiRoot = process.env.NEXT_PUBLIC_API_URL?.trim()
-  if (!apiRoot) return null
-
-  const normalizedApiRoot = apiRoot.replace(/\/$/, "")
-  return normalizedApiRoot.endsWith("/store")
-    ? normalizedApiRoot
-    : `${normalizedApiRoot}/store`
-}
-
-async function fetchJson(url: string) {
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      Accept: "application/json",
-      "ngrok-skip-browser-warning": "true",
-    },
-    cache: "no-store",
-  })
-
-  if (!response.ok) return null
-  return (await response.json().catch(() => null)) as { data?: unknown[] } | null
-}
+// URLs candidatas de la API del storefront, en orden de preferencia.
+const candidates = (root: string) => [
+  `${root}/branches?type=branch`,
+  `${root}/branches`,
+]
 
 export async function GET() {
   try {
-    const root = resolveStoreRoot()
+    const root = resolveStoreApiRootOrNull()
     if (!root) return NextResponse.json({ data: [] })
 
-    const candidates = [
-      `${root}/branches?type=branch`,
-      `${root}/branches`,
-    ]
-
-    for (const url of candidates) {
-      const payload = await fetchJson(url)
-      if (Array.isArray(payload?.data)) {
-        return NextResponse.json({ data: payload.data })
-      }
-    }
-
-    return NextResponse.json({ data: [] })
+    const data = await fetchFirstStoreData(candidates(root))
+    return NextResponse.json({ data: data ?? [] })
   } catch (error) {
     console.error("No se pudieron consultar las sucursales del catalogo.", error)
     return NextResponse.json({ data: [] })

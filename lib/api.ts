@@ -1,3 +1,4 @@
+import { buildStoreApiUrl } from "./store-api-root"
 import type {
   Brand,
   BrandLoadResult,
@@ -23,48 +24,18 @@ export { createOrder } from './api-create-order'
 
 export type { BrandLoadResult } from "./types"
 
-function resolveStoreApiRoot() {
-  if (typeof window !== "undefined") {
-    return "/api/store"
-  }
-
-  const explicitStoreRoot = process.env.NEXT_PUBLIC_STORE_API_URL?.trim()
-  if (explicitStoreRoot) {
-    return explicitStoreRoot
-  }
-
-  const apiRoot = process.env.NEXT_PUBLIC_API_URL?.trim()
-  if (apiRoot) {
-    const normalizedApiRoot = apiRoot.replace(/\/$/, "")
-
-    if (normalizedApiRoot.endsWith("/store")) {
-      return normalizedApiRoot
-    }
-
-    return `${normalizedApiRoot}/store`
-  }
-
-  return "/api/store"
-}
-
-const STORE_API_ROOT = resolveStoreApiRoot()
-
-// Skip ngrok browser warning page for API calls
-const BASE_HEADERS: Record<string, string> = {
-  Accept: "application/json",
-  "ngrok-skip-browser-warning": "true",
-}
-
-function joinApiUrl(path: string) {
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`
-  const normalizedRoot = STORE_API_ROOT.replace(/\/$/, "")
-
-  if (normalizedRoot.startsWith("http://") || normalizedRoot.startsWith("https://")) {
-    return new URL(normalizedPath.slice(1), `${normalizedRoot}/`).toString()
-  }
-
-  return `${normalizedRoot}${normalizedPath}`
-}
+// ── Contrato de cache del catálogo (segundos de revalidate) ───────────────
+// Períodos centralizados: el catálogo público es dato estable que puede
+// servirse desde cache ISR; los pedidos (getOrderById) son dato dinámico
+// por-cliente y se excluyen de cache a propósito.
+const PROMO_REVALIDATE = 60 // slides, ads y on-sale (rotación de promos)
+const QUOTE_REVALIDATE = 30 // productos del flujo de cotización
+const SEARCH_REVALIDATE = 30 // listados con filtros/búsqueda activa
+const CATALOG_REVALIDATE = 120 // listado de productos sin filtros
+const DETAIL_REVALIDATE = 120 // detalle de producto (getProductById)
+const SETTINGS_REVALIDATE = 120 // configuración del store (getStoreSettings)
+const STATIC_REVALIDATE = 300 // categorías y marcas (cambian muy poco)
+const ORDER_LOOKUP_CACHE = "no-store" as const // órdenes: dato dinámico por-cliente
 
 function toText(value: unknown): string | null {
   if (typeof value !== "string") return null
@@ -462,9 +433,9 @@ function toErrorMessage(error: unknown) {
 }
 
 export async function getSlides(): Promise<{ ok: boolean; slides: { url: string; alt: string }[] }> {
-  const sourceUrl = joinApiUrl("/slides")
+  const sourceUrl = buildStoreApiUrl("/slides")
   try {
-    const response = await fetch(sourceUrl, { next: { revalidate: 60 }, headers: { Accept: "application/json" } })
+    const response = await fetch(sourceUrl, { next: { revalidate: PROMO_REVALIDATE }, headers: { Accept: "application/json" } })
     if (!response.ok) return { ok: false, slides: [] }
     const payload = await response.json() as { data?: { url: string; alt: string }[] }
     const slides = (payload.data ?? []).map((slide) => ({
@@ -478,10 +449,10 @@ export async function getSlides(): Promise<{ ok: boolean; slides: { url: string;
 }
 
 export async function getAds(): Promise<{ ok: boolean; ads: { url: string; alt: string }[] }> {
-  const sourceUrl = joinApiUrl("/ads")
+  const sourceUrl = buildStoreApiUrl("/ads")
   console.log(`getAds: attempting to fetch from ${sourceUrl}`)
   try {
-    const response = await fetch(sourceUrl, { next: { revalidate: 60 }, headers: { Accept: "application/json" } })
+    const response = await fetch(sourceUrl, { next: { revalidate: PROMO_REVALIDATE }, headers: { Accept: "application/json" } })
     if (!response.ok) {
       console.error(`getAds failed: ${response.status} from ${sourceUrl}`)
       return { ok: false, ads: [] }
@@ -500,11 +471,11 @@ export async function getAds(): Promise<{ ok: boolean; ads: { url: string; alt: 
 }
 
 export async function getOnSaleProducts(): Promise<CatalogLoadResult> {
-  const sourceUrl = joinApiUrl("/products/on-sale")
+  const sourceUrl = buildStoreApiUrl("/products/on-sale")
 
   try {
     const response = await fetch(sourceUrl, {
-      next: { revalidate: 60 },
+      next: { revalidate: PROMO_REVALIDATE },
       headers: { Accept: "application/json" },
     })
 
@@ -524,11 +495,11 @@ export async function getOnSaleProducts(): Promise<CatalogLoadResult> {
 }
 
 export async function getQuoteProducts(): Promise<CatalogLoadResult> {
-  const sourceUrl = joinApiUrl("/quote-products")
+  const sourceUrl = buildStoreApiUrl("/quote-products")
 
   try {
     const response = await fetch(sourceUrl, {
-      next: { revalidate: 30 },
+      next: { revalidate: QUOTE_REVALIDATE },
       headers: {
         Accept: "application/json",
       },
@@ -574,34 +545,8 @@ export async function getQuoteProducts(): Promise<CatalogLoadResult> {
   }
 }
 
-function resolveApiRoot() {
-  if (typeof window !== "undefined") {
-    return "/api"
-  }
-
-  const explicitApiRoot = process.env.NEXT_PUBLIC_API_URL?.trim()
-  if (explicitApiRoot) {
-    return explicitApiRoot.replace(/\/$/, "")
-  }
-
-  return "/api"
-}
-
-const API_ROOT = resolveApiRoot()
-
-function joinRootUrl(root: string, path: string) {
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`
-  const normalizedRoot = root.replace(/\/$/, "")
-
-  if (normalizedRoot.startsWith("http://") || normalizedRoot.startsWith("https://")) {
-    return new URL(normalizedPath.slice(1), `${normalizedRoot}/`).toString()
-  }
-
-  return `${normalizedRoot}${normalizedPath}`
-}
-
 export async function createQuoteRequest(input: QuoteRequest): Promise<QuoteRequestCreateResult> {
-  const sourceUrl = joinRootUrl(API_ROOT, "/store/quote-requests")
+  const sourceUrl = buildStoreApiUrl("/quote-requests")
 
   const response = await fetch(sourceUrl, {
     method: "POST",
@@ -680,12 +625,12 @@ export async function getProducts(options: {
   if (options.limit) params.set("limit", options.limit.toString())
 
   const qs = params.toString()
-  const sourceUrl = qs ? `${joinApiUrl("/products")}?${qs}` : joinApiUrl("/products")
+  const sourceUrl = qs ? `${buildStoreApiUrl("/products")}?${qs}` : buildStoreApiUrl("/products")
 
   try {
     const response = await fetch(sourceUrl, {
       next: {
-        revalidate: normalizedSearch || normalizedCategoryId || normalizedSubcategoryId || normalizedBrandId ? 30 : 120,
+        revalidate: normalizedSearch || normalizedCategoryId || normalizedSubcategoryId || normalizedBrandId ? SEARCH_REVALIDATE : CATALOG_REVALIDATE,
       },
       headers: {
         Accept: "application/json",
@@ -721,9 +666,9 @@ export async function getProducts(options: {
     let finalProducts = products
     if (normalizedBrandId) {
       try {
-        const allProductsUrl = joinApiUrl("/products")
+        const allProductsUrl = buildStoreApiUrl("/products")
         const allResponse = await fetch(allProductsUrl, {
-          next: { revalidate: 120 },
+          next: { revalidate: CATALOG_REVALIDATE },
           headers: { Accept: "application/json" },
         })
         
@@ -733,8 +678,8 @@ export async function getProducts(options: {
           if (allRawProducts) {
             const allProducts = allRawProducts.map(normalizeProduct).filter((p): p is Product => p !== null)
             // Get brand name from brands API or use a simple mapping
-            const brandsResponse = await fetch(joinApiUrl("/brands"), {
-              next: { revalidate: 300 },
+            const brandsResponse = await fetch(buildStoreApiUrl("/brands"), {
+              next: { revalidate: STATIC_REVALIDATE },
               headers: { Accept: "application/json" },
             })
             
@@ -791,12 +736,12 @@ export async function getProducts(options: {
 
 export async function getProductById(productId: string): Promise<ProductDetailLoadResult> {
   const trimmedId = productId.trim()
-  const sourceUrl = joinApiUrl(`/products/${encodeURIComponent(trimmedId)}`)
+  const sourceUrl = buildStoreApiUrl(`/products/${encodeURIComponent(trimmedId)}`)
 
   try {
     const response = await fetch(sourceUrl, {
       next: {
-        revalidate: 120,
+        revalidate: DETAIL_REVALIDATE,
       },
       headers: {
         Accept: "application/json",
@@ -877,12 +822,12 @@ export async function getProductById(productId: string): Promise<ProductDetailLo
 }
 
 export async function getCategories(): Promise<CategoryLoadResult> {
-  const sourceUrl = joinApiUrl("/categories")
+  const sourceUrl = buildStoreApiUrl("/categories")
 
   try {
     const response = await fetch(sourceUrl, {
       next: {
-        revalidate: 300,
+        revalidate: STATIC_REVALIDATE,
       },
       headers: {
         Accept: "application/json",
@@ -941,10 +886,10 @@ export async function getCategories(): Promise<CategoryLoadResult> {
 }
 
 export async function getStoreSettings(): Promise<StoreSettingsLoadResult> {
-  const sourceUrl = joinApiUrl("/settings")
+  const sourceUrl = buildStoreApiUrl("/settings")
   try {
     const response = await fetch(sourceUrl, {
-      next: { revalidate: 120 },
+      next: { revalidate: SETTINGS_REVALIDATE },
       headers: { Accept: "application/json" },
     })
 
@@ -993,12 +938,12 @@ export function getBrandNameById(brands: Brand[], brandId: string): string {
 }
 
 export async function getBrands(): Promise<BrandLoadResult> {
-  const sourceUrl = joinApiUrl("/brands")
+  const sourceUrl = buildStoreApiUrl("/brands")
 
   try {
     const response = await fetch(sourceUrl, {
       next: {
-        revalidate: 300,
+        revalidate: STATIC_REVALIDATE,
       },
       headers: {
         Accept: "application/json",
@@ -1059,11 +1004,14 @@ export async function getBrands(): Promise<BrandLoadResult> {
 // Función para obtener un pedido por ID (usada en página de confirmación)
 export async function getOrderById(orderId: string): Promise<OrderLookupResult> {
   const trimmedOrderId = orderId.trim()
-  const sourceUrl = joinApiUrl(`/orders/${encodeURIComponent(trimmedOrderId)}`)
+  const sourceUrl = buildStoreApiUrl(`/orders/${encodeURIComponent(trimmedOrderId)}`)
 
   try {
     const response = await fetch(sourceUrl, {
-      cache: "no-store",
+      // No-store deliberado: el estado de un pedido es dato dinámico por-cliente
+      // (cambia tras pago/confirmación) y la página de confirmación debe verlo
+      // siempre fresco; cachearlo con revalidate daría estados obsoletos.
+      cache: ORDER_LOOKUP_CACHE,
       headers: {
         Accept: "application/json",
       },

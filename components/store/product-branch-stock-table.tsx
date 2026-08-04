@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useCartStore } from "@/lib/store/cart-store"
 import type { Product } from "@/lib/types"
+import { buildStoreApiUrl, fetchStoreRemote } from "@/lib/store-api-root"
 
 type StoreBranch = {
   id: string
@@ -70,14 +71,14 @@ export function ProductBranchStockTable({ product }: { product: Product }) {
 
     const readLocations = async () => {
       const endpoints: Array<{ url: string; type: "Sucursal" | "Deposito" }> = [
-        { url: "/api/store/branches", type: "Sucursal" },
-        { url: "/api/store/deposits", type: "Deposito" },
-        { url: "/api/store/warehouses", type: "Deposito" },
+        { url: buildStoreApiUrl("/branches"), type: "Sucursal" },
+        { url: buildStoreApiUrl("/deposits"), type: "Deposito" },
+        { url: buildStoreApiUrl("/warehouses"), type: "Deposito" },
       ]
       const results = await Promise.all(
         endpoints.map(async ({ url, type }) => {
           try {
-            const response = await fetch(url, { cache: "no-store" })
+            const response = await fetchStoreRemote(url)
             const payload = (await response.json().catch(() => null)) as {
               data?: Array<{ id: string; name: string }>
             } | null

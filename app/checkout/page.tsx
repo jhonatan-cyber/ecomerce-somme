@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog"
 import { createOrder } from "@/lib/api-create-order"
 import { rewriteImageUrl } from "@/lib/api"
+import { buildStoreApiUrl, fetchStoreRemote } from "@/lib/store-api-root"
 import { useCartStore } from "@/lib/store/cart-store"
 import { useToast } from "@/hooks/use-toast"
 
@@ -154,7 +155,7 @@ export default function CheckoutPage() {
     let isMounted = true
     setIsLoadingBranches(true)
 
-    void fetch("/api/store/branches", { cache: "no-store" })
+    void fetchStoreRemote(buildStoreApiUrl("/branches"))
       .then(async (response) => {
         const payload = await response.json().catch(() => null)
 
@@ -195,7 +196,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     let isMounted = true
 
-    void fetch("/api/store/settings", { cache: "no-store" })
+    void fetchStoreRemote(buildStoreApiUrl("/settings"))
       .then(async (response) => {
         const payload = await response.json().catch(() => null)
         if (!response.ok) return null

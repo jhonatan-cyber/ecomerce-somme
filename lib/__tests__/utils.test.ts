@@ -1,71 +1,71 @@
 import { describe, it, expect } from "vitest"
-
-function cn(...classes: (string | boolean | undefined | null)[]): string {
-  return classes.filter(Boolean).join(" ")
-}
-
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat("es-BO", {
-    style: "currency",
-    currency: "BOB",
-  }).format(price)
-}
-
-function truncate(str: string, maxLength: number): string {
-  if (str.length <= maxLength) return str
-  return str.slice(0, maxLength).trimEnd() + "..."
-}
-
-function generateId(): string {
-  return Math.random().toString(36).substring(2, 10)
-}
+import { cn, formatPrice, buildFallbackCategories } from "@/lib/utils"
 
 describe("cn()", () => {
-  it("should join class names", () => {
+  it("joins class names", () => {
     expect(cn("foo", "bar")).toBe("foo bar")
   })
 
-  it("should filter falsy values", () => {
+  it("filters falsy values", () => {
     expect(cn("foo", false, undefined, null, "bar")).toBe("foo bar")
   })
 
-  it("should return empty string for no arguments", () => {
+  it("returns empty string for no arguments", () => {
     expect(cn()).toBe("")
+  })
+
+  it("merges tailwind classes", () => {
+    expect(cn("p-2", "p-4")).toBe("p-4")
   })
 })
 
 describe("formatPrice()", () => {
-  it("should format integer price", () => {
+  it("formats integer price with BOB prefix", () => {
     const result = formatPrice(1500)
-    expect(result).toContain("1.500")
+    expect(result).toBe("BOB 1.500")
   })
 
-  it("should format zero", () => {
+  it("formats zero", () => {
     const result = formatPrice(0)
-    expect(result).toContain("0")
+    expect(result).toBe("BOB 0")
+  })
+
+  it("formats large numbers with thousands separator", () => {
+    const result = formatPrice(1500000)
+    expect(result).toBe("BOB 1.500.000")
   })
 })
 
-describe("truncate()", () => {
-  it("should not truncate short strings", () => {
-    expect(truncate("hello", 10)).toBe("hello")
+describe("buildFallbackCategories()", () => {
+  it("returns empty array for empty input", () => {
+    expect(buildFallbackCategories([])).toEqual([])
   })
 
-  it("should truncate long strings", () => {
-    const result = truncate("hello world this is long", 10)
-    expect(result.length).toBeLessThanOrEqual(13)
-    expect(result).toMatch(/\.\.\.$/)
-  })
-})
-
-describe("generateId()", () => {
-  it("should generate unique ids", () => {
-    const id1 = generateId()
-    const id2 = generateId()
-    expect(id1).not.toBe(id2)
+  it("builds categories from products", () => {
+    const products = [
+      { category: "Cámaras" },
+      { category: "NVR" },
+      { category: "Cámaras" },
+    ]
+    const cats = buildFallbackCategories(products)
+    expect(cats).toHaveLength(2)
+    expect(cats[0].name).toBe("Cámaras")
+    expect(cats[1].name).toBe("NVR")
   })
 
-  it("should generate 8-character ids", () => {
-    expect(generateId()).toHaveLength(8)
+  it("generates slug id from name", () => {
+    const cats = buildFallbackCategories([{ category: "Cámaras IP" }])
+    expect(cats[0].id).toBe("cámaras-ip")
+  })
+
+  it("filters null/undefined/empty categories", () => {
+    const cats = buildFallbackCategories([
+      { category: null },
+      { category: undefined },
+      { category: "" },
+      { category: "  " },
+      { category: "OK" },
+    ])
+    expect(cats).toHaveLength(1)
   })
 })
