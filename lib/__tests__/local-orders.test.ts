@@ -3,8 +3,8 @@ import { LocalOrderManager, LOCAL_STORAGE_KEY } from "@/lib/local-orders"
 import type { OrderRequest } from "@/lib/types"
 
 const mockOrder: OrderRequest = {
-  customer: { name: "Test", email: "test@test.com" },
-  items: [{ productId: "p1", productName: "Cam", productPrice: 100, quantity: 1 }],
+  customer: { name: "Test", email: "test@test.com", phone: "", address: "N/A" },
+  items: [{ product_id: "p1", product_name: "Cam", product_price: 100, quantity: 1 }],
   total: 100,
 }
 

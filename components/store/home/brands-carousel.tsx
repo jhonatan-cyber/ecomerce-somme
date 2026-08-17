@@ -11,21 +11,12 @@ interface Brand {
 
 interface BrandsCarouselProps {
   brands: Brand[]
-  products?: { brandId?: string | null }[]
 }
 
-export function BrandsCarousel({ brands, products = [] }: BrandsCarouselProps) {
+export function BrandsCarousel({ brands }: BrandsCarouselProps) {
   const brandsWithLogos = brands.filter((b) => b.logo)
 
   if (brandsWithLogos.length === 0) return null
-
-  // Count products per brand
-  const brandCounts = new Map<string, number>()
-  products.forEach((p) => {
-    if (p.brandId) {
-      brandCounts.set(p.brandId, (brandCounts.get(p.brandId) ?? 0) + 1)
-    }
-  })
 
   // Duplicate brands for seamless loop
   const duplicatedBrands = [...brandsWithLogos, ...brandsWithLogos]
@@ -45,7 +36,6 @@ export function BrandsCarousel({ brands, products = [] }: BrandsCarouselProps) {
         {/* Scrolling track */}
         <div className="flex animate-marquee gap-8 py-2">
           {duplicatedBrands.map((brand, index) => {
-            const count = brandCounts.get(brand.id) ?? 0
             return (
               <Link
                 key={`${brand.id}-${index}`}

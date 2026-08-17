@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { CartButton } from "@/components/store/cart-button"
 import { useCartStore } from "@/lib/store/cart-store"
@@ -42,7 +42,7 @@ describe("CartButton", () => {
 
   it("shows item count badge when items exist", () => {
     useCartStore.getState().addItem({
-      id: "p1", name: "Test", price: 100, stock: 10, image_url: null, category: "Test",
+      id: "p1", name: "Test", price: 100, stock: 10, image_url: null, category: "Test", description: null,
     })
     render(<CartButton />)
     expect(screen.getByText("1")).toBeInTheDocument()

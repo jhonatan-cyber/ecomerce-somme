@@ -11,16 +11,20 @@ const categories: Category[] = [
   {
     id: "camaras",
     name: "Cámaras",
+    icon: null,
+    description: null,
     active: true,
     parentId: null,
     children: [
-      { id: "ip", name: "IP", active: true, parentId: "camaras" },
-      { id: "analog", name: "Analógicas", active: true, parentId: "camaras" },
+      { id: "ip", name: "IP", icon: null, description: null, active: true, parentId: "camaras" },
+      { id: "analog", name: "Analógicas", icon: null, description: null, active: true, parentId: "camaras" },
     ],
   },
   {
     id: "grabadores",
     name: "Grabadores",
+    icon: null,
+    description: null,
     active: true,
     parentId: null,
   },

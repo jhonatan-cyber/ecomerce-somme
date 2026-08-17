@@ -108,7 +108,7 @@ importers:
         specifier: 1.1.6
         version: 1.1.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@vercel/analytics':
-        specifier: latest
+        specifier: ^2.0.1
         version: 2.0.1(next@16.2.12(@babel/core@7.29.7)(@types/node@22.19.18)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)
       autoprefixer:
         specifier: ^10.5.0
@@ -126,7 +126,7 @@ importers:
         specifier: 1.0.4
         version: 1.0.4(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       date-fns:
-        specifier: latest
+        specifier: ^4.1.0
         version: 4.1.0
       driver.js:
         specifier: ^1.4.0
@@ -138,10 +138,10 @@ importers:
         specifier: ^12.38.0
         version: 12.38.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       geist:
-        specifier: latest
+        specifier: ^1.7.0
         version: 1.7.0(next@16.2.12(@babel/core@7.29.7)(@types/node@22.19.18)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))
       immer:
-        specifier: latest
+        specifier: ^11.1.8
         version: 11.1.8
       input-otp:
         specifier: 1.4.1
@@ -179,6 +179,9 @@ importers:
       server-only:
         specifier: ^0.0.1
         version: 0.0.1
+      sharp:
+        specifier: ^0.35.0
+        version: 0.35.3(@types/node@22.19.18)
       sonner:
         specifier: ^1.7.4
         version: 1.7.4(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -189,7 +192,7 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@4.3.0)
       use-sync-external-store:
-        specifier: latest
+        specifier: ^1.6.0
         version: 1.6.0(react@19.2.6)
       vaul:
         specifier: ^1.1.2
@@ -198,7 +201,7 @@ importers:
         specifier: 3.25.76
         version: 3.25.76
       zustand:
-        specifier: latest
+        specifier: ^5.0.13
         version: 5.0.13(@types/react@19.2.14)(immer@11.1.8)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
     devDependencies:
       '@tailwindcss/postcss':
@@ -231,9 +234,6 @@ importers:
       postcss:
         specifier: ^8.5.18
         version: 8.5.25
-      sharp:
-        specifier: ^0.35.0
-        version: 0.35.3(@types/node@22.19.18)
       tailwindcss:
         specifier: ^4.3.0
         version: 4.3.0

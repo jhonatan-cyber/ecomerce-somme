@@ -30,6 +30,7 @@ const makeProduct = (id: string, createdAt?: string): Product => ({
   stock: 5,
   image_url: null,
   category: "Test",
+  description: null,
   createdAt,
 })
 

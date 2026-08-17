@@ -25,15 +25,19 @@ vi.mock("@/components/store/product-card-image", () => ({
   ProductCardImage: () => <div data-testid="product-image" />,
 }))
 
-const makeProduct = (overrides: Partial<Product> = {}): Product => ({
-  id: "p1",
-  name: "Cámara IP 4MP",
-  price: 500,
-  stock: 10,
-  image_url: "/img/cam.jpg",
-  category: "Cámaras",
-  ...overrides,
-})
+const makeProduct = (overrides: Partial<Product> = {}): Product => {
+  const base: Product = {
+    id: "p1",
+    name: "Cámara IP 4MP",
+    price: 500,
+    stock: 10,
+    image_url: "/img/cam.jpg",
+    category: "Cámaras",
+    description: null,
+  }
+  // Fijar `description` tras el spread para mantener el tipo requerido.
+  return { ...base, ...overrides, description: overrides.description ?? base.description }
+}
 
 describe("ProductCard", () => {
   it("renders product name", () => {

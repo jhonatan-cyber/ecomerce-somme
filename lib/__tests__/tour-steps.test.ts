@@ -11,9 +11,10 @@ describe("allTourSteps", () => {
     for (const step of allTourSteps) {
       expect(typeof step.page).toBe("string")
       expect(typeof step.element).toBe("string")
-      expect(step.popover).toBeDefined()
-      expect(typeof step.popover.title).toBe("string")
-      expect(typeof step.popover.description).toBe("string")
+      const popover = step.popover
+      expect(popover).toBeDefined()
+      expect(typeof popover!.title).toBe("string")
+      expect(typeof popover!.description).toBe("string")
     }
   })
 })

@@ -128,7 +128,7 @@ export default async function HomePage({
 
         <NewArrivalsSection products={products} />
 
-        <BrandsCarousel brands={brands} products={products} />
+        <BrandsCarousel brands={brands} />
 
         <section className="container mx-auto px-4 pt-10">
           <RecentlyViewed />

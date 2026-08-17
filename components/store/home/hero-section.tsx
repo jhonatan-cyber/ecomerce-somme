@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowRight, Camera } from "lucide-react"
 import { ProductCardActions } from "@/components/store/product-card-actions"
 import type { Category, Product } from "@/lib/types"
@@ -90,12 +91,15 @@ export function HeroSection({
               >
                 <Link href={`/product/${encodeURIComponent(product.id)}`} scroll className="block bg-muted">
                   {image ? (
-                    <img
-                      src={image}
-                      alt={product.name}
-                      loading="lazy"
-                      className="block aspect-square h-auto w-full object-contain"
-                    />
+                    <div className="relative aspect-square w-full">
+                      <Image
+                        src={image}
+                        alt={product.name}
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+                        className="object-contain"
+                      />
+                    </div>
                   ) : (
                     <div className="flex aspect-square items-center justify-center">
                       <Camera className="h-10 w-10 text-muted-foreground/35" />

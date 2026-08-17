@@ -2,15 +2,20 @@ import { describe, it, expect, beforeEach } from "vitest"
 import { useCartStore } from "@/lib/store/cart-store"
 import type { Product } from "@/lib/types"
 
-const makeProduct = (overrides: Partial<Product> = {}): Product => ({
-  id: "p1",
-  name: "Cámara IP",
-  price: 100,
-  stock: 10,
-  image_url: null,
-  category: "Cámaras",
-  ...overrides,
-})
+const makeProduct = (overrides: Partial<Product> = {}): Product => {
+  const base: Product = {
+    id: "p1",
+    name: "Cámara IP",
+    price: 100,
+    stock: 10,
+    image_url: null,
+    category: "Cámaras",
+    description: null,
+  }
+  // Fijar `description` tras el spread para mantener el tipo requerido
+  // (`Partial<Product>` reintroduce `undefined` en el campo opcional).
+  return { ...base, ...overrides, description: overrides.description ?? base.description }
+}
 
 beforeEach(() => {
   useCartStore.setState({ items: [] })

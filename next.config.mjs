@@ -6,15 +6,21 @@ const localDevOrigins = Object.values(networkInterfaces())
   .map((network) => network.address)
 
 /** @type {import('next').NextConfig} */
-const useOptimizedImages = false
+// Activa el Image Optimization de Next.js (recorte/redimensionado + AVIF/WebP).
+// Requiere `sharp` instalado (dependencia nativa, ya presente en el lockfile).
+const useOptimizedImages = true
 
 let nextConfig = {
   allowedDevOrigins: localDevOrigins,
   images: {
     unoptimized: !useOptimizedImages,
+    // Solo se permiten orígenes del deployment (evita abrir el optimizador a
+    // cualquier host como el `**` anterior).
     remotePatterns: [
-      { protocol: "http", hostname: "**" },
-      { protocol: "https", hostname: "**" },
+      { protocol: "http", hostname: "localhost" },
+      { protocol: "http", hostname: "**.nuwesomme.cloud" },
+      { protocol: "https", hostname: "nuwesomme.cloud" },
+      { protocol: "https", hostname: "**.nuwesomme.cloud" },
     ],
     formats: useOptimizedImages ? ["image/avif", "image/webp"] : undefined,
   },
