@@ -106,6 +106,7 @@ export default function CartPage() {
                         type="button"
                         className="flex h-8 w-8 items-center justify-center rounded-l-xl hover:bg-muted/60"
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        aria-label={`Disminuir cantidad de ${item.name}`}
                       >
                         <Minus className="h-3.5 w-3.5" />
                       </button>
@@ -114,6 +115,9 @@ export default function CartPage() {
                         type="button"
                         className="flex h-8 w-8 items-center justify-center rounded-r-xl hover:bg-muted/60"
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        disabled={item.quantity >= item.stock}
+                        aria-label={`Aumentar cantidad de ${item.name}`}
+                        aria-disabled={item.quantity >= item.stock}
                       >
                         <Plus className="h-3.5 w-3.5" />
                       </button>
@@ -128,7 +132,7 @@ export default function CartPage() {
                         type="button"
                         onClick={() => removeItem(item.id)}
                         className="text-destructive/70 transition hover:text-destructive"
-                        aria-label="Quitar"
+                        aria-label={`Quitar ${item.name} del carrito`}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -150,10 +154,10 @@ export default function CartPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Envío</span>
-                  <span className="font-semibold text-emerald-600">A coordinar</span>
+                  <span className="font-semibold">No incluido · a coordinar</span>
                 </div>
                 <div className="flex items-center justify-between rounded-xl bg-muted/60 px-3 py-2.5">
-                  <span className="font-semibold">Total</span>
+                  <span className="font-semibold">Total de productos</span>
                   <span className="text-xl font-black">BOB {getTotal().toLocaleString("es-BO")}</span>
                 </div>
               </div>

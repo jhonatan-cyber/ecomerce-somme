@@ -71,6 +71,12 @@ describe("cart-store", () => {
       useCartStore.getState().updateQuantity("p1", 0)
       expect(useCartStore.getState().items).toHaveLength(0)
     })
+
+    it("clamps quantity to the available stock", () => {
+      useCartStore.getState().addItem(makeProduct({ stock: 2 }))
+      useCartStore.getState().updateQuantity("p1", 99)
+      expect(useCartStore.getState().items[0].quantity).toBe(2)
+    })
   })
 
   describe("getTotal", () => {

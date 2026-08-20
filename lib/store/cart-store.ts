@@ -44,8 +44,17 @@ export const useCartStore = create<CartStore>()(
           get().removeItem(productId)
           return
         }
+        const currentItem = get().items.find((item) => item.id === productId)
+        if (currentItem && currentItem.stock <= 0) {
+          get().removeItem(productId)
+          return
+        }
         set({
-          items: get().items.map((item) => (item.id === productId ? { ...item, quantity } : item)),
+          items: get().items.map((item) =>
+            item.id === productId
+              ? { ...item, quantity: Math.min(quantity, Math.max(0, item.stock)) }
+              : item,
+          ),
         })
       },
       clearCart: () => set({ items: [] }),

@@ -34,6 +34,17 @@ function persistOrders(orders: LocalOrder[]): void {
 export class LocalOrderManager {
   // Guardar pedido localmente
   static saveOrder(orderData: OrderRequest): OrderResponse {
+    const existingOrder = orderData.idempotencyKey
+      ? this.getStoredOrders().find((order) => order.idempotencyKey === orderData.idempotencyKey)
+      : undefined
+    if (existingOrder) {
+      return {
+        orderId: existingOrder.remoteOrderId ?? existingOrder.id,
+        success: true,
+        message: "Este pedido ya estaba guardado y será sincronizado.",
+      }
+    }
+
     const orderId = this.generateOrderId()
     const localOrder: LocalOrder = {
       ...orderData,
@@ -120,6 +131,7 @@ export class LocalOrderManager {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          ...(order.idempotencyKey ? { 'Idempotency-Key': order.idempotencyKey } : {}),
         },
         body: JSON.stringify({
           customer: order.customer,

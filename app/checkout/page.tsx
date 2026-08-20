@@ -1,6 +1,6 @@
 ﻿"use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
@@ -103,6 +103,8 @@ function fileToBase64(file: File): Promise<string> {
   })
 }
 
+const MAX_VOUCHER_SIZE_BYTES = 5 * 1024 * 1024
+
 export default function CheckoutPage() {
   const { items, getTotal, clearCart } = useCartStore()
   const router = useRouter()
@@ -120,6 +122,8 @@ export default function CheckoutPage() {
   const [pickupNotice, setPickupNotice] = useState<PickupConfirmationNotice | null>(null)
   const [deliveryNotice, setDeliveryNotice] = useState<DeliveryConfirmationNotice | null>(null)
   const [checkoutQrImageUrl, setCheckoutQrImageUrl] = useState<string | null>(null)
+  const idempotencyKeyRef = useRef<string | null>(null)
+  const orderCreatedRef = useRef(false)
 
   const {
     register,
@@ -143,8 +147,8 @@ export default function CheckoutPage() {
   const selectedBranchId = watch("branchId")
 
   useEffect(() => {
-    if (items.length === 0) router.push("/cart")
-  }, [items.length, router])
+    if (items.length === 0 && !orderCreatedRef.current && !pickupNotice && !deliveryNotice) router.push("/cart")
+  }, [deliveryNotice, items.length, pickupNotice, router])
 
   useEffect(() => {
     if (deliveryMethod !== "pickup") {
@@ -228,7 +232,7 @@ export default function CheckoutPage() {
     }
   }, [qrModalOpen, voucherPreviewUrl])
 
-  if (items.length === 0) return null
+  if (items.length === 0 && !orderCreatedRef.current && !pickupNotice && !deliveryNotice) return null
 
   const subtotal = getTotal()
   const shippingFee = deliveryMethod === "delivery" ? 0 : 0 // Envío a coordinar, sin costo automático
@@ -274,6 +278,9 @@ export default function CheckoutPage() {
           : "Pago confirmado por cliente desde checkout."
 
       const result = await createOrder({
+        idempotencyKey:
+          idempotencyKeyRef.current ??
+          (idempotencyKeyRef.current = `checkout_${crypto.randomUUID()}`),
         customer: {
           name: pendingCheckoutData.name.trim(),
           email: pendingCheckoutData.email?.trim() ?? "",
@@ -305,29 +312,22 @@ export default function CheckoutPage() {
       }
 
       setQrModalOpen(false)
+      orderCreatedRef.current = true
+      clearCart()
 
       if (pendingCheckoutData.deliveryMethod === "pickup") {
         const branchName = selectedBranch?.name ?? "Sucursal seleccionada"
         const branchAddress =
           selectedBranch?.address?.trim() ||
           "Dirección no disponible. Nuestro equipo te la compartirá por WhatsApp."
-        const normalizedBranchName = branchName.toLowerCase()
         const mapsUrl =
-          normalizedBranchName.includes("panamerica") || normalizedBranchName.includes("panamericana")
-            ? "https://maps.app.goo.gl/PQKkvfRkdFt88pcGA"
-            : normalizedBranchName.includes("norte")
-              ? "https://maps.app.goo.gl/znq76fQwKiCmvY8u7"
-              : selectedBranch?.address?.trim()
-                ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedBranch.address)}`
-                : "https://www.google.com/maps"
+          selectedBranch?.address?.trim()
+            ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedBranch.address)}`
+            : "https://www.google.com/maps"
         const mapsEmbedUrl =
-          normalizedBranchName.includes("panamerica") || normalizedBranchName.includes("panamericana")
-            ? "https://www.google.com/maps?q=-17.41924438418252,-66.15812486112041&z=16&output=embed"
-            : normalizedBranchName.includes("norte")
-              ? "https://www.google.com/maps?q=-17.364017653023595,-66.16585241128982&z=16&output=embed"
-              : selectedBranch?.address?.trim()
-                ? `https://www.google.com/maps?q=${encodeURIComponent(selectedBranch.address)}&output=embed`
-                : "https://www.google.com/maps?q=Cochabamba&output=embed"
+          selectedBranch?.address?.trim()
+            ? `https://www.google.com/maps?q=${encodeURIComponent(selectedBranch.address)}&output=embed`
+            : "https://www.google.com/maps?q=Cochabamba&output=embed"
 
         setPickupNotice({
           orderId: result.orderId,
@@ -361,7 +361,6 @@ export default function CheckoutPage() {
     if (!pickupNotice) return
     const orderId = pickupNotice.orderId
     setPickupNotice(null)
-    clearCart()
     router.push(`/order-confirmation/${orderId}`)
   }
 
@@ -369,7 +368,6 @@ export default function CheckoutPage() {
     if (!deliveryNotice) return
     const orderId = deliveryNotice.orderId
     setDeliveryNotice(null)
-    clearCart()
     router.push(`/order-confirmation/${orderId}`)
   }
 
@@ -379,6 +377,15 @@ export default function CheckoutPage() {
       toast({
         title: "Archivo no válido",
         description: "Subí una imagen para el voucher (JPG, PNG, WEBP, etc).",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (file.size > MAX_VOUCHER_SIZE_BYTES) {
+      toast({
+        title: "Archivo demasiado grande",
+        description: "El voucher debe pesar 5 MB o menos.",
         variant: "destructive",
       })
       return
@@ -622,11 +629,11 @@ export default function CheckoutPage() {
                 <div className="mt-2 flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Cargo por envio</span>
                   <span className="font-semibold text-amber-600">
-                    {deliveryMethod === "delivery" ? "A coordinar" : "Sin recargo"}
+                    {deliveryMethod === "delivery" ? "No incluido · a coordinar" : "Sin recargo"}
                   </span>
                 </div>
                 <div className="mt-4 flex items-center justify-between border-t pt-4">
-                  <span className="text-base font-semibold">Total</span>
+                  <span className="text-base font-semibold">Total de productos</span>
                   <span className="text-2xl font-black">BOB {finalTotal.toLocaleString("es-BO")}</span>
                 </div>
               </div>

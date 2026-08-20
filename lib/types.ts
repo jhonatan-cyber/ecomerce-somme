@@ -163,6 +163,7 @@ export interface OrderVoucherImage {
 }
 
 export interface OrderRequest {
+  idempotencyKey?: string
   customer: Customer
   items: {
     product_id: string

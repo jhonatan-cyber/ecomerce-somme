@@ -29,6 +29,7 @@ export async function createOrder(orderData: OrderRequest): Promise<OrderRespons
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
+        ...(orderData.idempotencyKey ? { "Idempotency-Key": orderData.idempotencyKey } : {}),
       },
       body: JSON.stringify(orderData),
       signal: controller.signal,

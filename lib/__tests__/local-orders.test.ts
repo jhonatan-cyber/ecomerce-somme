@@ -33,6 +33,14 @@ describe("LocalOrderManager", () => {
       const r2 = LocalOrderManager.saveOrder(mockOrder)
       expect(r1.orderId).not.toBe(r2.orderId)
     })
+
+    it("reuses the locally saved order for the same idempotency key", () => {
+      const idempotentOrder = { ...mockOrder, idempotencyKey: "checkout_test_123" }
+      const first = LocalOrderManager.saveOrder(idempotentOrder)
+      const retry = LocalOrderManager.saveOrder(idempotentOrder)
+      expect(retry.orderId).toBe(first.orderId)
+      expect(LocalOrderManager.getStoredOrders()).toHaveLength(1)
+    })
   })
 
   describe("getStoredOrders", () => {
