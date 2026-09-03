@@ -85,7 +85,7 @@ export function ProductSlider({ products, compact = false, showDots = false, sho
     const onScroll = () => {
       const offsets = slideRefs.current.map((slide) => slide?.offsetLeft ?? 0)
       const current = offsets.reduce((closestIndex, offset, index) => {
-        const currentDistance = Math.abs(container.scrollLeft - offsets[closestIndex])
+        const currentDistance = Math.abs(container.scrollLeft - (offsets[closestIndex] ?? 0))
         const nextDistance = Math.abs(container.scrollLeft - offset)
         return nextDistance < currentDistance ? index : closestIndex
       }, 0)

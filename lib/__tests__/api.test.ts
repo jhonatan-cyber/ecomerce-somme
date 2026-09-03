@@ -81,7 +81,7 @@ describe("createQuoteRequest", () => {
     })
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    const [url, init] = fetchMock.mock.calls[0]
+    const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe("/api/store/quote-requests")
     expect(url).not.toContain("/store/store")
     expect((init as RequestInit).method).toBe("POST")
@@ -156,7 +156,7 @@ describe("cache contract: revalidate/no-store constants passed to fetch", () => 
 
     expect(result.ok).toBe(true)
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    const [url, init] = fetchMock.mock.calls[0]
+    const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe("/api/store/slides")
     expect((init as RequestInit).next).toEqual({ revalidate: 60 })
     expect((init as RequestInit).cache).toBeUndefined()
@@ -176,7 +176,7 @@ describe("cache contract: revalidate/no-store constants passed to fetch", () => 
 
     expect(result.ok).toBe(true)
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    const [url, init] = fetchMock.mock.calls[0]
+    const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe("/api/store/products")
     expect((init as RequestInit).next).toEqual({ revalidate: 120 })
     expect((init as RequestInit).cache).toBeUndefined()
@@ -196,7 +196,7 @@ describe("cache contract: revalidate/no-store constants passed to fetch", () => 
 
     expect(result.ok).toBe(true)
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    const [url, init] = fetchMock.mock.calls[0]
+    const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe("/api/store/products?search=camara")
     expect((init as RequestInit).next).toEqual({ revalidate: 30 })
     expect((init as RequestInit).cache).toBeUndefined()
@@ -216,7 +216,7 @@ describe("cache contract: revalidate/no-store constants passed to fetch", () => 
 
     expect(result.ok).toBe(true)
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    const [url, init] = fetchMock.mock.calls[0]
+    const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe("/api/store/orders/ord-1")
     expect((init as RequestInit).cache).toBe("no-store")
     expect((init as RequestInit).next).toBeUndefined()

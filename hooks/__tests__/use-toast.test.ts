@@ -12,7 +12,7 @@ describe("toast reducer", () => {
       toast: { id: "1", title: "Hello", open: true },
     })
     expect(state.toasts).toHaveLength(1)
-    expect(state.toasts[0].id).toBe("1")
+    expect(state.toasts[0]!.id).toBe("1")
   })
 
   it("ADD_TOAST limits to TOAST_LIMIT (1)", () => {
@@ -25,7 +25,7 @@ describe("toast reducer", () => {
       toast: { id: "2", title: "Second", open: true },
     })
     expect(state.toasts).toHaveLength(1)
-    expect(state.toasts[0].id).toBe("2")
+    expect(state.toasts[0]!.id).toBe("2")
   })
 
   it("UPDATE_TOAST merges toast properties", () => {
@@ -37,7 +37,7 @@ describe("toast reducer", () => {
       type: "UPDATE_TOAST",
       toast: { id: "1", title: "New" },
     })
-    expect(state.toasts[0].title).toBe("New")
+    expect(state.toasts[0]!.title).toBe("New")
   })
 
   it("DISMISS_TOAST sets open to false", () => {
@@ -46,7 +46,7 @@ describe("toast reducer", () => {
       toast: { id: "1", title: "Hello", open: true },
     })
     state = reducer(state, { type: "DISMISS_TOAST", toastId: "1" })
-    expect(state.toasts[0].open).toBe(false)
+    expect(state.toasts[0]!.open).toBe(false)
   })
 
   it("REMOVE_TOAST removes specific toast", () => {

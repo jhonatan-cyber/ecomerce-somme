@@ -29,16 +29,6 @@ import { buildStoreApiUrl, fetchStoreRemote } from "@/lib/store-api-root"
 import { useCartStore } from "@/lib/store/cart-store"
 import { useToast } from "@/hooks/use-toast"
 
-type CheckoutFormValues = {
-  name: string
-  email?: string
-  phone: string
-  address: string
-  deliveryMethod: "pickup" | "delivery"
-  branchId?: string
-  notes?: string
-}
-
 const checkoutSchema = z
   .object({
     name: z.string().min(1, "Nombre requerido"),
@@ -66,6 +56,10 @@ const checkoutSchema = z
       })
     }
   })
+
+// Tipo derivado del schema (zod 4 infiere `| undefined` en opcionales;
+// el tipo manual anterior rompía zodResolver de @hookform/resolvers v5).
+type CheckoutFormValues = z.infer<typeof checkoutSchema>
 
 type StoreBranch = {
   id: string

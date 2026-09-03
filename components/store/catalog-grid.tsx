@@ -10,6 +10,13 @@ import type { Brand, Product } from "@/lib/types"
 
 type SortOption = "default" | "price-asc" | "price-desc" | "name-asc"
 
+// Paginación cliente sobre el catálogo cacheado (ISR): el cuello real no es
+// el fetch (cacheado 120s) sino hidratar/renderizar cientos de ProductCards.
+// Solo aplica a la vista plana (con filtros); el modo agrupado usa sliders.
+// Paginación de servidor queda en backlog: requiere soporte page/offset
+// en la API del dashboard, que hoy solo acepta limit.
+export const CATALOG_PAGE_SIZE = 24
+
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: "default", label: "Más recientes" },
   { value: "price-asc", label: "Precio: menor a mayor" },
@@ -22,6 +29,10 @@ interface CatalogGridProps {
   brands?: Brand[]
   grouped?: boolean
   search?: string
+  // Ruta base para sort/page en la URL. /catalog por defecto; las páginas
+  // /category/[slug], /brands/[slug] y /new-arrivals pasan la suya para no
+  // redirigir la paginación al catálogo general.
+  basePath?: string
 }
 
 function sortProducts(products: Product[], sort: SortOption): Product[] {
@@ -78,7 +89,7 @@ function groupByFirstLetter(products: Product[]): { letter: string; items: Produ
     .map(([letter, items]) => ({ letter, items }))
 }
 
-function CatalogGridContent({ products, brands = [], grouped = false, search }: CatalogGridProps) {
+function CatalogGridContent({ products, brands = [], grouped = false, search, basePath = "/catalog" }: CatalogGridProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [open, setOpen] = useState(false)
@@ -103,11 +114,11 @@ function CatalogGridContent({ products, brands = [], grouped = false, search }: 
     }
     
     const newUrl = newParams.toString()
-      ? `/catalog?${newParams.toString()}`
-      : "/catalog"
+      ? `${basePath}?${newParams.toString()}`
+      : basePath
     
     router.push(newUrl, { scroll: false })
-  }, [router, searchParams])
+  }, [router, searchParams, basePath])
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -166,6 +177,49 @@ function CatalogGridContent({ products, brands = [], grouped = false, search }: 
     }
     return []
   }, [filtered, sort, groups])
+
+  // Paginación sincronizada a URL (?page=), solo en vista plana.
+  const rawPage = Number.parseInt(searchParams.get("page") ?? "1", 10)
+  const totalPages = Math.max(1, Math.ceil(sorted.length / CATALOG_PAGE_SIZE))
+  const page = Number.isNaN(rawPage) ? 1 : Math.min(Math.max(1, rawPage), totalPages)
+  const paged = useMemo(
+    () => sorted.slice((page - 1) * CATALOG_PAGE_SIZE, page * CATALOG_PAGE_SIZE),
+    [sorted, page],
+  )
+
+  const gridTopRef = useRef<HTMLDivElement>(null)
+
+  const goToPage = useCallback((nextPage: number) => {
+    const newParams = new URLSearchParams(searchParams.toString())
+    if (nextPage <= 1) {
+      newParams.delete("page")
+    } else {
+      newParams.set("page", String(nextPage))
+    }
+    const newUrl = newParams.toString() ? `${basePath}?${newParams.toString()}` : basePath
+    router.push(newUrl, { scroll: false })
+    // scrollIntoView no existe en jsdom (tests): acceso defensivo.
+    gridTopRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" })
+  }, [router, searchParams, basePath])
+
+  // Al cambiar filtros/orden (no al montar ni al navegar de página),
+  // volver a la primera página para no quedar en un ?page= vacío.
+  const firstRender = useRef(true)
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false
+      return
+    }
+    const current = searchParams.get("page")
+    if (current && current !== "1") {
+      const newParams = new URLSearchParams(searchParams.toString())
+      newParams.delete("page")
+      const newUrl = newParams.toString() ? `${basePath}?${newParams.toString()}` : basePath
+      router.push(newUrl, { scroll: false })
+    }
+    // Solo al cambiar el conjunto filtrado u orden, no al navegar de página.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtered, sort])
 
   return (
     <div className="space-y-6 overflow-x-hidden">
@@ -265,12 +319,73 @@ function CatalogGridContent({ products, brands = [], grouped = false, search }: 
           ))}
         </div>
       ) : (
-        /* Flat grid */
-        <div
-          data-tour="catalog-grid"
-          className="grid grid-cols-1 gap-x-4 gap-y-5 min-[480px]:grid-cols-2 sm:gap-x-6 sm:gap-y-7 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 overflow-x-hidden"
-        >
-          {sorted.map((p) => <ProductCard key={p.id} product={p} brands={brands} />)}
+        /* Flat grid con paginación */
+        <div ref={gridTopRef} className="scroll-mt-24">
+          <div
+            data-tour="catalog-grid"
+            className="grid grid-cols-1 gap-x-4 gap-y-5 min-[480px]:grid-cols-2 sm:gap-x-6 sm:gap-y-7 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 overflow-x-hidden"
+          >
+            {paged.map((p) => <ProductCard key={p.id} product={p} brands={brands} />)}
+          </div>
+
+          {totalPages > 1 && (
+            <nav aria-label="Paginación del catálogo" className="mt-8 flex flex-col items-center gap-3">
+              <p className="text-xs text-muted-foreground">
+                Mostrando{" "}
+                <span className="font-semibold text-foreground">
+                  {(page - 1) * CATALOG_PAGE_SIZE + 1}–{Math.min(page * CATALOG_PAGE_SIZE, sorted.length)}
+                </span>{" "}
+                de <span className="font-semibold text-foreground">{sorted.length}</span> productos
+              </p>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={page <= 1}
+                  onClick={() => goToPage(page - 1)}
+                  aria-label="Página anterior"
+                  className="rounded-full border border-border/70 px-3.5 py-2 text-xs font-semibold transition hover:border-primary/40 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  ← Anterior
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((n) => n === 1 || n === totalPages || Math.abs(n - page) <= 1)
+                  .reduce<(number | "…")[]>((acc, n, i, arr) => {
+                    if (i > 0 && n - (arr[i - 1] as number) > 1) acc.push("…")
+                    acc.push(n)
+                    return acc
+                  }, [])
+                  .map((n, i) =>
+                    n === "…" ? (
+                      <span key={`gap-${i}`} className="px-1 text-xs text-muted-foreground">…</span>
+                    ) : (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => goToPage(n)}
+                        aria-label={`Ir a página ${n}`}
+                        aria-current={n === page ? "page" : undefined}
+                        className={`min-w-9 rounded-full px-3 py-2 text-xs font-semibold transition ${
+                          n === page
+                            ? "bg-primary text-primary-foreground"
+                            : "border border-border/70 hover:border-primary/40 hover:text-primary"
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    ),
+                  )}
+                <button
+                  type="button"
+                  disabled={page >= totalPages}
+                  onClick={() => goToPage(page + 1)}
+                  aria-label="Página siguiente"
+                  className="rounded-full border border-border/70 px-3.5 py-2 text-xs font-semibold transition hover:border-primary/40 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Siguiente →
+                </button>
+              </div>
+            </nav>
+          )}
         </div>
       )}
     </div>

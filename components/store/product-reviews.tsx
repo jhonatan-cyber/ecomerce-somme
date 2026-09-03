@@ -133,7 +133,10 @@ export function ProductReviews({
   const getRatingDistribution = () => {
     const distribution = [0, 0, 0, 0, 0]
     reviews.forEach(review => {
-      distribution[review.rating - 1]++
+      const idx = review.rating - 1
+      if (idx >= 0 && idx < distribution.length) {
+        distribution[idx] = (distribution[idx] ?? 0) + 1
+      }
     })
     const total = reviews.length
     return distribution.map((count, index) => ({

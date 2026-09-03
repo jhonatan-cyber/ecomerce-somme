@@ -34,10 +34,10 @@ describe("StoreFooter", () => {
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalled()
     })
-    expect(fetchMock.mock.calls[0][0]).toBe("/api/store/settings")
+    expect(fetchMock.mock.calls[0]![0]).toBe("/api/store/settings")
     // El fetch sale por el transporte compartido (fetchStoreRemote): no-store
     // default + headers ngrok/Accept, no un fetch hand-rolleado con cache inline.
-    expect(fetchMock.mock.calls[0][1]).toEqual(
+    expect(fetchMock.mock.calls[0]![1]).toEqual(
       expect.objectContaining({
         cache: "no-store",
         headers: expect.objectContaining({
@@ -58,8 +58,8 @@ describe("StoreFooter", () => {
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalled()
     })
-    expect(fetchMock.mock.calls[0][0]).toBe("https://remote.store/api/store/settings")
-    expect(fetchMock.mock.calls[0][0]).not.toBe("/api/store/settings")
+    expect(fetchMock.mock.calls[0]![0]).toBe("https://remote.store/api/store/settings")
+    expect(fetchMock.mock.calls[0]![0]).not.toBe("/api/store/settings")
   })
 
   it("renders social links from the fetched settings", async () => {

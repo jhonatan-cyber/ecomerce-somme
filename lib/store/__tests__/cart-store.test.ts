@@ -27,7 +27,7 @@ describe("cart-store", () => {
       const product = makeProduct()
       useCartStore.getState().addItem(product)
       expect(useCartStore.getState().items).toHaveLength(1)
-      expect(useCartStore.getState().items[0].quantity).toBe(1)
+      expect(useCartStore.getState().items[0]!.quantity).toBe(1)
     })
 
     it("increments quantity for existing item", () => {
@@ -35,17 +35,17 @@ describe("cart-store", () => {
       useCartStore.getState().addItem(product)
       useCartStore.getState().addItem(product)
       expect(useCartStore.getState().items).toHaveLength(1)
-      expect(useCartStore.getState().items[0].quantity).toBe(2)
+      expect(useCartStore.getState().items[0]!.quantity).toBe(2)
     })
 
     it("rejects when quantity exceeds stock", () => {
       const product = makeProduct({ stock: 2 })
       useCartStore.getState().addItem(product)
       useCartStore.getState().addItem(product)
-      expect(useCartStore.getState().items[0].quantity).toBe(2)
+      expect(useCartStore.getState().items[0]!.quantity).toBe(2)
       const added = useCartStore.getState().addItem(product)
       expect(added).toBe(false)
-      expect(useCartStore.getState().items[0].quantity).toBe(2)
+      expect(useCartStore.getState().items[0]!.quantity).toBe(2)
     })
   })
 
@@ -55,7 +55,7 @@ describe("cart-store", () => {
       useCartStore.getState().addItem(makeProduct({ id: "b" }))
       useCartStore.getState().removeItem("a")
       expect(useCartStore.getState().items).toHaveLength(1)
-      expect(useCartStore.getState().items[0].id).toBe("b")
+      expect(useCartStore.getState().items[0]!.id).toBe("b")
     })
   })
 
@@ -63,7 +63,7 @@ describe("cart-store", () => {
     it("updates quantity", () => {
       useCartStore.getState().addItem(makeProduct())
       useCartStore.getState().updateQuantity("p1", 5)
-      expect(useCartStore.getState().items[0].quantity).toBe(5)
+      expect(useCartStore.getState().items[0]!.quantity).toBe(5)
     })
 
     it("removes item when quantity <= 0", () => {
@@ -75,7 +75,7 @@ describe("cart-store", () => {
     it("clamps quantity to the available stock", () => {
       useCartStore.getState().addItem(makeProduct({ stock: 2 }))
       useCartStore.getState().updateQuantity("p1", 99)
-      expect(useCartStore.getState().items[0].quantity).toBe(2)
+      expect(useCartStore.getState().items[0]!.quantity).toBe(2)
     })
   })
 
@@ -111,7 +111,7 @@ describe("cart-store", () => {
       useCartStore.getState().addItem(makeProduct())
       const changed = useCartStore.getState().syncItemPrice("p1", 200)
       expect(changed).toBe(true)
-      expect(useCartStore.getState().items[0].price).toBe(200)
+      expect(useCartStore.getState().items[0]!.price).toBe(200)
     })
 
     it("returns false when price unchanged", () => {

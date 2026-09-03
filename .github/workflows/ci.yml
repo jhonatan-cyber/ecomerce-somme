@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  quality:
+    name: Lint / Type / Test / Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint client/server boundary
+        run: pnpm lint:boundary
+
+      - name: Lint JS/TS
+        run: pnpm lint:js
+
+      - name: Type check
+        run: pnpm type-check
+
+      - name: Tests
+        run: pnpm test
+
+      - name: Tests with coverage (gates)
+        run: pnpm test:coverage
+
+      - name: Build
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || 'https://nuwesomme.cloud' }}
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_STORE_API_URL: ${{ vars.NEXT_PUBLIC_STORE_API_URL }}
+          NEXT_PUBLIC_UPLOADS_URL: ${{ vars.NEXT_PUBLIC_UPLOADS_URL }}
+          NEXT_PUBLIC_WHATSAPP_NUMBER: ${{ vars.NEXT_PUBLIC_WHATSAPP_NUMBER }}
+          NEXT_PUBLIC_PUSHER_KEY: ${{ vars.NEXT_PUBLIC_PUSHER_KEY }}
+          NEXT_PUBLIC_PUSHER_CLUSTER: ${{ vars.NEXT_PUBLIC_PUSHER_CLUSTER || 'us2' }}

@@ -3,6 +3,9 @@ import { getProducts, getCategories, getBrands } from "@/lib/api"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuwesomme.cloud"
 
+// El sitemap refetchea todo el catálogo: regenerar 1 vez al día basta.
+export const revalidate = 86400
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [productsCatalog, categoryCatalog, brandsCatalog] = await Promise.all([
     getProducts(),

@@ -5,7 +5,8 @@
  * server-only de lib/ que arrastran `next/server` (NextResponse) o lógica
  * exclusiva del servidor (rate-limit en memoria) al bundle del navegador.
  * FORBIDDEN_MODULES lista los módulos protegidos; cada entrada es el path
- * relativo a lib/ (p. ej. "server/rate-limit").
+ * relativo a lib/ (p. ej. "server/rate-limit"), salvo las terminadas en "/",
+ * que son prefijos de directorio (p. ej. "lib/server/" cubre todo lib/server/**).
  *
  * Uso: node scripts/lint-client-boundary.js  (exit 0 = limpio, 1 = violación)
  */
@@ -16,10 +17,15 @@ const ROOT = path.resolve(__dirname, "..")
 
 // Módulos server-only que ningún componente cliente puede importar.
 // Entradas = path relativo a lib/ ("server/rate-limit" para lib/server/rate-limit.ts).
-const FORBIDDEN_MODULES = ["server-store-proxy", "server-store-api", "server/rate-limit"]
+// "lib/server/" con barra final actúa como prefijo: cubre todo lib/server/**,
+// presente y futuro, sin tener que listar cada archivo.
+const FORBIDDEN_MODULES = ["server-store-proxy", "server-store-api", "server/rate-limit", "lib/server/"]
 
-// Directorios que pueden contener componentes con "use client".
-const CLIENT_DIRS = ["components", "app", "hooks"]
+// Directorios que pueden contener archivos con "use client".
+// Se incluye "lib" para cazar re-exports con directiva desde código compartido
+// (solo se inspeccionan archivos con "use client" en el prólogo, así que los
+// módulos server-only de lib/ no generan falsos positivos por sí mismos).
+const CLIENT_DIRS = ["components", "app", "hooks", "lib"]
 
 // Captura imports estáticos, side-effect imports (`import "x"`), imports
 // dinámicos (`import("x")`) y re-exports (`export { x } from "x"`,
@@ -93,8 +99,17 @@ for (const dir of CLIENT_DIRS) {
 
       const normalized = normalize(resolved)
       for (const mod of FORBIDDEN_MODULES) {
-        const target = normalize(path.join(ROOT, "lib", mod))
-        if (normalized === target) {
+        // Entrada con "/" final = prefijo de directorio (p. ej. "lib/server/"
+        // cubre lib/server/rate-limit.ts y cualquier archivo futuro ahí).
+        // Sin barra = módulo exacto (sin extensión).
+        const isPrefix = mod.endsWith("/")
+        const target = isPrefix
+          ? path.join(ROOT, mod)
+          : normalize(path.join(ROOT, "lib", mod))
+        const hit = isPrefix
+          ? (normalized + path.sep).startsWith(target)
+          : normalized === target
+        if (hit) {
           console.error(
             `[lint-client-boundary] ${path.relative(ROOT, file)} importa "${specifier}" ` +
               `(módulo server-only lib/${mod}) desde un archivo con "use client".`,

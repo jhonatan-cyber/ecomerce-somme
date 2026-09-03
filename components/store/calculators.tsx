@@ -109,7 +109,7 @@ export function StorageCalculator({ className }: { className?: string }) {
             <Label htmlFor="framerate">Frames por Segundo (FPS)</Label>
             <Slider
               value={[frameRate]}
-              onValueChange={(value) => setFrameRate(value[0])}
+              onValueChange={(value) => setFrameRate(value[0] ?? frameRate)}
               max={30}
               min={7.5}
               step={7.5}
@@ -138,7 +138,7 @@ export function StorageCalculator({ className }: { className?: string }) {
             <Label htmlFor="hours">Horas de Grabación por Día</Label>
             <Slider
               value={[recordingHours]}
-              onValueChange={(value) => setRecordingHours(value[0])}
+              onValueChange={(value) => setRecordingHours(value[0] ?? recordingHours)}
               max={24}
               min={1}
               step={1}
@@ -201,14 +201,14 @@ export function FieldOfViewCalculator({ className }: { className?: string }) {
   const [aspectRatio, setAspectRatio] = useState('16:9')
 
   const calculateFOV = () => {
-    const [sensorWidth, sensorHeight] = sensorSize.split('/').map(Number)
+    const [sensorWidth = 0, sensorHeight = 0] = sensorSize.split('/').map(Number)
     const focalMM = focalLength
     
     // Calculate horizontal FOV in degrees
     const hFOV = 2 * Math.atan(sensorWidth / (2 * focalMM)) * (180 / Math.PI)
     
     // Calculate vertical FOV based on aspect ratio
-    const [w, h] = aspectRatio.split(':').map(Number)
+    const [w = 0, h = 0] = aspectRatio.split(':').map(Number)
     const vFOV = hFOV * (h / w)
     
     // Calculate scene dimensions at distance
@@ -245,10 +245,10 @@ export function FieldOfViewCalculator({ className }: { className?: string }) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1/2.8">1/2.8" (Común)</SelectItem>
-                <SelectItem value="1/3">1/3" (Estándar)</SelectItem>
-                <SelectItem value="2/3">2/3" (Grande)</SelectItem>
-                <SelectItem value="1/1.8">1/1.8" (Compacto)</SelectItem>
+                <SelectItem value="1/2.8">1/2.8&quot; (Común)</SelectItem>
+                <SelectItem value="1/3">1/3&quot; (Estándar)</SelectItem>
+                <SelectItem value="2/3">2/3&quot; (Grande)</SelectItem>
+                <SelectItem value="1/1.8">1/1.8&quot; (Compacto)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -257,7 +257,7 @@ export function FieldOfViewCalculator({ className }: { className?: string }) {
             <Label htmlFor="focal">Distancia Focal (mm)</Label>
             <Slider
               value={[focalLength]}
-              onValueChange={(value) => setFocalLength(value[0])}
+              onValueChange={(value) => setFocalLength(value[0] ?? focalLength)}
               max={16}
               min={2}
               step={0.5}
@@ -273,7 +273,7 @@ export function FieldOfViewCalculator({ className }: { className?: string }) {
             <Label htmlFor="distance">Distancia al Objeto (m)</Label>
             <Slider
               value={[distance]}
-              onValueChange={(value) => setDistance(value[0])}
+              onValueChange={(value) => setDistance(value[0] ?? distance)}
               max={50}
               min={1}
               step={1}

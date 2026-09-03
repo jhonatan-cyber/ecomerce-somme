@@ -23,7 +23,7 @@ describe("Recently Viewed Logic", () => {
   it("should add item to recently viewed", () => {
     addItem({ id: "1", name: "Producto 1", price: 100, image_url: null })
     expect(items).toHaveLength(1)
-    expect(items[0].id).toBe("1")
+    expect(items[0]!.id).toBe("1")
   })
 
   it("should move duplicate to top", () => {
@@ -32,8 +32,8 @@ describe("Recently Viewed Logic", () => {
     addItem({ id: "1", name: "Producto 1", price: 100, image_url: null })
 
     expect(items).toHaveLength(2)
-    expect(items[0].id).toBe("1")
-    expect(items[1].id).toBe("2")
+    expect(items[0]!.id).toBe("1")
+    expect(items[1]!.id).toBe("2")
   })
 
   it("should not exceed MAX_ITEMS", () => {
@@ -46,8 +46,8 @@ describe("Recently Viewed Logic", () => {
       })
     }
     expect(items.length).toBeLessThanOrEqual(8)
-    expect(items[0].id).toBe("item-9")
-    expect(items[7].id).toBe("item-2")
+    expect(items[0]!.id).toBe("item-9")
+    expect(items[7]!.id).toBe("item-2")
   })
 
   it("should clear all items", () => {

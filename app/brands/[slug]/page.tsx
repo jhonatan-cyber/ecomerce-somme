@@ -83,7 +83,7 @@ export default async function BrandSlugPage({ params }: { params: Promise<{ slug
           </Link>
         </div>
         {products.length > 0 ? (
-          <CatalogGrid products={products} />
+          <CatalogGrid products={products} basePath={`/brands/${slug}`} />
         ) : (
           <div className="flex min-h-[280px] items-center justify-center rounded-2xl border border-dashed bg-muted/30 text-center text-sm text-muted-foreground">
             <div>

@@ -1,5 +1,7 @@
 "use client"
 
+/* eslint-disable react/no-children-prop -- createElement con children como prop:
+   es el patrón requerido por driver.js para el popover custom, no JSX. */
 import { useEffect, useRef, useCallback, createElement, useState } from "react"
 import { driver, type DriveStep } from "driver.js"
 import "driver.js/dist/driver.css"

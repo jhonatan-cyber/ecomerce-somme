@@ -29,6 +29,8 @@ export const metadata: Metadata = {
   },
 }
 
+export const revalidate = 120
+
 export default async function HomePage({
   searchParams,
 }: {
@@ -42,8 +44,10 @@ export default async function HomePage({
   const normalizedSearch = search.trim()
   const normalizedCategoryId = categoryId.trim()
 
+  // Home solo necesita vitrina (héroe + novedades): 100 en vez de 1000
+  // para no bloquear el TTFB. El catálogo completo vive en /catalog.
   const [catalog, categoryCatalog, brandsCatalog, onSaleCatalog, slidesCatalog, adsCatalog] = await Promise.all([
-    getProducts({ search: normalizedSearch, categoryId: normalizedCategoryId, limit: 1000 }),
+    getProducts({ search: normalizedSearch, categoryId: normalizedCategoryId, limit: 100 }),
     getCategories(),
     getBrands(),
     getOnSaleProducts(),

@@ -71,7 +71,7 @@ export default async function CategorySlugPage({ params }: { params: Promise<{ s
           </Link>
         </div>
         {products.length > 0 ? (
-          <CatalogGrid products={products} />
+          <CatalogGrid products={products} basePath={`/category/${slug}`} />
         ) : (
           <div className="flex min-h-[280px] items-center justify-center rounded-2xl border border-dashed bg-muted/30 text-center text-sm text-muted-foreground">
             <div>

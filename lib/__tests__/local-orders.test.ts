@@ -52,7 +52,7 @@ describe("LocalOrderManager", () => {
       LocalOrderManager.saveOrder(mockOrder)
       const orders = LocalOrderManager.getStoredOrders()
       expect(orders).toHaveLength(1)
-      expect(orders[0].status).toBe("pending")
+      expect(orders[0]!.status).toBe("pending")
     })
   })
 

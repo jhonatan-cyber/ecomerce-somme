@@ -49,13 +49,13 @@ describe("buildFallbackCategories()", () => {
     ]
     const cats = buildFallbackCategories(products)
     expect(cats).toHaveLength(2)
-    expect(cats[0].name).toBe("Cámaras")
-    expect(cats[1].name).toBe("NVR")
+    expect(cats[0]!.name).toBe("Cámaras")
+    expect(cats[1]!.name).toBe("NVR")
   })
 
   it("generates slug id from name", () => {
     const cats = buildFallbackCategories([{ category: "Cámaras IP" }])
-    expect(cats[0].id).toBe("cámaras-ip")
+    expect(cats[0]!.id).toBe("cámaras-ip")
   })
 
   it("filters null/undefined/empty categories", () => {

@@ -29,11 +29,11 @@ export function ProductGallery({ name, imageUrl, images = [] }: ProductGalleryPr
   const touchEndX = useRef<number | null>(null)
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX
+    touchStartX.current = e.touches[0]?.clientX ?? 0
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0].clientX
+    touchEndX.current = e.touches[0]?.clientX ?? 0
   }
 
   const handleTouchEnd = () => {

@@ -510,7 +510,7 @@ export function AdvancedSearch({ onSearch, categories = [], brands = [] }: Advan
                 <Label className="text-sm font-medium">Ordenar por</Label>
                 <Select
                   value={filters.sortBy}
-                  onValueChange={(value) => setFilters(prev => ({ ...prev, sortBy: value as any }))}
+                  onValueChange={(value) => setFilters(prev => ({ ...prev, sortBy: value as SearchFilters["sortBy"] }))}
                 >
                   <SelectTrigger className="w-40">
                     <SelectValue />

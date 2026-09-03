@@ -176,8 +176,10 @@ export class LocalOrderManager {
     const orderIndex = orders.findIndex(order => order.id === orderId)
     
     if (orderIndex !== -1) {
-      orders[orderIndex].status = status
-      orders[orderIndex].lastSyncAttempt = new Date().toISOString()
+      const order = orders[orderIndex]
+      if (!order) return
+      order.status = status
+      order.lastSyncAttempt = new Date().toISOString()
       persistOrders(orders)
     }
   }
@@ -187,11 +189,13 @@ export class LocalOrderManager {
     const orderIndex = orders.findIndex(order => order.id === orderId)
 
     if (orderIndex !== -1) {
+      const order = orders[orderIndex]
+      if (!order) return
       const now = new Date().toISOString()
-      orders[orderIndex].status = 'synced'
-      orders[orderIndex].lastSyncAttempt = now
-      orders[orderIndex].syncedAt = now
-      orders[orderIndex].remoteOrderId = remoteOrderId ?? orders[orderIndex].remoteOrderId
+      order.status = 'synced'
+      order.lastSyncAttempt = now
+      order.syncedAt = now
+      order.remoteOrderId = remoteOrderId ?? order.remoteOrderId
       persistOrders(orders)
     }
   }
@@ -202,8 +206,10 @@ export class LocalOrderManager {
     const orderIndex = orders.findIndex(order => order.id === orderId)
     
     if (orderIndex !== -1) {
-      orders[orderIndex].syncAttempts++
-      orders[orderIndex].lastSyncAttempt = new Date().toISOString()
+      const order = orders[orderIndex]
+      if (!order) return
+      order.syncAttempts++
+      order.lastSyncAttempt = new Date().toISOString()
       persistOrders(orders)
     }
   }

@@ -35,7 +35,8 @@ function getRandomProducts(products: Product[], count: number): Product[] {
   const result: Product[] = []
   const mid = Math.floor(sorted.length / 2)
   for (let i = 0; i < count && i < sorted.length; i++) {
-    result.push(i % 2 === 0 ? sorted[i] : sorted[mid + Math.floor(i / 2)] ?? sorted[i])
+    const pick = i % 2 === 0 ? sorted[i] : (sorted[mid + Math.floor(i / 2)] ?? sorted[i])
+    if (pick) result.push(pick)
   }
   return result.slice(0, count)
 }

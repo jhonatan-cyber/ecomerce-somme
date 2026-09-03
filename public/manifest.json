@@ -2,11 +2,15 @@
   "name": "Somme Technology",
   "short_name": "SommeTech",
   "description": "Cámaras IP, kits de seguridad, grabadores NVR y accesorios. Asesoramiento técnico especializado y envíos a todo el país.",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
-  "orientation": "portrait-primary",
+  "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
@@ -27,7 +31,36 @@
       "purpose": "any maskable"
     }
   ],
+  "shortcuts": [    {
+      "name": "Catálogo",
+      "url": "/catalog",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Promociones",
+      "url": "/promotions",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Seguir pedido",
+      "url": "/tracking",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshots/screenshot-narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
   "categories": ["shopping", "security", "electronics"],
-  "lang": "es-BO",
-  "scope": "/"
+  "lang": "es-BO"
 }

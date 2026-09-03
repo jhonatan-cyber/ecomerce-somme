@@ -1054,10 +1054,11 @@ export async function getOrderById(orderId: string): Promise<OrderLookupResult> 
     // Si el backend falla, intentar buscar en localStorage
     if (typeof window !== 'undefined') {
       try {
-        const unifiedOrders = JSON.parse(localStorage.getItem('somme_local_orders') || '[]')
-        const legacyOrders = JSON.parse(localStorage.getItem('somme_orders') || '[]')
+        const toList = (value: unknown): unknown[] => (Array.isArray(value) ? value : [])
+        const unifiedOrders = toList(JSON.parse(localStorage.getItem('somme_local_orders') || '[]'))
+        const legacyOrders = toList(JSON.parse(localStorage.getItem('somme_orders') || '[]'))
         const localOrders = [...unifiedOrders, ...legacyOrders]
-        const localOrder = localOrders.find((order: any) => order.id === trimmedOrderId)
+        const localOrder = localOrders.find((order) => isPlainObject(order) && order.id === trimmedOrderId)
         
         if (localOrder) {
           return {

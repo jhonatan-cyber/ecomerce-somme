@@ -46,6 +46,10 @@ export function HeroBanner({ slides }: { slides: Slide[] }) {
             src={slide.url}
             alt={slide.alt}
             className="w-full"
+            // LCP: primer slide ansioso + alta prioridad, resto diferidos.
+            loading={i === 0 ? "eager" : "lazy"}
+            fetchPriority={i === 0 ? "high" : "auto"}
+            decoding="async"
           />
         </div>
       ))}

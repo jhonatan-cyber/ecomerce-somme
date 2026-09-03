@@ -15,7 +15,7 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 10
 
       - uses: actions/setup-node@v4
         with:
@@ -27,12 +27,23 @@ jobs:
       - name: Lint client/server boundary
         run: pnpm lint:boundary
 
+      - name: Lint JS/TS
+        run: pnpm lint:js
+
+      - name: Type check
+        run: pnpm type-check
+
+      - name: Tests
+        run: pnpm test
+
       - name: Build
         run: pnpm build
         env:
           NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || 'https://nuwesomme.cloud' }}
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_STORE_API_URL: ${{ vars.NEXT_PUBLIC_STORE_API_URL }}
           NEXT_PUBLIC_UPLOADS_URL: ${{ vars.NEXT_PUBLIC_UPLOADS_URL }}
+          NEXT_PUBLIC_WHATSAPP_NUMBER: ${{ vars.NEXT_PUBLIC_WHATSAPP_NUMBER }}
           NEXT_PUBLIC_PUSHER_KEY: ${{ vars.NEXT_PUBLIC_PUSHER_KEY }}
           NEXT_PUBLIC_PUSHER_CLUSTER: ${{ vars.NEXT_PUBLIC_PUSHER_CLUSTER || 'us2' }}
 
@@ -42,7 +53,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: ".next/*,public/*,package.json,pnpm-lock.yaml,next.config.mjs"
+          source: ".next/*,public/*,package.json,pnpm-lock.yaml,pnpm-workspace.yaml,next.config.mjs"
           target: "~/somme-store"
           strip_components: 0
 
@@ -54,12 +65,30 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             cd ~/somme-store
-            cat > .env << EOF
-            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL || 'https://nuwesomme.cloud' }}
-            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
-            NEXT_PUBLIC_UPLOADS_URL=${{ vars.NEXT_PUBLIC_UPLOADS_URL }}
-            NEXT_PUBLIC_PUSHER_KEY=${{ vars.NEXT_PUBLIC_PUSHER_KEY }}
-            NEXT_PUBLIC_PUSHER_CLUSTER=${{ vars.NEXT_PUBLIC_PUSHER_CLUSTER || 'us2' }}
-            EOF
+            umask 077
+            # Rollback: conservar el build anterior por si el healthcheck falla.
+            rm -rf .next.prev
+            [ -d .next ] && cp -a .next .next.prev
+            printf '%s\n' \
+              "NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL || 'https://nuwesomme.cloud' }}" \
+              "NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}" \
+              "NEXT_PUBLIC_STORE_API_URL=${{ vars.NEXT_PUBLIC_STORE_API_URL }}" \
+              "NEXT_PUBLIC_UPLOADS_URL=${{ vars.NEXT_PUBLIC_UPLOADS_URL }}" \
+              "NEXT_PUBLIC_WHATSAPP_NUMBER=${{ vars.NEXT_PUBLIC_WHATSAPP_NUMBER }}" \
+              "NEXT_PUBLIC_PUSHER_KEY=${{ vars.NEXT_PUBLIC_PUSHER_KEY }}" \
+              "NEXT_PUBLIC_PUSHER_CLUSTER=${{ vars.NEXT_PUBLIC_PUSHER_CLUSTER || 'us2' }}" \
+              > .env
+            chmod 600 .env
             pnpm install --prod --frozen-lockfile
             pm2 reload somme-store --update-env || pm2 start pnpm --name somme-store -- start
+            sleep 10
+            if curl -fsS http://localhost:5001/api/health > /dev/null; then
+              echo "Healthcheck OK"
+              rm -rf .next.prev
+            else
+              echo "Healthcheck FAILED: restaurando build anterior"
+              rm -rf .next
+              [ -d .next.prev ] && mv .next.prev .next
+              pm2 reload somme-store --update-env || pm2 start pnpm --name somme-store -- start
+              exit 1
+            fi

@@ -110,12 +110,13 @@ export default async function ProductDetailPage({
   // Get suggested products - same category first, fill with same brand if needed
   const { getProducts } = await import("@/lib/api")
   
+  // Sugeridos: solo se muestran 6, pedir 24 da margen para dedup/filtrado.
   const [categoryLookup, brandLookup] = await Promise.all([
     product.categoryId 
-      ? getProducts({ categoryId: product.categoryId, limit: 1000 }) 
+      ? getProducts({ categoryId: product.categoryId, limit: 24 }) 
       : Promise.resolve({ ok: false, products: [] as import("@/lib/types").Product[], error: null, sourceUrl: "" }),
     product.brandId
-      ? getProducts({ brandId: product.brandId, limit: 1000 })
+      ? getProducts({ brandId: product.brandId, limit: 24 })
       : Promise.resolve({ ok: false, products: [] as import("@/lib/types").Product[], error: null, sourceUrl: "" }),
   ])
 

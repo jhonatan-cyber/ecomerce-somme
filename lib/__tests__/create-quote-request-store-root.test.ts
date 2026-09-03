@@ -68,7 +68,7 @@ describe("createQuoteRequest store root resolution (server-side)", () => {
     })
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    const [url] = fetchMock.mock.calls[0]
+    const [url] = fetchMock.mock.calls[0]!
     expect(url).toBe("https://api.example.com/store/quote-requests")
     expect(url).not.toContain("/store/store")
   })
@@ -79,7 +79,7 @@ describe("createQuoteRequest store root resolution (server-side)", () => {
     })
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    const [url] = fetchMock.mock.calls[0]
+    const [url] = fetchMock.mock.calls[0]!
     expect(url).toBe("https://api.example.com/store/quote-requests")
     expect(url).not.toContain("/store/store")
   })
@@ -90,7 +90,7 @@ describe("createQuoteRequest store root resolution (server-side)", () => {
     })
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    const [url] = fetchMock.mock.calls[0]
+    const [url] = fetchMock.mock.calls[0]!
     expect(url).toBe("https://api.example.com/store/quote-requests")
   })
 
@@ -103,7 +103,7 @@ describe("createQuoteRequest store root resolution (server-side)", () => {
     })
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    const [url] = fetchMock.mock.calls[0]
+    const [url] = fetchMock.mock.calls[0]!
     expect(url).toBe("/api/store/quote-requests")
   })
 })

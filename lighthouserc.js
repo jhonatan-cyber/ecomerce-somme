@@ -10,18 +10,21 @@ module.exports = {
         "http://localhost:5001/catalog",
         "http://localhost:5001/categories",
       ],
-      numberOfRuns: 1,
+      numberOfRuns: 3,
       settings: {
         preset: "desktop",
-        onlyCategories: ["performance", "accessibility", "best-practices", "seo"],
+        // Para móvil local: `pnpm build && pnpm start` + `npx lhci collect --preset=desktop`
+        // cambiado a preset móvil vía --settings.preset=mobile. CI usa desktop (estable).
+        onlyCategories: ["performance", "accessibility", "best-practices", "seo", "pwa"],
       },
     },
     assert: {
       assertions: {
-        "categories:performance": ["warn", { minScore: 0.6 }],
-        "categories:accessibility": ["warn", { minScore: 0.9 }],
-        "categories:best-practices": ["warn", { minScore: 0.9 }],
+        "categories:performance": ["error", { minScore: 0.8 }],
+        "categories:accessibility": ["error", { minScore: 0.9 }],
+        "categories:best-practices": ["error", { minScore: 0.9 }],
         "categories:seo": ["error", { minScore: 0.9 }],
+        "categories:pwa": ["warn", { minScore: 0.8 }],
       },
     },
     upload: {

@@ -22,8 +22,13 @@ function markDismissed(): void {
   }
 }
 
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>
+}
+
 export function InstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [showPrompt, setShowPrompt] = useState(false)
   const dismissedRef = useRef(isDismissed())
 
@@ -35,7 +40,7 @@ export function InstallPrompt() {
       // Doble guardia: si ya se descartó entre medio, ignorar
       if (dismissedRef.current || isDismissed()) return
       e.preventDefault()
-      setDeferredPrompt(e)
+      setDeferredPrompt(e as BeforeInstallPromptEvent)
       setShowPrompt(true)
     }
 

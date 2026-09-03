@@ -1,5 +1,8 @@
 ﻿"use client"
 
+/* eslint-disable react-hooks/immutability, react-hooks/preserve-manual-memoization --
+   API imperativa de embla-carousel (on/off/scrollTo + ref mutable): el modelo
+   mental del compilador de React no aplica a este carrusel externo. */
 import { useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import useEmblaCarousel from "embla-carousel-react"

@@ -43,7 +43,7 @@ describe("BrandsCarousel", () => {
   it("links each brand to catalog with brand filter", () => {
     render(<BrandsCarousel brands={brands} />)
     const links = screen.getAllByRole("link")
-    expect(links[0].getAttribute("href")).toBe("/catalog?brand=b1")
-    expect(links[1].getAttribute("href")).toBe("/catalog?brand=b2")
+    expect(links[0]!.getAttribute("href")).toBe("/catalog?brand=b1")
+    expect(links[1]!.getAttribute("href")).toBe("/catalog?brand=b2")
   })
 })

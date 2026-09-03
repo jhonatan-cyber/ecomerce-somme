@@ -86,7 +86,7 @@ export default async function NewArrivalsPage() {
               <h2 className="mt-2 text-2xl font-black text-slate-950 dark:text-white sm:text-3xl">Productos recien ingresados al sistema</h2>
             </div>
 
-            <CatalogGrid products={products} grouped={false} />
+            <CatalogGrid products={products} grouped={false} basePath="/new-arrivals" />
           </div>
         </section>
       </main>

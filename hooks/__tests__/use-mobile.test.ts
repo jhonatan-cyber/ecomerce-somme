@@ -8,7 +8,7 @@ function setWidth(width: number) {
 
 beforeEach(() => {
   setWidth(1024)
-  vi.spyOn(window, "matchMedia").mockImplementation((query: string) => ({
+  const impl = (query: string) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -17,7 +17,17 @@ beforeEach(() => {
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
-  }))
+  })
+  // vitest 4 / jsdom reciente no provee window.matchMedia: definirlo si falta.
+  if (typeof window.matchMedia === "function") {
+    vi.spyOn(window, "matchMedia").mockImplementation(impl)
+  } else {
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      configurable: true,
+      value: vi.fn(impl),
+    })
+  }
 })
 
 afterEach(() => {

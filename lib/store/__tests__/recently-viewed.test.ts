@@ -16,7 +16,7 @@ describe("recently-viewed store", () => {
   it("adds item to empty store", () => {
     useRecentlyViewedStore.getState().addItem(item("a"))
     expect(useRecentlyViewedStore.getState().items).toHaveLength(1)
-    expect(useRecentlyViewedStore.getState().items[0].id).toBe("a")
+    expect(useRecentlyViewedStore.getState().items[0]!.id).toBe("a")
   })
 
   it("moves existing item to front", () => {
@@ -32,7 +32,7 @@ describe("recently-viewed store", () => {
       useRecentlyViewedStore.getState().addItem(item(String(i)))
     }
     expect(useRecentlyViewedStore.getState().items).toHaveLength(8)
-    expect(useRecentlyViewedStore.getState().items[0].id).toBe("11")
+    expect(useRecentlyViewedStore.getState().items[0]!.id).toBe("11")
   })
 
   it("clearItems empties store", () => {

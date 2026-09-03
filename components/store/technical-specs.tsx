@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import type { ReactNode } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { 
@@ -57,7 +58,15 @@ const specIcons = {
 export function TechnicalSpecs({ product }: TechnicalSpecsProps) {
   const [expandedSpec, setExpandedSpec] = useState<string | null>(null)
 
-  const specs = [
+  type SpecEntry = {
+    key: string
+    label: string
+    value: ReactNode | string[] | boolean
+    array?: boolean
+    boolean?: boolean
+  }
+
+  const specs: SpecEntry[] = [
     { key: 'resolution', label: 'Resolución', value: product.resolution },
     { key: 'night_vision', label: 'Visión Nocturna', value: product.night_vision, boolean: true },
     { key: 'weather_resistance', label: 'Resistencia Climática', value: product.weather_resistance },
@@ -70,7 +79,7 @@ export function TechnicalSpecs({ product }: TechnicalSpecsProps) {
     { key: 'operating_temperature', label: 'Temperatura Operativa', value: product.operating_temperature }
   ].filter(spec => spec.value !== undefined && spec.value !== null && spec.value !== '')
 
-  const getSpecValue = (spec: any) => {
+  const getSpecValue = (spec: SpecEntry) => {
     if (spec.boolean) {
       return spec.value ? 'Sí' : 'No'
     }

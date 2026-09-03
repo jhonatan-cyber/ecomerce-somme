@@ -200,6 +200,8 @@ export function OnSaleSection({ products }: { products: Product[] }) {
     (a, b) => (b.discountPercent ?? 0) - (a.discountPercent ?? 0)
   )
 
+  if (!hero) return null
+
   return (
     <section data-tour="on-sale" id="ofertas" className="container mx-auto px-4 pt-10">
       {/* Header */}
