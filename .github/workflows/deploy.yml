@@ -54,7 +54,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           source: ".next/*,public/*,package.json,pnpm-lock.yaml,pnpm-workspace.yaml,next.config.mjs"
-          target: "~/somme-store"
+          target: "/var/www/ecomerce-somme"
           strip_components: 0
 
       - name: Remote install & restart
@@ -64,7 +64,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            cd ~/somme-store
+            cd /var/www/ecomerce-somme
             umask 077
             # Rollback: conservar el build anterior por si el healthcheck falla.
             rm -rf .next.prev
@@ -80,15 +80,15 @@ jobs:
               > .env
             chmod 600 .env
             pnpm install --prod --frozen-lockfile
-            pm2 reload somme-store --update-env || pm2 start pnpm --name somme-store -- start
+            pm2 reload ecomerce-somme --update-env || pm2 start node_modules/.bin/next --name ecomerce-somme -- start -p 3000
             sleep 10
-            if curl -fsS http://localhost:5001/api/health > /dev/null; then
+            if curl -fsS http://localhost:3000/api/health > /dev/null; then
               echo "Healthcheck OK"
               rm -rf .next.prev
             else
               echo "Healthcheck FAILED: restaurando build anterior"
               rm -rf .next
               [ -d .next.prev ] && mv .next.prev .next
-              pm2 reload somme-store --update-env || pm2 start pnpm --name somme-store -- start
+              pm2 reload ecomerce-somme --update-env || pm2 start node_modules/.bin/next --name ecomerce-somme -- start -p 3000
               exit 1
             fi
