@@ -11,22 +11,32 @@ interface Slide {
 export function HeroBanner({ slides }: { slides: Slide[] }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
+  // Archivos que el backend lista pero ya no existen (404): se ocultan en
+  // vez de mostrar el icono de imagen rota. Verificado 2026-09: los 6
+  // /slides/*.webp del dashboard devuelven 404; re-subirlos los restaura.
+  const [failedUrls, setFailedUrls] = useState<ReadonlySet<string>>(new Set())
+
+  const visibleSlides = slides.filter((slide) => !failedUrls.has(slide.url))
 
   const next = useCallback(() => {
-    setActiveIndex((i) => (i + 1) % slides.length)
-  }, [slides.length])
+    setActiveIndex((i) => (visibleSlides.length > 0 ? (i + 1) % visibleSlides.length : 0))
+  }, [visibleSlides.length])
 
   const prev = () => {
-    setActiveIndex((i) => (i - 1 + slides.length) % slides.length)
+    setActiveIndex((i) => (i - 1 + visibleSlides.length) % Math.max(visibleSlides.length, 1))
   }
 
   useEffect(() => {
-    if (isPaused || slides.length <= 1) return
+    if (isPaused || visibleSlides.length <= 1) return
     const interval = setInterval(next, 5000)
     return () => clearInterval(interval)
-  }, [isPaused, next, slides.length])
+  }, [isPaused, next, visibleSlides.length])
 
-  if (slides.length === 0) return null
+  useEffect(() => {
+    setActiveIndex(0)
+  }, [visibleSlides.length])
+
+  if (visibleSlides.length === 0) return null
 
   return (
     <div
@@ -35,7 +45,7 @@ export function HeroBanner({ slides }: { slides: Slide[] }) {
       onMouseLeave={() => setIsPaused(false)}
     >
       {/* Slides */}
-      {slides.map((slide, i) => (
+      {visibleSlides.map((slide, i) => (
         <div
           key={slide.url}
           className={`transition-opacity duration-700 ${
@@ -50,6 +60,9 @@ export function HeroBanner({ slides }: { slides: Slide[] }) {
             loading={i === 0 ? "eager" : "lazy"}
             fetchPriority={i === 0 ? "high" : "auto"}
             decoding="async"
+            onError={() =>
+              setFailedUrls((prev) => (prev.has(slide.url) ? prev : new Set(prev).add(slide.url)))
+            }
           />
         </div>
       ))}
@@ -58,7 +71,7 @@ export function HeroBanner({ slides }: { slides: Slide[] }) {
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background/40 to-transparent" />
 
       {/* Prev / Next arrows */}
-      {slides.length > 1 && (
+      {visibleSlides.length > 1 && (
         <>
           <button
             type="button"
@@ -80,9 +93,9 @@ export function HeroBanner({ slides }: { slides: Slide[] }) {
       )}
 
       {/* Dots */}
-      {slides.length > 1 && (
+      {visibleSlides.length > 1 && (
         <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-2">
-          {slides.map((_, i) => (
+          {visibleSlides.map((_, i) => (
             <button
               key={i}
               type="button"
