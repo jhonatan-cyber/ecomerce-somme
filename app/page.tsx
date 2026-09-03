@@ -1,3 +1,5 @@
+import { readdir } from "node:fs/promises"
+import path from "node:path"
 import { getBrands, getCategories, getOnSaleProducts, getProducts, getSlides, getAds } from "@/lib/api"
 import { buildFallbackCategories } from "@/lib/utils"
 import { BrandsCarousel } from "@/components/store/home/brands-carousel"
@@ -31,6 +33,22 @@ export const metadata: Metadata = {
 
 export const revalidate = 120
 
+// Slides locales (public/img/slide/): el dashboard perdió los uploads
+// (sus /slides/*.webp dan 404), así que el hero vive del repo.
+// Agregar/quitar un .webp cambia el carrusel sin tocar código.
+// Si la carpeta queda vacía, se usa el backend como fallback.
+async function getLocalSlides(): Promise<{ url: string; alt: string }[]> {
+  try {
+    const dir = path.join(process.cwd(), "public", "img", "slide")
+    const files = (await readdir(dir))
+      .filter((file) => /\.(webp|png|jpe?g|avif)$/i.test(file))
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+    return files.map((file, i) => ({ url: `/img/slide/${file}`, alt: `Slide ${i + 1}` }))
+  } catch {
+    return []
+  }
+}
+
 export default async function HomePage({
   searchParams,
 }: {
@@ -46,18 +64,19 @@ export default async function HomePage({
 
   // Home solo necesita vitrina (héroe + novedades): 100 en vez de 1000
   // para no bloquear el TTFB. El catálogo completo vive en /catalog.
-  const [catalog, categoryCatalog, brandsCatalog, onSaleCatalog, slidesCatalog, adsCatalog] = await Promise.all([
+  const [catalog, categoryCatalog, brandsCatalog, onSaleCatalog, slidesCatalog, adsCatalog, localSlides] = await Promise.all([
     getProducts({ search: normalizedSearch, categoryId: normalizedCategoryId, limit: 100 }),
     getCategories(),
     getBrands(),
     getOnSaleProducts(),
     getSlides(),
     getAds(),
+    getLocalSlides(),
   ])
 
   const brands = brandsCatalog.ok ? brandsCatalog.brands : []
   const onSaleProducts = onSaleCatalog.ok ? onSaleCatalog.products : []
-  const slides = slidesCatalog.slides
+  const slides = localSlides.length > 0 ? localSlides : slidesCatalog.slides
   const ads = adsCatalog.ok ? adsCatalog.ads : []
 
   if (!catalog.ok) {
