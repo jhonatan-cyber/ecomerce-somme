@@ -28,13 +28,13 @@ export type { BrandLoadResult } from "./types"
 // Períodos centralizados: el catálogo público es dato estable que puede
 // servirse desde cache ISR; los pedidos (getOrderById) son dato dinámico
 // por-cliente y se excluyen de cache a propósito.
-const PROMO_REVALIDATE = 60 // slides, ads y on-sale (rotación de promos)
-const QUOTE_REVALIDATE = 30 // productos del flujo de cotización
-const SEARCH_REVALIDATE = 30 // listados con filtros/búsqueda activa
-const CATALOG_REVALIDATE = 120 // listado de productos sin filtros
-const DETAIL_REVALIDATE = 120 // detalle de producto (getProductById)
-const SETTINGS_REVALIDATE = 120 // configuración del store (getStoreSettings)
-const STATIC_REVALIDATE = 300 // categorías y marcas (cambian muy poco)
+const PROMO_REVALIDATE = 0 // precios promocionales siempre frescos
+const QUOTE_REVALIDATE = 0 // cotizaciones siempre con precios actuales
+const SEARCH_REVALIDATE = 0 // búsquedas siempre con precios actuales
+const CATALOG_REVALIDATE = 0 // catálogo sin caché de precios
+const DETAIL_REVALIDATE = 0 // detalle sin caché de precios
+const SETTINGS_REVALIDATE = 0 // configuración fresca
+const STATIC_REVALIDATE = 0 // categorías y marcas sin caché
 const ORDER_LOOKUP_CACHE = "no-store" as const // órdenes: dato dinámico por-cliente
 
 function toText(value: unknown): string | null {
