@@ -37,17 +37,6 @@ const SETTINGS_REVALIDATE = 120 // configuración del store (getStoreSettings)
 const STATIC_REVALIDATE = 300 // categorías y marcas (cambian muy poco)
 const ORDER_LOOKUP_CACHE = "no-store" as const // órdenes: dato dinámico por-cliente
 
-export function getEcommerceCustomerPriceMultiplier(): number {
-  const value = Number(process.env.NEXT_PUBLIC_CUSTOMER_PRICE_MULTIPLIER ?? 1.2)
-  return Number.isFinite(value) && value > 0 ? value : 1.2
-}
-
-export function getEcommerceInstallerPrice(price: number): number {
-  if (!Number.isFinite(price)) return price
-  const installerPrice = price / getEcommerceCustomerPriceMultiplier()
-  return Math.round((installerPrice + Number.EPSILON) * 100) / 100
-}
-
 function toText(value: unknown): string | null {
   if (typeof value !== "string") return null
   const trimmed = value.trim()
@@ -221,20 +210,13 @@ function normalizeProductRecord(rawProduct: unknown): Product | null {
 
   const id = toText(rawProduct.id ?? rawProduct.code ?? rawProduct.product_id ?? rawProduct.productId)
   const name = toText(rawProduct.name ?? rawProduct.title)
-  const receivedPrice = toNumber(rawProduct.price ?? rawProduct.salePrice ?? rawProduct.sale_price)
-  const installerPrice = toNumber(rawProduct.installerPrice ?? rawProduct.installer_price)
-  const salePrice = toNumber(rawProduct.salePrice ?? rawProduct.sale_price)
+  const price = toNumber(rawProduct.price ?? rawProduct.salePrice ?? rawProduct.sale_price)
   const stock = toNumber(rawProduct.stock ?? rawProduct.availableStock ?? rawProduct.available_stock)
 
-  if (!id || !name || receivedPrice === null || stock === null) {
+  if (!id || !name || price === null || stock === null) {
     return null
   }
 
-  // El dashboard puede entregar el precio cliente ajustado o el precio base.
-  // Preferimos campos explícitos de instalador; si solo llega price, lo revertimos con el multiplicador configurado.
-  const price = installerPrice ?? (salePrice !== null && salePrice !== receivedPrice ? salePrice : getEcommerceInstallerPrice(receivedPrice))
-  const receivedOriginalPrice = toNumber(rawProduct.originalPrice ?? rawProduct.original_price)
-  const originalPrice = receivedOriginalPrice === null ? null : getEcommerceInstallerPrice(receivedOriginalPrice)
   const brandId = toText(rawProduct.brandId ?? rawProduct.brand_id) ?? null
 
   return {
@@ -245,7 +227,7 @@ function normalizeProductRecord(rawProduct: unknown): Product | null {
     model: toText(rawProduct.model ?? rawProduct.productModel ?? rawProduct.product_model),
     description: toText(rawProduct.description),
     price,
-    originalPrice,
+    originalPrice: toNumber(rawProduct.originalPrice ?? rawProduct.original_price) ?? null,
     discountPercent: toNumber(rawProduct.discountPercent ?? rawProduct.discount_percent) ?? null,
     onSale: toBoolean(rawProduct.onSale ?? rawProduct.on_sale) ?? false,
     saleEndDate: toText(rawProduct.saleEndDate ?? rawProduct.sale_end_date) ?? null,

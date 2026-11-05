@@ -30,13 +30,7 @@ describe("getProducts", () => {
     expect(result.ok).toBe(true)
     expect(result.products).toHaveLength(1)
     expect(result.products[0]!.id).toBe("p1")
-    expect(result.products[0]!.price).toBe(416.67)
-  })
-
-  it("convierte el precio cliente recibido a precio instalador", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ data: [rawProduct({ price: 36, stock: 108 })] })))
-    const result = await getProducts()
-    expect(result.products[0]!.price).toBe(30)
+    expect(result.products[0]!.price).toBe(500)
   })
 
   it("propaga search/categoryId/brandId/limit a la URL", async () => {
