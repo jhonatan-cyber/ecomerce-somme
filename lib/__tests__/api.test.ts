@@ -142,7 +142,7 @@ describe("cache contract: revalidate/no-store constants passed to fetch", () => 
     vi.unstubAllGlobals()
   })
 
-  it("getSlides passes PROMO_REVALIDATE (60s) via next.revalidate", async () => {
+  it("getSlides disables storefront promo caching", async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ data: [{ url: "/img/slide-1.webp", alt: "Slide 1" }] }), {
         status: 200,
@@ -158,11 +158,11 @@ describe("cache contract: revalidate/no-store constants passed to fetch", () => 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe("/api/store/slides")
-    expect((init as RequestInit).next).toEqual({ revalidate: 60 })
+    expect((init as RequestInit).next).toEqual({ revalidate: 0 })
     expect((init as RequestInit).cache).toBeUndefined()
   })
 
-  it("getProducts without filters passes CATALOG_REVALIDATE (120s)", async () => {
+  it("getProducts without filters disables catalog price caching", async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ data: [{ id: "p1", name: "Camara IP", price: 100, stock: 5 }] }), {
         status: 200,
@@ -178,11 +178,11 @@ describe("cache contract: revalidate/no-store constants passed to fetch", () => 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe("/api/store/products")
-    expect((init as RequestInit).next).toEqual({ revalidate: 120 })
+    expect((init as RequestInit).next).toEqual({ revalidate: 0 })
     expect((init as RequestInit).cache).toBeUndefined()
   })
 
-  it("getProducts with a search passes SEARCH_REVALIDATE (30s)", async () => {
+  it("getProducts with a search disables price caching", async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ data: [{ id: "p1", name: "Camara IP", price: 100, stock: 5 }] }), {
         status: 200,
@@ -198,7 +198,7 @@ describe("cache contract: revalidate/no-store constants passed to fetch", () => 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe("/api/store/products?search=camara")
-    expect((init as RequestInit).next).toEqual({ revalidate: 30 })
+    expect((init as RequestInit).next).toEqual({ revalidate: 0 })
     expect((init as RequestInit).cache).toBeUndefined()
   })
 
