@@ -33,6 +33,12 @@ describe("getProducts", () => {
     expect(result.products[0]!.price).toBe(500)
   })
 
+  it("usa installerPrice sin multiplicarlo", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ data: [rawProduct({ price: 36, installerPrice: 30, stock: 108 })] })))
+    const result = await getProducts()
+    expect(result.products[0]!.price).toBe(30)
+  })
+
   it("propaga search/categoryId/brandId/limit a la URL", async () => {
     // Respuesta fresca por llamada: el fallback de brandId refetchea y un
     // mismo objeto Response solo permite leer el body una vez.

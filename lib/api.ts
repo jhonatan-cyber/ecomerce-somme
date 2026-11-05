@@ -210,7 +210,10 @@ function normalizeProductRecord(rawProduct: unknown): Product | null {
 
   const id = toText(rawProduct.id ?? rawProduct.code ?? rawProduct.product_id ?? rawProduct.productId)
   const name = toText(rawProduct.name ?? rawProduct.title)
-  const price = toNumber(rawProduct.price ?? rawProduct.salePrice ?? rawProduct.sale_price)
+  const installerPrice = toNumber(rawProduct.installerPrice ?? rawProduct.installer_price)
+  const salePrice = toNumber(rawProduct.salePrice ?? rawProduct.sale_price)
+  const receivedPrice = toNumber(rawProduct.price)
+  const price = installerPrice ?? salePrice ?? receivedPrice
   const stock = toNumber(rawProduct.stock ?? rawProduct.availableStock ?? rawProduct.available_stock)
 
   if (!id || !name || price === null || stock === null) {
