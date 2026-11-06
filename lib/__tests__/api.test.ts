@@ -41,6 +41,13 @@ describe("rewriteImageUrl", () => {
     expect(rewriteImageUrl(url)).toBe(url)
   })
 
+  it("should rewrite legacy production image domains", async () => {
+    process.env.NEXT_PUBLIC_UPLOADS_URL = "https://dashboard.sommetechnology.com"
+    const { rewriteImageUrl } = await import("@/lib/api")
+    expect(rewriteImageUrl("https://somme.nuwesomme.cloud/api/uploads/files/product.webp"))
+      .toBe("https://dashboard.sommetechnology.com/api/uploads/files/product.webp")
+  })
+
   it("should rewrite different private IP variants", async () => {
     process.env.NEXT_PUBLIC_UPLOADS_URL = "https://dashboard.sommetechnology.com"
     const { rewriteImageUrl } = await import("@/lib/api")

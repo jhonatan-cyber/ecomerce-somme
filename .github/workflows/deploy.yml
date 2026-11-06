@@ -40,9 +40,9 @@ jobs:
         run: pnpm build
         env:
           NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || 'https://sommetechnology.com' }}
-          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
-          NEXT_PUBLIC_STORE_API_URL: ${{ vars.NEXT_PUBLIC_STORE_API_URL }}
-          NEXT_PUBLIC_UPLOADS_URL: ${{ vars.NEXT_PUBLIC_UPLOADS_URL }}
+          NEXT_PUBLIC_API_URL: https://dashboard.sommetechnology.com/api
+          NEXT_PUBLIC_STORE_API_URL: https://dashboard.sommetechnology.com/api/store
+          NEXT_PUBLIC_UPLOADS_URL: https://dashboard.sommetechnology.com
           NEXT_PUBLIC_WHATSAPP_NUMBER: ${{ vars.NEXT_PUBLIC_WHATSAPP_NUMBER }}
           NEXT_PUBLIC_PUSHER_KEY: ${{ vars.NEXT_PUBLIC_PUSHER_KEY }}
           NEXT_PUBLIC_PUSHER_CLUSTER: ${{ vars.NEXT_PUBLIC_PUSHER_CLUSTER || 'us2' }}
@@ -71,9 +71,9 @@ jobs:
             [ -d .next ] && cp -a .next .next.prev
             printf '%s\n' \
               "NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL || 'https://sommetechnology.com' }}" \
-              "NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}" \
-              "NEXT_PUBLIC_STORE_API_URL=${{ vars.NEXT_PUBLIC_STORE_API_URL }}" \
-              "NEXT_PUBLIC_UPLOADS_URL=${{ vars.NEXT_PUBLIC_UPLOADS_URL }}" \
+              "NEXT_PUBLIC_API_URL=https://dashboard.sommetechnology.com/api" \
+              "NEXT_PUBLIC_STORE_API_URL=https://dashboard.sommetechnology.com/api/store" \
+              "NEXT_PUBLIC_UPLOADS_URL=https://dashboard.sommetechnology.com" \
               "NEXT_PUBLIC_WHATSAPP_NUMBER=${{ vars.NEXT_PUBLIC_WHATSAPP_NUMBER }}" \
               "NEXT_PUBLIC_PUSHER_KEY=${{ vars.NEXT_PUBLIC_PUSHER_KEY }}" \
               "NEXT_PUBLIC_PUSHER_CLUSTER=${{ vars.NEXT_PUBLIC_PUSHER_CLUSTER || 'us2' }}" \

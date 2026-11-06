@@ -180,16 +180,21 @@ export function rewriteImageUrl(url: string | null | undefined): string | null {
     process.env.NEXT_PUBLIC_UPLOADS_URL?.trim() ||
     process.env.NEXT_PUBLIC_API_URL?.trim()
   if (!url) return null
-
-  if (!rawUploadsBase) return url
-
-  const normalizedRawBase = rawUploadsBase.replace(/\/+$/, "")
-  const normalizedBase = normalizedRawBase.endsWith("/api")
-    ? normalizedRawBase.slice(0, -4)
-    : normalizedRawBase
   const trimmedUrl = url.trim()
 
   if (!trimmedUrl) return null
+
+  const normalizedRawBase = rawUploadsBase?.replace(/\/+$/, "") ?? ""
+  const normalizedBase = normalizedRawBase.endsWith("/api")
+    ? normalizedRawBase.slice(0, -4)
+    : normalizedRawBase
+
+  if (/^https?:\/\/somme\.nuwesomme\.cloud(?:\/|$)/i.test(trimmedUrl)) {
+    const uploadsBase = normalizedBase || "https://dashboard.sommetechnology.com"
+    return trimmedUrl.replace(/^https?:\/\/somme\.nuwesomme\.cloud/i, uploadsBase)
+  }
+
+  if (!rawUploadsBase) return url
 
   if (trimmedUrl.startsWith("/img/")) {
     return `${normalizedBase}${trimmedUrl}`
