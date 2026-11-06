@@ -39,7 +39,7 @@ jobs:
       - name: Build
         run: pnpm build
         env:
-          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || 'https://nuwesomme.cloud' }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || 'https://sommetechnology.com' }}
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_STORE_API_URL: ${{ vars.NEXT_PUBLIC_STORE_API_URL }}
           NEXT_PUBLIC_UPLOADS_URL: ${{ vars.NEXT_PUBLIC_UPLOADS_URL }}
@@ -70,7 +70,7 @@ jobs:
             rm -rf .next.prev
             [ -d .next ] && cp -a .next .next.prev
             printf '%s\n' \
-              "NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL || 'https://nuwesomme.cloud' }}" \
+              "NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL || 'https://sommetechnology.com' }}" \
               "NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}" \
               "NEXT_PUBLIC_STORE_API_URL=${{ vars.NEXT_PUBLIC_STORE_API_URL }}" \
               "NEXT_PUBLIC_UPLOADS_URL=${{ vars.NEXT_PUBLIC_UPLOADS_URL }}" \

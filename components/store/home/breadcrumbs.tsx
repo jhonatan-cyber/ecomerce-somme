@@ -10,7 +10,7 @@ interface BreadcrumbsProps {
   items: BreadcrumbItem[]
 }
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuwesomme.cloud").replace(/\/$/, "")
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://sommetechnology.com").replace(/\/$/, "")
 
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
   if (items.length === 0) return null

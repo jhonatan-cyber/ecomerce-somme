@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next"
 import { getProducts, getCategories, getBrands } from "@/lib/api"
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuwesomme.cloud"
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sommetechnology.com"
 
 // El sitemap refetchea todo el catálogo: regenerar 1 vez al día basta.
 export const revalidate = 86400

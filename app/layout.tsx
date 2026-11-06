@@ -12,7 +12,7 @@ import { InstallPrompt } from "@/components/pwa/install-prompt"
 import { MobileBottomNav } from "@/components/store/mobile-bottom-nav"
 import "../styles/globals.css"
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuwesomme.cloud"
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sommetechnology.com"
 const IS_PRODUCTION = process.env.NODE_ENV === "production"
 const PRODUCTION_HOSTNAME = new URL(SITE_URL).hostname
 const SITE_NAME = "Somme Technology"

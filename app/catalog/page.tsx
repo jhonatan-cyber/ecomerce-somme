@@ -11,7 +11,7 @@ import { StoreHeader } from "@/components/store/header"
 import { AutoTour } from "@/components/tour"
 import type { Category, Product } from "@/lib/types"
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuwesomme.cloud"
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sommetechnology.com"
 
 export async function generateMetadata({
   searchParams,

@@ -43,7 +43,7 @@ export async function generateMetadata({
       description: `Productos de ${brand.name} en Somme Technology.`,
       url: `/brands?brandId=${brandId}`,
       type: "website",
-      ...(brand.logo ? { images: [{ url: new URL(brand.logo, process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuwesomme.cloud").toString(), alt: brand.name }] } : {}),
+      ...(brand.logo ? { images: [{ url: new URL(brand.logo, process.env.NEXT_PUBLIC_SITE_URL ?? "https://sommetechnology.com").toString(), alt: brand.name }] } : {}),
     },
   }
 }

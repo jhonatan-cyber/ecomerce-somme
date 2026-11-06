@@ -11,10 +11,10 @@ describe("rewriteImageUrl", () => {
   })
 
   it("should rewrite 192.168.x.x URLs when uploads URL is set", async () => {
-    process.env.NEXT_PUBLIC_UPLOADS_URL = "https://somme.nuwesomme.cloud"
+    process.env.NEXT_PUBLIC_UPLOADS_URL = "https://dashboard.sommetechnology.com"
     const { rewriteImageUrl } = await import("@/lib/api")
     const result = rewriteImageUrl("http://192.168.0.2:8000/api/uploads/files/product.webp")
-    expect(result).toBe("https://somme.nuwesomme.cloud/api/uploads/files/product.webp")
+    expect(result).toBe("https://dashboard.sommetechnology.com/api/uploads/files/product.webp")
   })
 
   it("should return null for null input", async () => {
@@ -35,26 +35,26 @@ describe("rewriteImageUrl", () => {
   })
 
   it("should return non-private URLs as-is even when uploads URL is set", async () => {
-    process.env.NEXT_PUBLIC_UPLOADS_URL = "https://somme.nuwesomme.cloud"
+    process.env.NEXT_PUBLIC_UPLOADS_URL = "https://dashboard.sommetechnology.com"
     const { rewriteImageUrl } = await import("@/lib/api")
     const url = "https://cdn.example.com/images/product.webp"
     expect(rewriteImageUrl(url)).toBe(url)
   })
 
   it("should rewrite different private IP variants", async () => {
-    process.env.NEXT_PUBLIC_UPLOADS_URL = "https://somme.nuwesomme.cloud"
+    process.env.NEXT_PUBLIC_UPLOADS_URL = "https://dashboard.sommetechnology.com"
     const { rewriteImageUrl } = await import("@/lib/api")
     expect(rewriteImageUrl("http://192.168.1.100:3000/file.jpg"))
-      .toBe("https://somme.nuwesomme.cloud/file.jpg")
+      .toBe("https://dashboard.sommetechnology.com/file.jpg")
     expect(rewriteImageUrl("http://192.168.0.5:8000/images/test.png"))
-      .toBe("https://somme.nuwesomme.cloud/images/test.png")
+      .toBe("https://dashboard.sommetechnology.com/images/test.png")
   })
 
   it("should handle trailing slashes in uploads URL", async () => {
-    process.env.NEXT_PUBLIC_UPLOADS_URL = "https://somme.nuwesomme.cloud/"
+    process.env.NEXT_PUBLIC_UPLOADS_URL = "https://dashboard.sommetechnology.com/"
     const { rewriteImageUrl } = await import("@/lib/api")
     const result = rewriteImageUrl("http://192.168.0.2:8000/api/uploads/files/product.webp")
-    expect(result).toBe("https://somme.nuwesomme.cloud/api/uploads/files/product.webp")
+    expect(result).toBe("https://dashboard.sommetechnology.com/api/uploads/files/product.webp")
   })
 })
 

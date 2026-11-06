@@ -41,9 +41,9 @@ let nextConfig = {
     // cualquier host como el `**` anterior).
     remotePatterns: [
       { protocol: "http", hostname: "localhost" },
-      { protocol: "http", hostname: "**.nuwesomme.cloud" },
-      { protocol: "https", hostname: "nuwesomme.cloud" },
-      { protocol: "https", hostname: "**.nuwesomme.cloud" },
+      { protocol: "http", hostname: "**.sommetechnology.com" },
+      { protocol: "https", hostname: "sommetechnology.com" },
+      { protocol: "https", hostname: "**.sommetechnology.com" },
     ],
     formats: useOptimizedImages ? ["image/avif", "image/webp"] : undefined,
   },
